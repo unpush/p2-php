@@ -6,9 +6,9 @@
  * @link http://www.au.kddi.com/ezfactory/tec/spec/ezsava_ip.html
  */
 
-$host = '/^w[ab](\\d\\dproxy\\d\\d|cc\\d\\d?s\\d\\d?)\\.ezweb\\.ne\\.jp$/';
+$reghost = '/^w[ab](\\d\\dproxy\\d\\d|cc\\d\\d?s\\d\\d?)\\.ezweb\\.ne\\.jp$/';
 
-$band = array(
+$bands = array(
     '59.135.38.128/25',
     '61.117.1.0/28',
     '61.117.2.32/29',

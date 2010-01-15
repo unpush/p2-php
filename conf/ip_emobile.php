@@ -10,9 +10,9 @@
  * @link http://whois.nic.ad.jp/cgi-bin/whois_gw
  */
 
-$host = '/\\.pool\\.e(?:mnet|-mobile)\\.ne\\.jp$/';
+$reghost = '/\\.pool\\.e(?:mnet|-mobile)\\.ne\\.jp$/';
 
-$band = array(
+$bands = array(
     '60.254.192.0/18',      // JPNIC Whois Gateway
     '114.48.0.0/14',        // JPNIC Whois Gateway
     '117.55.0.0/17',        // JPNIC Whois Gateway

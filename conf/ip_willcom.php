@@ -6,9 +6,9 @@
  * @link http://www.willcom-inc.com/ja/service/contents_service/create/center_info/index.html
  */
 
-$host = '/\\.ppp\\.prin\\.ne\\.jp$/';
+$reghost = '/\\.ppp\\.prin\\.ne\\.jp$/';
 
-$band = array(
+$bands = array(
     '61.198.128.0/24',
     '61.198.129.0/24',
     '61.198.130.0/24',

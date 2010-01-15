@@ -249,13 +249,13 @@ EOF;
      * 2. (1)の配列
      * 3. IPアドレスをキーとし、マスク長もしくはサブネットマスクを値にとる連想配列
      */
-    static public function isAddressInBand($address, $band = null, $regex = null,
+    static public function isAddressInBand($address, $bands = null, $reghost = null,
                                            $cache_id = null, $data_mtime = 0)
     {
         global $_conf;
 
-        if (is_null($band)) {
-            $band = $address;
+        if (is_null($bands)) {
+            $bands = $address;
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -265,11 +265,11 @@ EOF;
         }
 
         // IPアドレス帯域を展開・キャッシュ
-        if (!is_array($band)) {
-            $band = array($band);
+        if (!is_array($bands)) {
+            $bands = array($bands);
         }
         if (!is_string($cache_id)) {
-            $cache_id = sha1(serialize($band));
+            $cache_id = sha1(serialize($bands));
         } elseif (preg_match('/\\W/', $cache_id)) {
             $cache_id = preg_replace('/\\W/', '_', $cache_id);
         }
@@ -290,7 +290,7 @@ EOF;
             include $cache_file;
         } else {
             $tmp = array();
-            foreach ($band as $target => $mask) {
+            foreach ($bands as $target => $mask) {
                 if (is_int($target) && is_string($mask)) {
                     if (strpos($mask, '/') !== false) {
                         list($target, $mask) = explode('/', $mask, 2);
@@ -328,12 +328,12 @@ EOF;
                 }
                 $tmp[$target] = $mask;
             }
-            $band = $tmp;
+            $bands = $tmp;
             if (!file_exists($cache_file)) {
                 FileCtl::make_datafile($cache_file);
             }
-            $cache_data = "<?php\n\$band = array(\n";
-            foreach ($band as $target => $mask) {
+            $cache_data = "<?php\n\$bands = array(\n";
+            foreach ($bands as $target => $mask) {
                 $cache_data .= sprintf("%12d => %d,\n", $target, $mask);
             }
             $cache_data .= ");\n";
@@ -341,20 +341,20 @@ EOF;
         }
 
         // IPアドレス帯域を検証
-        foreach ($band as $target => $mask) {
+        foreach ($bands as $target => $mask) {
             if (($address & $mask) == ($target & $mask)) {
                 return true;
             }
         }
 
         // 帯域がマッチせず、正規表現が指定されているとき
-        if ($regex) {
+        if ($reghost) {
             if ($address == $_SERVER['REMOTE_ADDR'] && isset($_SERVER['REMOTE_HOST'])) {
                 $remote_host = $_SERVER['REMOTE_HOST'];
             } else {
                 $remote_host = self::cachedGetHostByAddr(long2ip($address));
             }
-            if (@preg_match($regex, strtolower($remote_host))) {
+            if (@preg_match($reghost, strtolower($remote_host))) {
                 return true;
             }
         }
@@ -372,10 +372,10 @@ EOF;
      * の文字列またはその配列で指定する
      * マスク長が省略された場合は上位64bitを比較する
      */
-    static public function isAddressInBand6($address, $band = null)
+    static public function isAddressInBand6($address, $bands = null)
     {
-        if (is_null($band)) {
-            $band = $address;
+        if (is_null($bands)) {
+            $bands = $address;
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -384,8 +384,8 @@ EOF;
             return false;
         }
 
-        $band = (array)$band;
-        foreach ($band as $target) {
+        $bands = (array)$bands;
+        foreach ($bands as $target) {
             if (strpos($target, '/') !== false) {
                 list($target, $mask) = explode('/', $target, 2);
                 $mask = (int)$mask;
@@ -514,13 +514,11 @@ EOF;
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
-        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
-            $regex = $host;
-        } else {
-            $regex = null;
+        if (!$GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $reghost = null;
         }
 
-        return self::isAddressInBand($address, $band, $regex,
+        return self::isAddressInBand($address, $bands, $reghost,
                 'docomo', filemtime(P2_CONF_DIR . '/ip_docomo.php'));
     }
 
@@ -538,13 +536,11 @@ EOF;
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
-        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
-            $regex = $host;
-        } else {
-            $regex = null;
+        if (!$GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $reghost = null;
         }
 
-        return self::isAddressInBand($address, $band, $regex,
+        return self::isAddressInBand($address, $bands, $reghost,
                 'au', filemtime(P2_CONF_DIR . '/ip_au.php'));
     }
 
@@ -562,13 +558,11 @@ EOF;
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
-        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
-            $regex = $host;
-        } else {
-            $regex = null;
+        if (!$GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $reghost = null;
         }
 
-        return self::isAddressInBand($address, $band, $regex,
+        return self::isAddressInBand($address, $bands, $reghost,
                 'softbank', filemtime(P2_CONF_DIR . '/ip_softbank.php'));
     }
 
@@ -586,13 +580,11 @@ EOF;
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
-        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
-            $regex = $host;
-        } else {
-            $regex = null;
+        if (!$GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $reghost = null;
         }
 
-        return self::isAddressInBand($address, $band, $regex,
+        return self::isAddressInBand($address, $bands, $reghost,
                 'willcom', filemtime(P2_CONF_DIR . '/ip_willcom.php'));
     }
 
@@ -610,13 +602,11 @@ EOF;
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
-        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
-            $regex = $host;
-        } else {
-            $regex = null;
+        if (!$GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $reghost = null;
         }
 
-        return self::isAddressInBand($address, $band, $regex,
+        return self::isAddressInBand($address, $bands, $reghost,
                 'emobile', filemtime(P2_CONF_DIR . '/ip_emobile.php'));
     }
 
@@ -634,13 +624,11 @@ EOF;
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
-        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
-            $regex = $host;
-        } else {
-            $regex = null;
+        if (!$GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $reghost = null;
         }
 
-        return self::isAddressInBand($address, $band, $regex,
+        return self::isAddressInBand($address, $bands, $reghost,
                 'iphone', filemtime(P2_CONF_DIR . '/ip_iphone.php'));
     }
 
@@ -650,22 +638,28 @@ EOF;
     /**
      * IPは jig web?
      *
-     * @param   string  $addr
+     * @param   string  $address
      * @return  boolean
      */
-    function isAddressJigWeb($addr = null)
+    function isAddressJigWeb($address = null)
     {
-        if (is_null($addr)) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        if (is_null($address)) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
+
         // bw5022.jig.jp
-        $reghost = '/^bw\d+\.jig\.jp$/';
+        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $reghost = '/^bw\\d+\\.jig\\.jp$/';
+        } else {
+            $reghost = null;
+        }
 
         $bands = array(
             '202.181.98.241',   // 2007/08/06
             //'210.143.108.0/24', // 2005/6/23
         );
-        return self::isAddressInBand($addr, $bands, $reghost, 'jigweb');
+
+        return self::isAddressInBand($address, $bands, $reghost, 'jigweb');
     }
 
     // }}}
@@ -679,73 +673,19 @@ EOF;
      * @access  public
      * @return  boolean
      */
-    function isAddressJig($addr = null)
+    function isAddressJig($address = null)
     {
-        if (is_null($addr)) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        include P2_CONF_DIR . '/ip_jig.php';
+
+        if (is_null($address)) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
 
-        // br***.jig.jp
-        $reghost = '/^br\d+\.jig\.jp$/';
+        if (!$GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $reghost = null;
+        }
 
-        // @updated 2009/06/04
-        $bands = array(
-            '59.106.14.175/32',
-            '59.106.14.176/32',
-            '59.106.23.169/32',
-            '59.106.23.170/31',
-            '59.106.23.172/31',
-            '59.106.23.174/32',
-            '112.78.114.171/32',
-            '112.78.114.172/30',
-            '112.78.114.176/29',
-            '112.78.114.184/30',
-            '112.78.114.188/31',
-            '112.78.114.191/32',
-            '112.78.114.192/29',
-            '112.78.114.200/30',
-            '112.78.114.204/31',
-            '112.78.114.206/32',
-            '112.78.114.208/32',
-            '202.181.96.94/32',
-            '202.181.98.153/32',
-            '202.181.98.156/32',
-            '202.181.98.160/32',
-            '202.181.98.179/32',
-            '202.181.98.182/32',
-            '202.181.98.185/32',
-            '202.181.98.196/32',
-            '202.181.98.218/32',
-            '202.181.98.221/32',
-            '202.181.98.223/32',
-            '202.181.98.247/32',
-            '210.188.205.81/32',
-            '210.188.205.83/32',
-            '210.188.205.97/32',
-            '210.188.205.166/31',
-            '210.188.205.168/31',
-            '210.188.205.170/32',
-            '210.188.220.169/32',
-            '210.188.220.170/31',
-            '210.188.220.172/30',
-            '219.94.133.167/32',
-            '219.94.133.192/32',
-            '219.94.133.243/32',
-            '219.94.144.5/32',
-            '219.94.144.6/31',
-            '219.94.144.23/32',
-            '219.94.144.24/32',
-            '219.94.147.35/32',
-            '219.94.147.36/30',
-            '219.94.147.42/31',
-            '219.94.147.44/32',
-            '219.94.166.8/30',
-            '219.94.166.173/32',
-            '219.94.197.196/30',
-            '219.94.197.200/30',
-            '219.94.197.204/31'
-        );
-        return self::isAddressInBand($addr, $bands, $reghost, 'jig');
+        return self::isAddressInBand($address, $bands, $reghost, 'jig');
     }
 
     // }}}
@@ -758,10 +698,10 @@ EOF;
      * @access  public
      * @return  boolean
      */
-    static public function isAddressIbis($addr = null)
+    static public function isAddressIbis($address = null)
     {
-        if (is_null($addr)) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        if (is_null($address)) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
 
         // http://qb5.2ch.net/test/read.cgi/operate/1183341095/504
@@ -769,7 +709,8 @@ EOF;
             '219.117.203.9', // システム移行が完了すれば利用しなくなるらしい
             '59.106.52.16/29'
         );
-        return self::isAddressInBand($addr, $bands);
+
+        return self::isAddressInBand($address, $bands);
     }
 
     // }}}

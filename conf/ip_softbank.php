@@ -8,9 +8,9 @@
  * @link http://creation.mb.softbank.jp/xseries/xseries_ip.html
  */
 
-$host = '/\\.(?:jp-[a-z]|[a-z]\\.vodafone|softbank|openmobile|pcsitebrowser)\\.ne\\.jp$/';
+$reghost = '/\\.(?:jp-[a-z]|[a-z]\\.vodafone|softbank|openmobile|pcsitebrowser)\\.ne\\.jp$/';
 
-$band = array(
+$bands = array(
     // Yahoo!ケータイ
     '123.108.236.0/24',
     '123.108.237.0/27',

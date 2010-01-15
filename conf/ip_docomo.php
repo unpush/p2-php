@@ -6,9 +6,9 @@
  * @link http://www.nttdocomo.co.jp/service/imode/make/content/ip/index.html
  */
 
-$host = '/^proxy[0-9a-f]\\d\\d\\.docomo\\.ne\\.jp$/';
+$reghost = '/^proxy[0-9a-f]\\d\\d\\.docomo\\.ne\\.jp$/';
 
-$band = array(
+$bands = array(
     //'124.146.174.0/24',
     //'124.146.175.0/24',
     '124.146.174.0/23', // ã“ñ‚Â‚ğ“ˆê
