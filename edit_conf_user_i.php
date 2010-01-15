@@ -234,7 +234,7 @@ echo getEditConfHtml('get_new_res', '新しいスレッドを取得した時に表示するレス数(
 echo getEditConfHtml('rct_rec_num', '最近読んだスレの記録数');
 echo getEditConfHtml('res_hist_rec_num', '書き込み履歴の記録数');
 echo getEditConfHtml('res_write_rec', '書き込み内容ログを記録');
-echo getEditConfHtml('through_ime', '外部URLジャンプする際に通すゲート');
+echo getEditConfHtml('through_ime', '外部URLジャンプする際に通すクッションページ');
 echo getEditConfHtml('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加');
 echo getEditConfHtml('enable_menu_new', '板メニューに新着数を表示');
 echo getEditConfHtml('menu_refresh_time', '板メニュー部分の自動更新間隔 (分指定。0なら自動更新しない。)');

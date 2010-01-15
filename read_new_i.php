@@ -588,7 +588,7 @@ EOP;
 EOP;
 }
 //{$sb_ht_btm}‚Ì
-//echo '<hr>' . $_conf['k_to_index_ht'] . "\n";
+//echo '<hr>' . P2View::getBackToIndexKATag() . "\n";
 //iphone 080801
 ?>
  </ul>

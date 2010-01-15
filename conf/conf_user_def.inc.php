@@ -4,7 +4,8 @@
     
     このファイルはデフォルト値の設定なので、特に変更する必要はありません
 
-    $conf_user_def は結局global変数として利用してしまっている
+    $conf_user_def, $conf_user_rules, $conf_user_sel の設定
+    （$conf_user_def は結局global変数として利用してしまっている）
 */
 
 // {{{ ■be.2ch.netアカウント
@@ -308,7 +309,7 @@ $conf_user_rules['res_hist_rec_num'] = array('notIntExceptMinusToDef');
 $conf_user_def['res_write_rec'] = 1; // (1)
 $conf_user_sel['res_write_rec'] = array('1' => 'する', '0' => 'しない');
 
-// 外部URLジャンプする際に通すゲート。
+// 外部URLジャンプする際に通すクッションページ
 $conf_user_def['through_ime'] = "p2pm"; // ("p2pm") 
 $conf_user_sel['through_ime'] = array(
     '' => '直接', 'p2' => 'p2 ime(自動転送)', 'p2m' => 'p2 ime(手動転送)', 'p2pm' => 'p2 ime(pのみ手動転送)', '2ch' => '2ch ime'

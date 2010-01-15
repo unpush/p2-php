@@ -140,7 +140,7 @@ EOP;
         echo "<p>$motothre_atag</p>";
     }
 }
-//echo "<hr>" . $_conf['k_to_index_ht'] . "\n";
+//echo "<hr>" . P2View::getBackToIndexKATag() . "\n";
 /*
 080726 フッタ変更のため削除したもの
 <ul><li class="group">{$hs['read_range']}</li></ul>

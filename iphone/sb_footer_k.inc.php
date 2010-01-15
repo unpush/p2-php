@@ -119,7 +119,13 @@ echo $buildnewthread_atag;
 echo "</p>";
 echo '<p>'. $htm['change_sort'] . '</p>';
 //echo "<hr>";
-echo "<p><a {$_conf['accesskey_for_k']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">TOP</a></p>";
+printf('<p>%s</p>',
+    P2View::tagA(
+        P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue())),
+        hs('TOP'),
+        array($_conf['accesskey_for_k'] => '0')
+    )
+);
 echo '</body></html>';
 */
 /*

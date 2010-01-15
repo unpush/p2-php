@@ -832,6 +832,8 @@ function _postIt($host, $bbs, $key, $post, $bbs_cgi)
         
         // クッキーの書き込み自動保存を消去する
         if (isset($_COOKIE['post_msg'])) {
+            P2Util::unsetCookie('post_msg');
+            // ドメイン指定なしも入れておこ
             setcookie('post_msg', '', time() - 3600);
         }
         

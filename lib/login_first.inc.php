@@ -289,7 +289,7 @@ EOP;
         echo $login_form_ht;
         if (empty($GLOBALS['brazil']) and !(HostCheck::isAddrLocal() || HostCheck::isAddrPrivate())) {
         ?><p>
-	<font style="font-size:9pt" color="gray">※プライベート利用のためのシステムです。<br>
+	<font size="-1" color="gray">※このページはプライベート利用のためのシステムです。<br>
 	部外者によるログイン試行は、<br>
 	不正アクセスとして記録されます。<br>
 	このページへのアクセスURLを部外者が<br>

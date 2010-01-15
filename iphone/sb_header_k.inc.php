@@ -25,7 +25,7 @@ if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
     
 // ‘‚«ž‚Ý—š—ð
 } elseif ($aThreadList->spmode == 'res_hist') {
-    $ptitle_url = "./read_res_hist.php{$_conf['k_at_q']}";
+    $ptitle_url = P2Util::buildQueryUri('read_res_hist.php', array(UA::getQueryKey() => UA::getQueryValue()));
     
 // ’Êí ”Â
 } elseif (!$aThreadList->spmode) {

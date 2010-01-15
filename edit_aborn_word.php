@@ -332,12 +332,13 @@ if (!$_conf['ktai']) {
 <?php
 
 // Œg‘Ñ‚È‚ç
-if ($_conf['ktai']) {
-    $hr = P2View::getHrHtmlK();
-    echo <<<EOP
-$hr
-<a {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['up']}" href="{$_conf['editpref_php']}{$_conf['k_at_q']}">{$_conf['k_accesskey']['up']}.İ’è•ÒW</a>
-EOP;
+if (UA::isK()) {
+    echo P2View::getHrHtmlK();
+    echo P2View::tagA(
+        P2Util::buildQueryUri($_conf['editpref_php'], array(UA::getQueryKey() => UA::getQueryValue())),
+        hs(sprintf('%s.İ’è•ÒW', $_conf['k_accesskey']['up'])),
+        array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['up'])
+    );
     echo P2View::getBackToIndexKATag();
 }
 

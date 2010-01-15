@@ -117,21 +117,23 @@ class P2Util
         // k1 の指定で k1[k2] は消えないので、このメソッドで対応している。
         
         // $keyが配列として指定されていたなら
-        $ckey = null; // $_COOKIE用のキー
+        $cakey = null; // $_COOKIE用のキー
         if (preg_match('/\]$/', $key)) {
             // 最初のキーを[]で囲む
-            $ckey = preg_replace('/^([^\[]+)/', '[$1]', $key);
+            $cakey = preg_replace('/^([^\[]+)/', '[$1]', $key);
             // []のキーを''で囲む
-            $ckey = preg_replace('/\[([^\[\]]+)\]/', "['$1']", $ckey);
-            //var_dump($ckey);
+            $cakey = preg_replace('/\[([^\[\]]+)\]/', "['$1']", $cakey);
+            //var_dump($cakey);
         }
         
         // 対象Cookie値が配列であれば再帰処理を行う
         $cArray = null;
-        if ($ckey) {
-            eval("isset(\$_COOKIE{$ckey}) && is_array(\$_COOKIE{$ckey}) and \$cArray = \$_COOKIE{$ckey};");
+        if ($cakey) {
+            eval("isset(\$_COOKIE{$cakey}) && is_array(\$_COOKIE{$cakey}) and \$cArray = \$_COOKIE{$cakey};");
         } else {
-            isset($_COOKIE[$key]) && is_array($_COOKIE[$key]) and $cArray = $_COOKIE[$key];
+            if (isset($_COOKIE[$key]) && is_array($_COOKIE[$key])) {
+                $cArray = $_COOKIE[$key];
+            }
         }
         if (is_array($cArray)) {
             foreach ($cArray as $k => $v) {
@@ -143,8 +145,8 @@ class P2Util
         }
         
         if (is_array($cArray) or setcookie("$key", '', time() - 3600, $path, $domain)) {
-            if ($ckey) {
-                eval("unset(\$_COOKIE{$ckey});");
+            if ($cakey) {
+                eval("unset(\$_COOKIE{$cakey});");
             } else {
                 unset($_COOKIE[$key]);
             }
@@ -1573,9 +1575,9 @@ EOP;
             return false;
         }
         
-        $rec_login2chID = NULL;
-        $login2chPW = NULL;
-        $rec_autoLogin2ch = NULL;
+        $rec_login2chID   = null;
+        $login2chPW       = null;
+        $rec_autoLogin2ch = null;
         
         include $_conf['idpw2ch_php'];
 

@@ -5,7 +5,7 @@
 class P2View
 {
     /**
-     * 2008/09/28 $_conf['k_to_index_ht'] を廃止して、こちらを利用
+     * 2008/09/28 $_conf['k_to_index_ht'] を廃止して、こちらを利用する
      *
      * @static
      * @access  public

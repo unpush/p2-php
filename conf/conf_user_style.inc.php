@@ -6,6 +6,7 @@
     設定は style/*_css.inc と連動
     
     このファイル内での設定は、お好みに応じて変更してください
+    iPhoneのスレ表示の設定は、iui/read.cssを直接編集
 */
 
 // _setStyle()

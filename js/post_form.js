@@ -43,12 +43,12 @@ function setCookie(cn, val, sec) {
 	
 	val = escape(val);
 
-	ex = new Date();
+	var ex = new Date();
 	ex = new Date(ex.getTime() + (1000 * sec));
-	y = ex.getYear(); if (y < 1900) y += 1900;
-	hms = ex.getHours() + ":" + ex.getMinutes() + ":" + ex.getSeconds();
-	p = String(ex).split(" ");
-	ex = p[0] + ", " + p[2] + "-" + p[1] + "-" + y + " " + hms + " GMT;";
+	var y = ex.getYear(); if (y < 1900) y += 1900;
+	var hms = ex.getHours() + ":" + ex.getMinutes() + ":" + ex.getSeconds();
+	var p = String(ex).split(" ");
+	var ex = p[0] + ", " + p[2] + "-" + p[1] + "-" + y + " " + hms + " GMT;";
 	document.cookie = cn + "=" + val +"; expires=" + ex;
 }
 

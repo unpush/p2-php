@@ -191,7 +191,7 @@ class Login
             // indexページに転送
             $url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/'; // . $user_u_q;
             
-            header('Location: '.$url);
+            header('Location: ' . $url);
             exit;
         }
         
@@ -397,6 +397,7 @@ class Login
 
                 // ログインログを記録する
                 $this->logLoginSuccess();
+
                 if (isset($_p2session)) {
                     $_p2session->regenerateId();
                     $_p2session->updateSecure();
@@ -690,6 +691,7 @@ EOP;
         global $_conf;
 
         $pass_x = sha1($pass);
+
         $auth_user_cont = <<<EOP
 <?php
 \$rec_login_user_u = '{$user_u}';
@@ -776,7 +778,7 @@ EOP;
         $_COOKIE = array();
         
         return $r;
-     }
+    }
 
     /**
      * CIDをcookieにセットする
@@ -916,7 +918,6 @@ EOP;
         
         $time     = $ar[1];
         $md5_utpx = $ar[2];
-        
         
         return ($md5_utpx == md5($this->user_u . ':' . $time . ':' . $this->pass_x));
     }

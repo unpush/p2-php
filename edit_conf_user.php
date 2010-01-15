@@ -47,7 +47,7 @@ if (!empty($_POST['submit_save'])) {
             }
             
         // 特別な項目（edit_conf_user.php 以外でも設定されうるものは破棄せずにそのまま残す）
-        // キーに命名規則（prefix）をつけた方がいいかも → キー名変更の必要があるので却下
+        // キーに命名規則（prefix）をつけた方がいいかも → キー名変更の必要があるのでひとまず保留
         } elseif (in_array($k, array('k_use_aas', 'maru_kakiko', 'index_menu_k', 'index_menu_k_from1'))) {
             $conf_save[$k] = $_conf[$k];
         }
@@ -269,7 +269,7 @@ echo getEditConfHtml('get_new_res', '新しいスレッドを取得した時に表示するレス数(
 echo getEditConfHtml('rct_rec_num', '最近読んだスレの記録数');
 echo getEditConfHtml('res_hist_rec_num', '書き込み履歴の記録数');
 echo getEditConfHtml('res_write_rec', '書き込み内容ログを記録');
-echo getEditConfHtml('through_ime', '外部URLジャンプする際に通すゲート');
+echo getEditConfHtml('through_ime', '外部URLジャンプする際に通すクッションページ');
 echo getEditConfHtml('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加');
 echo getEditConfHtml('enable_menu_new', '板メニューに新着数を表示');
 echo getEditConfHtml('menu_refresh_time', '板メニュー部分の自動更新間隔 (分指定。0なら自動更新しない。)');

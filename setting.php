@@ -29,6 +29,9 @@ if (UA::isK()) {
     $logout_st      = 'ログアウト';
 }
 
+$login_uri = P2Util::buildQueryUri('login.php', array(UA::getQueryKey() => UA::getQueryValue()));
+$login2ch_uri = P2Util::buildQueryUri('login2ch.php', array(UA::getQueryKey() => UA::getQueryValue()));
+
 $body_onload = '';
 if (UA::isPC()) {
     $body_onload = ' onLoad="setWinTitle();"';
@@ -72,9 +75,9 @@ P2Util::printInfoHtml();
 
 ?><ul id="setting_menu">
 	<li>
-		<a href="login.php<?php eh($_conf['k_at_q']); ?>">rep2ログイン管理</a>
+		<a href="<?php eh($login_uri); ?>">rep2ログイン管理</a>
 	</li>
-	<li><a href="login2ch.php<?php eh($_conf['k_at_q']); ?>">2chログイン管理</a>（いわゆる●）</li>
+	<li><a href="<?php eh($login2ch_uri); ?>">2chログイン管理</a>（いわゆる●）</li>
 </ul>
 
 [<a href="./index.php?logout=1" target="_parent">rep2から<?php eh($logout_st); ?>する</a>]
