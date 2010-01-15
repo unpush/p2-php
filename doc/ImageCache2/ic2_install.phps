@@ -132,27 +132,6 @@ $createIndexSQL['imgcache_unique'] = sprintf($format_createIndex,
     'size, md5, mime'
 );
 
-// 主に画像キャッシュ一覧で使うデータキャッシュ用テーブル
-$datacache_table_quoted = $db->quoteIdentifier($ini['Cache']['table']);
-$createTableSQL['datacache'] = <<<EOQ
-CREATE TABLE $datacache_table_quoted (
-    id         CHAR(32) NOT NULL,
-    cachegroup VARCHAR (127) NOT NULL,
-    cachedata  TEXT,
-    userdata   VARCHAR (255),
-    expires    INTEGER NOT NULL,
-    changed    INTEGER NOT NULL DEFAULT 0,
-    PRIMARY KEY (id, cachegroup)
-)$table_extra_defs;
-EOQ;
-
-// データキャッシュ用テーブルのインデックス（有効期限）
-$createIndexSQL['datacache_expires'] = sprintf($format_createIndex,
-    $db->quoteIdentifier('idx_'.$ini['Cache']['table'].'_expires'),
-    $datacache_table_quoted,
-    'expires'
-);
-
 // エラーログ用テーブル
 $ic2error_table_quoted = $db->quoteIdentifier($ini['General']['error_table']);
 $createTableSQL['ic2_error'] = <<<EOQ

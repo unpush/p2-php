@@ -304,6 +304,7 @@ function p2_init()
     $_conf['cookie_db_path']    = $_conf['db_dir'] . '/p2_cookies.sqlite3';
     $_conf['post_db_path']      = $_conf['db_dir'] . '/p2_post_data.sqlite3';
     $_conf['hostcheck_db_path'] = $_conf['db_dir'] . '/p2_hostcheck_cache.sqlite3';
+    $_conf['iv2_cache_db_path'] = $_conf['db_dir'] . '/iv2_cache.sqlite3';
 
     // ï‚ê≥
     if ($_conf['expack.use_pecl_http'] && !extension_loaded('http')) {

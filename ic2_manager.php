@@ -105,11 +105,14 @@ if (isset($_POST['action'])) {
             break;
 
         case 'clearCache':
-            $result = $db->query('DELETE FROM ' . $db->quoteIdentifier($ini['Cache']['table']));
-            if (DB::isError($result)) {
-                $_info_msg_ht .= $result->getMessage();
-            } else {
-                $_info_msg_ht .= "<p>テーブル {$ini['Cache']['table']} を空にしました。</p>";
+            if (file_exists($_conf['iv2_cache_db_path'])) {
+                $kvs = P2KeyValueStore::getStore($_conf['iv2_cache_db_path'],
+                                                 P2KeyValueStore::CODEC_SERIALIZING);
+                if ($kvs->clear() === false) {
+                    $_info_msg_ht .= '<p>一覧表示用のデータキャッシュを消去できませんでした。</p>';
+                } else {
+                    $_info_msg_ht .= '<p>一覧表示用のデータキャッシュを消去しました。</p>';
+                }
             }
             $result_files = P2Util::garbageCollection($flexy->options['compileDir'], -1, '', '', TRUE);
             $removed_files = $result_files['successed'];
@@ -140,20 +143,23 @@ if (isset($_POST['action'])) {
             break;
 
         case 'vacuumDB':
+            // SQLite2 の画像キャッシュデータベースをVACUUM
             if ($db->dsn['phptype'] == 'sqlite') {
-                $db_file = $db->dsn['database'];
-                $size_b = filesize($db_file);
                 $result = $db->query('VACUUM');
                 if (DB::isError($result)) {
                     $_info_msg_ht .= $result->getMessage();
                 } else {
-                    clearstatcache();
-                    $size_a = filesize($db_file);
-                    $_info_msg_ht .= sprintf('<p>VACUUM実行、ファイルサイズ: %s → %s (-%s)',
-                        number_format($size_b),
-                        number_format($size_a),
-                        number_format($size_b - $size_a));
+                $_info_msg_ht .= '<p>画像データベースを整理しました。</p>';
                 }
+            }
+
+            // SQLite3 の一覧表示用データキャッシュをVACUUM
+            if (file_exists($_conf['iv2_cache_db_path'])) {
+                $kvs = P2KeyValueStore::getStore($_conf['iv2_cache_db_path'],
+                                                 P2KeyValueStore::CODEC_SERIALIZING);
+                $kvs->vacuum();
+                unset($kvs);
+                $_info_msg_ht .= '<p>一覧表示用のデータキャッシュを整理しました。</p>';
             }
             break;
 
@@ -172,9 +178,6 @@ if (isset($_POST['action'])) {
 $flexy->setData('skin', $skin_en);
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('info_msg', $_info_msg_ht);
-if ($db->dsn['phptype'] == 'sqlite') {
-    $flexy->setData('isSQLite', TRUE);
-}
 $flexy->setData('pc', !$_conf['ktai']);
 $flexy->setData('iphone', $_conf['iphone']);
 $flexy->setData('doctype', $_conf['doctype']);

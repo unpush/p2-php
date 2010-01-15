@@ -58,6 +58,9 @@ class P2KeyValueStore_FunctionCache
         // ŠÖ”–¼
         if (is_string($function)) {
             $name = $function;
+            if (strpos($function, '::') !== false) {
+                $function = explode('::', $function, 2);
+            }
         } elseif (is_object($function)) {
             $name = get_class($function) . '->__invoke';
         } elseif (is_object($function[0])) {

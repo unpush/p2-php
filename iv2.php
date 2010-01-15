@@ -169,57 +169,45 @@ $db_class = strtolower(get_class($db));
 $thumb = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_DEFAULT);
 
 if ($ini['Viewer']['cache']) {
-    // データキャッシュにはCache_Container_db(Cache 1.5.4)をハックしてMySQL以外にも対応させ、
-    // コンストラクタがDB_xxx(DB_mysqlなど)のインスタンスを受け取れるようにしたものを使う。
-    // （ファイル名・クラス名は同じで、include_pathを調整して
-    //   オリジナルのCache/Container/db.phpの代わりにする）
-    $cache_options = array(
-        'dsn'           => $ini['General']['dsn'],
-        'cache_table'   => $ini['Cache']['table'],
-        'highwater'     => (int)$ini['Cache']['highwater'],
-        'lowwater'      => (int)$ini['Cache']['lowwater'],
-        'db' => $db
-    );
-    $cache = new Cache_Function('db', $cache_options, (int)$ini['Cache']['expires']);
-    // 有効期限切れキャッシュのガーベッジコレクションなど
-    if (isset($_GET['cache_clean'])) {
-        $cache_clean = $_GET['cache_clean'];
-    } elseif (isset($_POST['cache_clean'])) {
-        $cache_clean = $_POST['cache_clean'];
+    $kvs = P2KeyValueStore::getStore($_conf['iv2_cache_db_path'],
+                                     P2KeyValueStore::CODEC_SERIALIZING);
+    $cache_lifetime = (int)$ini['Viewer']['cache_lifetime'];
+    if (array_key_exists('cache_clean', $_REQUEST)) {
+        $cache_clear = $_REQUEST['cache_clean'];
     } else {
-        $cache_clean = false;
+        $cache_clear = false;
     }
-    switch ($cache_clean) {
-        // キャッシュを全削除
-        case 'all':
-            $sql = sprintf('DELETE FROM %s', $db->quoteIdentifier($ini['Cache']['table']));
-            $result = $db->query($sql);
+    $do_vacuum = false;
+
+    if ($cache_clear == 'all') {
+        $kvs->clear();
+        $do_vacuum = true;
+    } elseif ($cache_clear == 'gc') {
+        $kvs->gc($cache_lifetime);
+        $do_vacuum = true;
+    }
+
+    if ($do_vacuum) {
+        // キャッシュをVACUUM
+        
+        // SQLiteならVACUUMを実行
+        if ($db_class == 'db_sqlite') {
+            $result = $db->query('VACUUM');
             if (DB::isError($result)) {
                 p2die($result->getMessage());
             }
-            $vacuumdb = true;
-            break;
-        // 強制的にガーベッジコレクション
-        case 'gc':
-            $cache->garbageCollection(true);
-            $vacuumdb = true;
-            break;
-        // gc_probability(デフォルトは1)/100の確率でガーベッジコレクション
-        default:
-            // $cache->gc_probability = 1;
-            $cache->garbageCollection();
-            $vacuumdb = false;
-    }
-    // SQLiteならVACUUMを実行（PostgreSQLは普通cronでvacuumdbするのでここではしない）
-    if ($vacuumdb && $db_class == 'db_sqlite') {
-        $result = $db->query('VACUUM');
-        if (DB::isError($result)) {
-            p2die($result->getMessage());
         }
     }
-    $enable_cache = true;
+
+    $cache = new P2KeyValueStore_FunctionCache($kvs);
+    $cache->setLifeTime($cache_lifetime);
+    $imageInfo_getExtraInfo = $cache->getProxy('IC2_ImageInfo::getExtraInfo');
+    $imageInfo_getExifData = $cache->getProxy('IC2_ImageInfo::getExifData');
+    $editForm_imgManager = $cache->getProxy('IC2_EditForm::imgManager');
+
+    $use_cache = true;
 } else {
-    $enable_cache = false;
+    $use_cache = false;
 }
 
 // }}}
@@ -808,13 +796,13 @@ if ($all == 0) {
         unset($img['rank'], $img['memo']);
 
         // 表示用変数を設定
-        if ($enable_cache) {
-            $add = $cache->call('IC2_ImageInfo::getExtraInfo', $img);
+        if ($use_cache) {
+            $add = $imageInfo_getExtraInfo->invoke($img);
             if ($mode == 1) {
                 $chk = IC2_EditForm::imgChecker($img); // 比較的軽いのでキャッシュしない
                 $add += $chk;
             } elseif ($mode == 2) {
-                $mng = $cache->call('IC2_EditForm::imgManager', $img, $status);
+                $mng = $editForm_imgManager->invoke($img, $status);
                 $add += $mng;
             }
         } else {
@@ -859,7 +847,11 @@ if ($all == 0) {
 
         // Exif情報を取得
         if ($show_exif && file_exists($add['src']) && $img['mime'] == 'image/jpeg') {
-            $item['exif'] = $enable_cache ? $cache->call('IC2_ImageInfo::getExifData', $add['src']) : IC2_ImageInfo::getExifData($add['src']);
+            if ($use_cache) {
+                $item['exif'] = $imageInfo_getExifData->invoke($add['src']);
+            } else {
+                $item['exif'] = IC2_ImageInfo::getExifData($add['src']);
+            }
         } else {
             $item['exif'] = null;
         }

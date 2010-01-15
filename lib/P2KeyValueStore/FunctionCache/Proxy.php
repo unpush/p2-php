@@ -28,8 +28,13 @@ class P2KeyValueStore_FunctionCache_Proxy
         if (!is_callable($function)) {
             throw new InvalidArgumentException('Non-callable value was given');
         }
+
         $this->_cache = $cache;
-        $this->_function = $function;
+        if (is_string($function) && strpos($function, '::') !== false) {
+            $this->_function = explode('::', $function, 2);
+        } else {
+            $this->_function = $function;
+        }
         $this->_prependedParameters = array();
         $this->_appendedParameters = array();
         $this->_lifeTime = -1;
