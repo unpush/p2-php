@@ -12,7 +12,7 @@ var _MOTOLSPOPUP_PARAMETERS = [
 
 function showMotoLsPopUp(event, origin, title)
 {
-	var div, baseUrl, url, anchor, i, l;
+	var div, baseUrl, url, anchor, target, i, l;
 
 	l = _MOTOLSPOPUP_PARAMETERS.length;
 
@@ -39,16 +39,16 @@ function showMotoLsPopUp(event, origin, title)
 		title = '';
 	}
 
-	//var target = origin.hasAttribute('target') ? origin.getAttribute('target') : null;
+	target = origin.hasAttribute('target') ? origin.getAttribute('target') : null;
 	baseUrl = origin.getAttribute('href');
 	for (i = 0; i < l; i++) {
 		anchor = div.childNodes[i];
 		url = baseUrl + _MOTOLSPOPUP_PARAMETERS[i].parameter;
 		anchor.setAttribute('href', url);
 		anchor.setAttribute('title', title + url);
-		/*if (tgt) {
-			anchor.setAttribute('target', tgt);
-		}*/
+		if (target) {
+			anchor.setAttribute('target', target);
+		}
 	}
 
 	showMotoLsPopUpDo(event);

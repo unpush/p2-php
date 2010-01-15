@@ -151,25 +151,25 @@ function p2_load_class($name)
     if (preg_match('/^(?:
             BbsMap |
             BrdCtl |
-            BrdMenu\\w* |
+            BrdMenu(?:[A-Z][A-Za-z]*)? |
             DataPhp |
             FavSetManager |
             FileCtl |
             HostCheck |
             Login |
             NgAbornCtl |
-            P2\\w+ |
+            P2[A-Z][A-Za-z]* |
             PresetManager |
             ResHist |
             Session |
             SettingTxt |
-            ShowBrdMenu\\w* |
-            ShowThread\\w* |
+            ShowBrdMenu(?:[A-Z][A-Za-z]*)? |
+            ShowThread(?:[A-Z][A-Za-z]*)? |
             StrCtl |
             StrSjis |
             SubjectTxt |
-            Thread\\w* |
-            Wap\\w+
+            Thread(?:[A-Z][A-Za-z]*)? |
+            Wap[A-Z][A-Za-z]*
         )$/x', $name))
     {
         if ($name == 'P2Lock') {
@@ -185,7 +185,7 @@ function p2_load_class($name)
         } else {
             include P2_LIB_DIR . '/' . $name . '.php';
         }
-    } elseif (preg_match('/^\\w+DataStore$/', $name)) {
+    } elseif (preg_match('/^[A-Z][A-Za-z]*DataStore$/', $name)) {
         include P2_LIB_DIR . '/P2DataStore/' . $name . '.php';
     }
 }
