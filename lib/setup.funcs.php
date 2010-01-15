@@ -64,6 +64,9 @@ EOP;
     if ($check_recommended) {
         if (version_compare($php_version, $recommended_version, '<')) {
             // title.php のみメッセージを表示
+            if (!is_numeric($check_recommended)) {
+                $check_recommended = htmlspecialchars($check_recommended, ENT_QUOTES);
+            }
             if (basename($_SERVER['PHP_SELF'], '.php') == 'title') {
                 $_info_msg_ht .= <<<EOP
 <p><strong>推奨バージョンより古いPHPで動作しています。</strong>
@@ -157,6 +160,7 @@ function p2_load_class($name)
             FileCtl |
             HostCheck |
             Login |
+            MD5Crypt |
             NgAbornCtl |
             P2[A-Z][A-Za-z]* |
             PresetManager |
@@ -172,9 +176,7 @@ function p2_load_class($name)
             Wap[A-Z][A-Za-z]*
         )$/x', $name))
     {
-        if ($name == 'P2Lock') {
-            include P2_LIB_DIR . '/FileCtl.php';
-        } elseif ($name == 'ResArticle') {
+        if ($name == 'ResArticle') {
             include P2_LIB_DIR . '/ResHist.php';
         } elseif (strncmp($name, 'Wap', 3) === 0) {
             include P2_LIB_DIR . '/Wap.php';

@@ -5,6 +5,11 @@
 
 define('P2_SESSION_CLOSE_AFTER_AUTHENTICATION', 0);
 
+if (array_key_exists('b', $_GET) && in_array($_GET['b'], array('h2', 'v2', 'v3'))) {
+    $_GET['panes'] = $_GET['b'];
+    $_GET['b'] = 'pc';
+}
+
 require_once './conf/conf.inc.php';
 
 $_login->authorize(); //ユーザ認証
@@ -16,6 +21,7 @@ $_login->authorize(); //ユーザ認証
 makeDenyHtaccess($_conf['pref_dir']);
 makeDenyHtaccess($_conf['dat_dir']);
 makeDenyHtaccess($_conf['idx_dir']);
+makeDenyHtaccess($_conf['db_dir']);
 
 //=============================================================
 

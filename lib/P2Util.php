@@ -1060,12 +1060,8 @@ class P2Util
     {
         global $_conf;
 
-        if (!function_exists('md5_encrypt')) {
-            include P2_LIB_DIR . '/md5_crypt.funcs.php';
-        }
-
         $md5_crypt_key = self::getAngoKey();
-        $crypted_login2chPW = md5_encrypt($login2chPW, $md5_crypt_key, 32);
+        $crypted_login2chPW = MD5Crypt::encrypt($login2chPW, $md5_crypt_key, 32);
         $idpw2ch_cont = <<<EOP
 <?php
 \$rec_login2chID = '{$login2chID}';
@@ -1096,10 +1092,6 @@ EOP;
     {
         global $_conf;
 
-        if (!function_exists('md5_decrypt')) {
-            include P2_LIB_DIR . '/md5_crypt.funcs.php';
-        }
-
         if (!file_exists($_conf['idpw2ch_php'])) {
             return false;
         }
@@ -1113,7 +1105,7 @@ EOP;
         // ƒpƒX‚ð•¡‡‰»
         if (!is_null($rec_login2chPW)) {
             $md5_crypt_key = self::getAngoKey();
-            $login2chPW = md5_decrypt($rec_login2chPW, $md5_crypt_key, 32);
+            $login2chPW = MD5Crypt::decrypt($rec_login2chPW, $md5_crypt_key, 32);
         }
 
         return array($rec_login2chID, $login2chPW, $rec_autoLogin2ch);

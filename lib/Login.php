@@ -732,16 +732,12 @@ EOP;
             return false;
         }
 
-        if (!function_exists('md5_encrypt')) {
-            include P2_LIB_DIR . '/md5_crypt.funcs.php';
-        }
-
         $key = $this->getMd5CryptKey();
 
         $idtime = $user_u. ':'. time(). ':';
         $pw_enc = md5($idtime . $pass_x);
         $str = $idtime . $pw_enc;
-        $cid = md5_encrypt($str, $key, 32);
+        $cid = MD5Crypt::encrypt($str, $key, 32);
 
         return $cid;
     }
@@ -758,13 +754,9 @@ EOP;
     {
         global $_conf;
 
-        if (!function_exists('md5_decrypt')) {
-            include P2_LIB_DIR . '/md5_crypt.funcs.php';
-        }
-
         $key = $this->getMd5CryptKey();
 
-        $dec = md5_decrypt($cid, $key, 32);
+        $dec = MD5Crypt::decrypt($cid, $key, 32);
         list($user, $time, $pw_enc) = explode(':', $dec, 3);
 
         // 有効期限 日数
@@ -827,7 +819,7 @@ EOP;
     // {{{ getMd5CryptKey()
 
     /**
-     * md5_encrypt, md5_decrypt のためにクリプトキーを得る
+     * MD5Crypt::encrypt, MD5Crypt::decrypt のためにクリプトキーを得る
      *
      * @return string
      */
