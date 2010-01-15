@@ -248,6 +248,7 @@ EOP;
 if ($_conf['enable_menu_new'] == 1 && $_GET['new']) {
     // 並列ダウンロードの設定
     if ($_conf['expack.use_pecl_http'] == 1) {
+        P2HttpExt::activate();
         $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
     } elseif ($_conf['expack.use_pecl_http'] == 2) {
         $GLOBALS['expack.subject.multi-threaded-download.done'] = true;

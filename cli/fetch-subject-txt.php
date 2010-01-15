@@ -21,6 +21,8 @@ define('P2_FETCH_SUBJECT_TXT_DEBUG_OUTPUT_FILE', '/tmp/p2_fetch_subject_txt.log'
 require dirname(__FILE__) . '/../conf/conf.inc.php';
 require_once 'Console/Getopt.php';
 
+P2HttpExt::activate();
+
 // }}}
 // {{{ コマンドライン引数を取得
 

@@ -5,27 +5,6 @@
 
 require_once 'Pager/Pager.php';
 
-// {{{ ResArticle
-
-/**
- * レス記事のクラス
- */
-class ResArticle
-{
-    public $name;
-    public $mail;
-    public $daytime;
-    public $msg;
-    public $ttitle;
-    public $host;
-    public $bbs;
-    public $itaj;
-    public $key;
-    public $resnum;
-    public $order; // 記事番号
-}
-
-// }}}
 // {{{ ResHist
 
 /**

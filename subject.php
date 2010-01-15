@@ -269,6 +269,7 @@ if ($spmode == 'merge_favita') {
 
 if (empty($_REQUEST['norefresh']) && !(empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
     if ($_conf['expack.use_pecl_http'] == 1) {
+        P2HttpExt::activate();
         switch ($spmode) {
         case 'fav':
             P2HttpRequestPool::fetchSubjectTxt($_conf['favlist_idx']);

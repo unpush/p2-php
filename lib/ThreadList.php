@@ -168,6 +168,7 @@ class ThreadList
 
             if (empty($_REQUEST['norefresh']) && !(empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
                 if ($_conf['expack.use_pecl_http'] == 1) {
+                    P2HttpExt::activate();
                     P2HttpRequestPool::fetchSubjectTxt($favitas);
                     $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
                 } elseif ($_conf['expack.use_pecl_http'] == 2) {

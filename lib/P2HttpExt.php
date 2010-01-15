@@ -3,9 +3,35 @@
  * rep2expack feat. pecl_http
  */
 
-// {{{ CONSTANTS
+// {{{ P2HttpExt
 
-define('P2HTTPEXT_DEBUG', 0);
+/**
+ * ダミークラス
+ */
+class P2HttpExt
+{
+    // {{{ constants
+
+    const DEBUG = 0;
+
+    // }}}
+    // {{{ activate()
+
+    /**
+     * このファイルに含まれるクラスを利用するときは
+     * まず P2HttpExt::activate() をコールして
+     * オートローダーによりこのファイルを読み込む。
+     *
+     * @param void
+     * @return void
+     */
+    static public function activate()
+    {
+        // nothing to do
+    }
+
+    // }}}
+}
 
 // }}}
 // {{{ P2HttpCallback
@@ -363,7 +389,7 @@ class P2HttpGet extends HttpRequest
                                     );
                 }
             }
-            if (P2HTTPEXT_DEBUG && !$this->hasError()) {
+            if (P2HttpExt::DEBUG && !$this->hasError()) {
                 $this->setError(sprintf('HTTP %d %s', $code, $this->getResponseStatus()),
                                 self::E_DEBUG
                                 );
@@ -832,7 +858,7 @@ class P2HttpRequestPool
             $GLOBALS['_info_msg_ht'] .= "<ul class=\"errors\">{$err}</ul>\n";
         }
 
-        if (P2HTTPEXT_DEBUG) {
+        if (P2HttpExt::DEBUG) {
             if ($ph = http_persistent_handles_count()) {
                 $ph_dump = str_replace('  ', ' ', print_r($ph, true));
                 $ph_dump = preg_replace('/[\\r\\n]+/', "\n", $ph_dump);

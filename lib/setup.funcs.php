@@ -176,14 +176,8 @@ function p2_load_class($name)
             Wap[A-Z][A-Za-z]*
         )$/x', $name))
     {
-        if ($name == 'ResArticle') {
-            include P2_LIB_DIR . '/ResHist.php';
-        } elseif (strncmp($name, 'Wap', 3) === 0) {
+        if (strncmp($name, 'Wap', 3) === 0) {
             include P2_LIB_DIR . '/Wap.php';
-        } elseif (strncmp($name, 'P2Http', 6) === 0) {
-            include P2_LIB_DIR . '/P2HttpExt.php';
-        } elseif (strncmp($name, 'BrdMenu', 7) === 0) {
-            include P2_LIB_DIR . '/BrdMenu.php';
         } else {
             include P2_LIB_DIR . '/' . $name . '.php';
         }
