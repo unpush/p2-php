@@ -113,7 +113,7 @@ EOF;
                 return true;
         }
 
-        if (is_null($address)) {
+        if ($address === null) {
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -138,6 +138,8 @@ EOF;
                 ($flag == $types['willcom']   && self::isAddressWillcom($address))  ||
                 ($flag == $types['emobile']   && self::isAddressEmobile($address))  ||
                 ($flag == $types['iphone']    && self::isAddressIPhone($address))   ||
+                ($flag == $types['jig']       && self::isAddressJigJp($address))    ||
+                ($flag == $types['ibis']      && self::isAddressIbis($address))     ||
                 ($flag == $types['custom'] && (!empty($custom) || !empty($custom_re)) &&
                     self::isAddressInBand($address, $custom, $custom_re,
                             'custom', filemtime(P2_CONF_DIR . '/conf_hostcheck.php')
@@ -181,7 +183,7 @@ EOF;
      */
     static public function isAddressLocal($address = null)
     {
-        if (is_null($address)) {
+        if ($address === null) {
             $address = $_SERVER['REMOTE_ADDR'];
         }
         if ($address == '127.0.0.1' || $address == '::1') {
@@ -201,7 +203,7 @@ EOF;
      */
     static public function isAddressBurned($address = null)
     {
-        if (is_null($address)) {
+        if ($address === null) {
             $address = $_SERVER['REMOTE_ADDR'];
         }
         $ip_regex = '/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$/';
@@ -510,7 +512,7 @@ EOF;
     {
         include P2_CONF_DIR . '/ip_docomo.php';
 
-        if (is_null($address)) {
+        if ($address === null) {
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -532,7 +534,7 @@ EOF;
     {
         include P2_CONF_DIR . '/ip_au.php';
 
-        if (is_null($address)) {
+        if ($address === null) {
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -554,7 +556,7 @@ EOF;
     {
         include P2_CONF_DIR . '/ip_softbank.php';
 
-        if (is_null($address)) {
+        if ($address === null) {
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -576,7 +578,7 @@ EOF;
     {
         include P2_CONF_DIR . '/ip_willcom.php';
 
-        if (is_null($address)) {
+        if ($address === null) {
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -598,7 +600,7 @@ EOF;
     {
         include P2_CONF_DIR . '/ip_emobile.php';
 
-        if (is_null($address)) {
+        if ($address === null) {
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -620,7 +622,7 @@ EOF;
     {
         include P2_CONF_DIR . '/ip_iphone.php';
 
-        if (is_null($address)) {
+        if ($address === null) {
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -643,7 +645,7 @@ EOF;
      */
     function isAddressJigWeb($address = null)
     {
-        if (is_null($address)) {
+        if ($address === null) {
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -669,15 +671,14 @@ EOF;
      * IPは jigアプリ?
      *
      * @link    http://br.jig.jp/pc/ip_br.html
-     * @static
-     * @access  public
+     * @param   string  $address
      * @return  boolean
      */
     function isAddressJig($address = null)
     {
         include P2_CONF_DIR . '/ip_jig.php';
 
-        if (is_null($address)) {
+        if ($address === null) {
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -689,18 +690,39 @@ EOF;
     }
 
     // }}}
+    // {{{ isAddressJigJp()
+
+    /**
+     * IPは jig.jpのサービス?
+     *
+     * @param   string  $address
+     * @return  boolean
+     */
+    function isAddressJigJp($address = null)
+    {
+        if ($address === null) {
+            $address = $_SERVER['REMOTE_ADDR'];
+        }
+
+        if (self::isAddressJig($address) || self::isAddressJigWeb($address)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // }}}
     // {{{ isAddressIbis()
 
     /**
      * IPは ibis?
      *
-     * @static
-     * @access  public
+     * @param   string  $address
      * @return  boolean
      */
     static public function isAddressIbis($address = null)
     {
-        if (is_null($address)) {
+        if ($address === null) {
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -711,6 +733,38 @@ EOF;
         );
 
         return self::isAddressInBand($address, $bands);
+    }
+
+    // }}}
+    // {{{ isAddressMobile()
+
+    /**
+     * IPは携帯キャリア・携帯アプリのいずれか?
+     *
+     * @param   string  $address
+     * @return  boolean
+     */
+    static public function isAddressMobile($address = null)
+    {
+        if ($address === null) {
+            $address = $_SERVER['REMOTE_ADDR'];
+        }
+
+        // ローカルチェックをして、HostCheck::isAddressDocomo() などでホスト名を引く機会を減らす
+        if (self::isAddressLocal($address) || self::isAddressPrivate($address)) {
+            return false;
+        } elseif (
+            self::isAddressDocomo($address) ||
+            self::isAddressAu($address) ||
+            self::isAddressSoftBank($address) ||
+            self::isAddressWillcom($address) ||
+            self::isAddressJigJp($address) ||
+            self::isAddressIbis($address)
+        ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // }}}

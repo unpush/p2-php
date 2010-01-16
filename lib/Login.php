@@ -131,7 +131,9 @@ class Login
 
         if (!$this->_authCheck()) {
             // ログイン失敗
-            require_once P2_LIB_DIR . '/login_first.inc.php';
+            if (!function_exists('printLoginFirst')) {
+                include P2_LIB_DIR . '/login_first.inc.php';
+            }
             printLoginFirst($this);
             exit;
         }
@@ -850,33 +852,32 @@ EOP;
      */
     static private function getMd5CryptPassForCid()
     {
-        //return md5($_SERVER['SERVER_NAME'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_SOFTWARE']);
+        static $pass = null;
 
-        //$seed = $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
+        if ($pass !== null) {
+            return $pass;
+        }
+
         $seed = $_SERVER['SERVER_SOFTWARE'];
 
-        // ローカルチェックをして、HostCheck::isAddressDocomo() などでホスト名を引く機会を減らす
-        $notK = (bool)(HostCheck::isAddressLocal() || HostCheck::isAddressPrivate());
-
+        // IPチェックなしの場合と
+        if (!empty($_COOKIE['ignore_cip'])) {
+            ;
         // 携帯判定された場合は、 IPチェックなし
-        if (
-            !$notK and
+        } elseif (
             //!$_conf['cid_seed_ip'] or
             UA::isK(geti($_SERVER['HTTP_USER_AGENT']))
-            || HostCheck::isAddressDocomo() || HostCheck::isAddressAu() || HostCheck::isAddressSoftBank()
-            || HostCheck::isAddressWillcom()
-            || HostCheck::isAddressJigWeb() || HostCheck::isAddressJig()
-            || HostCheck::isAddressIbis()
+            || HostCheck::isAddressMobile()
         ) {
-            ;
-        } elseif (!empty($_COOKIE['ignore_cip'])) {
             ;
         } else {
             $now_ips = explode('.', $_SERVER['REMOTE_ADDR']);
             $seed .= $now_ips[0];
         }
 
-        return md5($seed, true);
+        $pass = md5($seed, true);
+
+        return $pass;
     }
 
     // }}}

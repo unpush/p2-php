@@ -365,10 +365,6 @@ class UA
             return $cache_;
         }
 
-        if (!class_exists('Net_UserAgent_Mobile', false)) {
-            require 'Net/UserAgent/Mobile.php';
-        }
-
         if (!is_null($ua)) {
             $nuam = Net_UserAgent_Mobile::factory($ua);
         } else {

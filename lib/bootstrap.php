@@ -173,7 +173,7 @@ if (P2Util::isBrowserIphone() || P2Util::isBrowserAndroid()) {
         $_conf['input_type_search'] = true;
         $_conf['accept_charset'] = 'UTF-8';
 
-    // Windows Mobile, 
+    // Windows Mobile
     } elseif (P2Util::isClientOSWindowsCE()) {
         $_conf['ktai'] = true;
 

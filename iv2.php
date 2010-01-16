@@ -7,7 +7,6 @@
 
 define('P2_SESSION_CLOSE_AFTER_AUTHENTICATION', 0);
 define('P2_OUTPUT_XHTML', 1);
-define('P2_USE_PEAR_HACK', 1);
 
 require_once './conf/conf.inc.php';
 
@@ -44,8 +43,6 @@ if ($_conf['view_forced_by_query']) {
 // {{{ 初期化
 
 // ライブラリ読み込み
-require_once 'Cache.php';
-require_once 'Cache/Function.php';
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
 require_once 'HTML/Template/Flexy.php';
@@ -189,7 +186,8 @@ if ($ini['Viewer']['cache']) {
 
     if ($do_vacuum) {
         // キャッシュをVACUUM
-        
+        $kvs->vacuum();
+
         // SQLiteならVACUUMを実行
         if ($db_class == 'db_sqlite') {
             $result = $db->query('VACUUM');
@@ -199,11 +197,10 @@ if ($ini['Viewer']['cache']) {
         }
     }
 
-    $cache = new P2KeyValueStore_FunctionCache($kvs);
-    $cache->setLifeTime($cache_lifetime);
-    $imageInfo_getExtraInfo = $cache->getProxy('IC2_ImageInfo::getExtraInfo');
-    $imageInfo_getExifData = $cache->getProxy('IC2_ImageInfo::getExifData');
-    $editForm_imgManager = $cache->getProxy('IC2_EditForm::imgManager');
+    $cache = new P2KeyValueStore_FunctionCache($kvs, $cache_lifetime);
+    $imageInfo_getExtraInfo = $cache->createProxy('IC2_ImageInfo::getExtraInfo');
+    $imageInfo_getExifData = $cache->createProxy('IC2_ImageInfo::getExifData');
+    $editForm_imgManager = $cache->createProxy('IC2_EditForm::imgManager');
 
     $use_cache = true;
 } else {

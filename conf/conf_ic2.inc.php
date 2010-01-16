@@ -82,6 +82,7 @@ $_conf['expack.ic2.viewer.cache'] = 0;
 // 1時間=3600
 // 1日=86400
 // 1週間=604800
+// 手動でクリアするまでずっと=-1
 $_conf['expack.ic2.viewer.cache_lifetime'] = 3600;
 
 // 重複画像を最初にヒットする1枚だけ表示 (off:0;on:1)

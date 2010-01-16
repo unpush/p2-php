@@ -4,36 +4,60 @@
 
 /**
  * P2KeyValueStoreを使う関数呼び出しキャッシュ
+ *
+ * 変数を参照で受け取って書き換える関数はうまく動作しない。
  */
 class P2KeyValueStore_FunctionCache
 {
     // {{{ properties
 
+    /**
+     * P2KeyValueStoreオブジェクト
+     *
+     * @var P2KeyValueStore
+     */
     private $_kvs;
+
+    /**
+     * キャッシュの有効時間
+     *
+     * @var int
+     */
     private $_lifeTime;
 
     // }}}
     // {{{ __construct()
 
     /**
+     * コンストラクタ
+     *
      * @param P2KeyValueStore $kvs
-     * @param callable $function
+     *  通常はSerializing Codecを使うことを想定しているが、文字列を返す関数しか
+     *  扱わないならCompressing CodecやDefault Codecを使った方が効率が良い。
+     * @param int $lifeTime
      */
-    public function __construct(P2KeyValueStore $kvs)
+    public function __construct(P2KeyValueStore $kvs, $lifeTime = -1)
     {
         $this->_kvs = $kvs;
-        $this->_lifeTime = -1;
+        $this->_lifeTime = $lifeTime;
     }
 
     // }}}
-    // {{{ getProxy()
+    // {{{ createProxy()
 
     /**
+     * 関数名を指定して呼び出しプロキシオブジェクトを生成する
+     *
+     * P2KeyValueStore_FunctionCache_Proxyは__invoke()メソッドを実装しており
+     * 可変関数やクロージャのように $proxy($parameter, ...) と呼び出せる。
+     * (PHP 5.3以降の場合)
+     *
      * @param callable $function
      * @return P2KeyValueStore_FunctionCache_Proxy
      * @throws InvalidArgumentException
+     * @see P2KeyValueStore_FunctionCache_Proxy::__construct()
      */
-    public function getProxy($function)
+    public function createProxy($function)
     {
         $proxy = new P2KeyValueStore_FunctionCache_Proxy($this, $function);
         $proxy->setLifeTime($this->_lifeTime);
@@ -44,6 +68,11 @@ class P2KeyValueStore_FunctionCache
     // {{{ invoke()
 
     /**
+     * 関数を呼び出す
+     *
+     * 関数名と引数から決定されるキーに対応する値がKVSにキャッシュされていれば
+     * それを返し、なければ関数を呼び出し、結果をKVSにキャッシュする。
+     *
      * @param callable $function
      * @param array $parameters
      * @return mixed
@@ -111,6 +140,8 @@ class P2KeyValueStore_FunctionCache
     // {{{ setLifeTime()
 
     /**
+     * キャッシュの有効時間を設定する。
+     *
      * @param int $lifeTime
      * @return int
      */

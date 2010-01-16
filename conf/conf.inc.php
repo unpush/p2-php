@@ -183,7 +183,7 @@ function p2_init()
 
     // ユーティリティを読み込む
     include P2_LIB_DIR . '/global.funcs.php';
-    include P2_LIB_DIR . '/setup.funcs.php';
+    include P2_LIB_DIR . '/startup.funcs.php';
     spl_autoload_register('p2_load_class');
 
     // 動作環境を確認 (要件を満たしているならコメントアウト可)

@@ -4,21 +4,57 @@
 
 /**
  * P2KeyValueStore_FunctionCacheを使う関数呼び出しプロキシ
+ *
+ * 変数を参照で受け取って書き換える関数はうまく動作しない。
+ *
+ * このクラスは__invoke()メソッドを実装しており、PHP 5.3以降では
+ * 可変関数やクロージャのように $proxy($parameter, ...) と呼び出せる。
  */
 class P2KeyValueStore_FunctionCache_Proxy
 {
     // {{{ properties
 
+    /**
+     * P2KeyValueStore_FunctionCacheオブジェクト
+     *
+     * @var P2KeyValueStore_FunctionCache
+     */
     private $_cache;
+
+    /**
+     * __invoke() で呼び出される関数
+     *
+     * @var callable
+     */
     private $_function;
+
+    /**
+     * __invoke() に与え得られた引数の前に付加されるパラメータのリスト
+     *
+     * @var array
+     */
     private $_prependedParameters;
+
+    /**
+     * __invoke() に与え得られた引数の後に付加されるパラメータのリスト
+     *
+     * @var array
+     */
     private $_appendedParameters;
+
+    /**
+     * キャッシュの有効時間
+     *
+     * @var int
+     */
     private $_lifeTime;
 
     // }}}
     // {{{ __construct()
 
     /**
+     * コンストラクタ
+     *
      * @param P2KeyValueStore_FunctionCache $cache
      * @param callable $function
      * @throws InvalidArgumentException
@@ -44,6 +80,9 @@ class P2KeyValueStore_FunctionCache_Proxy
     // {{{ __invoke()
 
     /**
+     * 関数を呼び出す
+     *
+     * @param mixed $parameter
      * @param mixed $...
      * @return mixed
      * @see P2KeyValueStore_FunctionCache_Proxy::invoke()
@@ -70,6 +109,9 @@ class P2KeyValueStore_FunctionCache_Proxy
     // {{{ invoke()
 
     /**
+     * __invoke() のエイリアス
+     *
+     * @param mixed $parameter
      * @param mixed $...
      * @return mixed
      */
@@ -84,25 +126,29 @@ class P2KeyValueStore_FunctionCache_Proxy
     }
 
     // }}}
-    // {{{ prependParameters()
+    // {{{ setPrependedParameters()
 
     /**
+     * 自動で前に追加される引数を設定する
+     *
      * @param mixed $...
      * @return void
      */
-    public function prependParameters()
+    public function setPrependedParameters()
     {
         $this->_prependedParameters = func_get_args();
     }
 
     // }}}
-    // {{{ appendParameters()
+    // {{{ setAppendedParameters()
 
     /**
+     * 自動で後に追加される引数を設定する
+     *
      * @param mixed $...
      * @return void
      */
-    public function appendParameters()
+    public function setAppendedParameters()
     {
         $this->_appendedParameters = func_get_args();
     }
@@ -111,6 +157,8 @@ class P2KeyValueStore_FunctionCache_Proxy
     // {{{ setLifeTime()
 
     /**
+     * キャッシュの有効時間を設定する。
+     *
      * @param int $lifeTime
      * @return int
      */
