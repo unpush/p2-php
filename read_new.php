@@ -5,28 +5,8 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/read_new.inc.php';
 
 $_login->authorize(); // ユーザ認証
-
-// まとめよみのキャッシュ読み
-if (!empty($_GET['cview'])) {
-    $cnum = (isset($_GET['cnum'])) ? intval($_GET['cnum']) : NULL;
-    if ($cont = getMatomeCache($cnum)) {
-        echo $cont;
-    } else {
-        header('Content-Type: text/plain; charset=Shift_JIS');
-        echo 'p2 error: 新着まとめ読みのキャッシュがないよ';
-    }
-    exit;
-}
-
-// 省メモリ設定
-// 1 にするとキャッシュをメモリでなく一時ファイルに保持する
-// （どちらでも最終的にはファイルに書き込まれる）
-if (!defined('P2_READ_NEW_SAVE_MEMORY')) {
-    define('P2_READ_NEW_SAVE_MEMORY', 0);
-}
 
 //==================================================================
 // 変数
@@ -63,18 +43,6 @@ $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 //====================================================================
 // メイン
 //====================================================================
-
-if (P2_READ_NEW_SAVE_MEMORY) {
-    register_shutdown_function('saveMatomeCacheFromTmpFile');
-    $read_new_tmp_fh = tmpfile();
-    if (!is_resource($read_new_tmp_fh)) {
-        p2die('cannot make tmpfile.');
-    }
-} else {
-    register_shutdown_function('saveMatomeCache');
-    $read_new_html = '';
-}
-ob_start();
 
 $aThreadList = new ThreadList();
 
@@ -120,6 +88,8 @@ if ($spmode == 'merge_favita') {
 // ページヘッダ表示 ===================================
 $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 $ptitle_ht = "{$ptitle_hd} の 新着まとめ読み";
+$matomeCache = new MatomeCache($ptitle_hd, $_conf['matome_cache_max']);
+ob_start();
 
 if ($aThreadList->spmode) {
     $sb_ht = <<<EOP
@@ -349,26 +319,19 @@ for ($x = 0; $x < $linesize ; $x++) {
     echo $_info_msg_ht;
     $_info_msg_ht = '';
 
-    if (P2_READ_NEW_SAVE_MEMORY) {
-        fwrite($read_new_tmp_fh, ob_get_flush());
-    } else {
-        $read_new_html .= ob_get_flush();
-    }
+    $matomeCache->concat(ob_get_flush());
     flush();
     ob_start();
 
     if (($aThread->readnum < 1) || $aThread->unum) {
         readNew($aThread);
+        $matomeCache->addReadThread($aThread);
     } elseif ($aThread->diedat) {
         echo $aThread->getdat_error_msg_ht;
         echo "<hr>\n";
     }
 
-    if (P2_READ_NEW_SAVE_MEMORY) {
-        fwrite($read_new_tmp_fh, ob_get_flush());
-    } else {
-        $read_new_html .= ob_get_flush();
-    }
+    $matomeCache->concat(ob_get_flush());
     flush();
     ob_start();
 
@@ -673,11 +636,7 @@ if ($_conf['expack.ic2.enabled']) {
 
 echo '</body></html>';
 
-if (P2_READ_NEW_SAVE_MEMORY) {
-    fwrite($read_new_tmp_fh, ob_get_flush());
-} else {
-    $read_new_html .= ob_get_flush();
-}
+$matomeCache->concat(ob_get_flush());
 
 // NGあぼーんを記録
 NgAbornCtl::saveNgAborns();

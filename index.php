@@ -18,10 +18,21 @@ $_login->authorize(); //ユーザ認証
 // 前処理
 //=============================================================
 // アクセス拒否用の.htaccessをデータディレクトリに作成する
-makeDenyHtaccess($_conf['pref_dir']);
-makeDenyHtaccess($_conf['dat_dir']);
-makeDenyHtaccess($_conf['idx_dir']);
-makeDenyHtaccess($_conf['db_dir']);
+$secret_dirs = array_unique(array(
+    $_conf['pref_dir'],
+    $_conf['dat_dir'],
+    $_conf['idx_dir'],
+    $_conf['db_dir'],
+    $_conf['admin_dir'],
+    $_conf['cache_dir'],
+    $_conf['cookie_dir'],
+    $_conf['compile_dir'],
+    $_conf['session_dir'],
+    $_conf['tmp_dir'],
+));
+foreach ($secret_dirs as $dir) {
+    makeDenyHtaccess($dir);
+}
 
 //=============================================================
 
@@ -89,11 +100,10 @@ if ($_conf['ktai']) {
     // PC用 HTMLプリント
     //======================================================
     //P2Util::header_nocache();
-    if ($_conf['doctype']) { 
-        echo str_replace(
-            array('Transitional', 'loose.dtd'),
-            array('Frameset', 'frameset.dtd'),
-            $_conf['doctype']);
+    if ($_conf['doctype']) {
+        echo str_replace(array('Transitional', 'loose.dtd'),
+                         array('Frameset', 'frameset.dtd'),
+                         $_conf['doctype']);
     }
     echo <<<EOHEADER
 <html lang="ja">
@@ -148,6 +158,9 @@ function makeDenyHtaccess($dir)
 {
     $hta = $dir . '/.htaccess';
     if (!file_exists($hta)) {
+        if (!is_dir($dir)) {
+            FileCtl::mkdir_for($hta);
+        }
         $data = 'Order allow,deny'."\n".'Deny from all'."\n";
         FileCtl::file_write_contents($hta, $data);
     }

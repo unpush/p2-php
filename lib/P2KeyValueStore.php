@@ -34,11 +34,15 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     const Q_CLEAR       = 'DELETE FROM $__table';
     const Q_GC          = 'DELETE FROM $__table WHERE mtime < :expires';
 
+    const C_KEY_BEGINS = 'arkey LIKE :pattern ESCAPE :escape';
+
     const CODEC_DEFAULT     = 'P2KeyValueStore_Codec_Default';
     const CODEC_BINARY      = 'P2KeyValueStore_Codec_Binary';
     const CODEC_COMPRESSING = 'P2KeyValueStore_Codec_Compressing';
     const CODEC_SHIFTJIS    = 'P2KeyValueStore_Codec_ShiftJIS';
     const CODEC_SERIALIZING = 'P2KeyValueStore_Codec_Serializing';
+    const CODEC_ARRAY       = 'P2KeyValueStore_Codec_Array';
+    const CODEC_ARRAYSHIFTJIS = 'P2KeyValueStore_Codec_ArrayShiftJIS';
 
     const MEMORY_DATABASE   = ':memory:';
 
@@ -101,10 +105,13 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      *
      * @param string $fileName
      * @param string $codec
+     * @param string $tableName
      * @return P2KeyValueStore
      * @throws PDOException
      */
-    static public function getStore($fileName, $codec = self::CODEC_DEFAULT)
+    static public function getStore($fileName,
+                                    $codec = self::CODEC_DEFAULT,
+                                    $tableName = null)
     {
         // オブジェクトIDとテーブル名を決定
         if (is_object($codec)) {
@@ -112,14 +119,20 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
         } else {
             $className = $codec;
         }
+
         $lcName = strtolower($className);
         if (strpos($lcName, 'p2keyvaluestore_codec_') === 0) {
             $codecId = substr($lcName, 22);
         } else {
             $codecId = 'user_' . $lcName;
         }
+
         $kvsId = $lcName . ':' . $fileName;
-        $tableName = 'kvs_' . $codecId;
+        if ($tableName === null) {
+            $tableName = 'kvs_' . $codecId;
+        } else {
+            $kvsId = strtolower($tableName) . ':' . $kvsId;
+        }
 
         // P2KeyValueStoreのキャッシュを確認
         if (array_key_exists($kvsId, self::$_kvsCache)) {
@@ -131,6 +144,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
             $pdo = self::$_pdoCache[$fileName];
         } else {
             $pdo = new PDO('sqlite:' . $fileName);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             self::$_pdoCache[$fileName] = $pdo;
         }
 
@@ -237,11 +251,38 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     public function prepare($query, $forwardOnly = true)
     {
-        return $this->_prepare(str_replace(array('$__key', '$__value'),
-                                           array( 'arkey',    'value'),
-                                           $query),
-                               true,
-                               $forwardOnly);
+        $mapping = array(
+            '$__key'   => 'arkey',
+            '$__value' => 'value',
+            '$__mtime' => 'mtime',
+            '$__order' => 'sort_order',
+        );
+
+        $query = str_replace(array_keys($mapping), array_values($mapping), $query);
+
+        return $this->_prepare($query, true, $forwardOnly);
+    }
+
+    // }}}
+    // {{{ bindValueForPrefixSearch()
+
+    /**
+     * レコードを接頭辞で検索する際の値をエスケープ&バインドする
+     *
+     * @param PDOStatement $stmt
+     * @param string $prefix
+     * @param string $escape
+     * @return void
+     */
+    public function bindValueForPrefixSearch(PDOStatement $stmt,
+                                             $prefix,
+                                             $escape = '\\')
+    {
+        $pattern = str_replace(array('%', '_', $escape),
+                               array("{$escape}%", "{$escape}_", "{$escape}{$escape}"),
+                               $this->_codec->encodeKey($prefix)) . '%';
+        $stmt->bindValue(':pattern', $pattern);
+        $stmt->bindValue(':escape', $escape);
     }
 
     // }}}
@@ -273,15 +314,11 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
         foreach ($orderBy as $column => $direction) {
             $column = strtolower($column);
             if (array_key_exists($column, $mapping)) {
-                $condition = $mapping[$column] . ' ';
+                $condition = $mapping[$column];
                 if (strcasecmp($direction, 'ASC') == 0) {
-                    $condition .= 'ASC';
+                    $condition .= ' ASC';
                 } elseif (strcasecmp($direction, 'DESC') == 0) {
-                    $condition .= 'DESC';
-                } elseif (0 < (int)$direction) {
-                    $condition .= 'ASC';
-                } else {
-                    $condition .= 'DESC';
+                    $condition .= ' DESC';
                 }
             }
             $terms[] = $condition;
@@ -371,7 +408,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
             return null;
         } else {
             return array(
-                'key' => $this->_codec->decodeKey($row->key),
+                'key' => $this->_codec->decodeKey($row->arkey),
                 'value' => $this->_codec->decodeValue($row->value),
             );
         }
@@ -438,33 +475,43 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * 全てのレコードを連想配列として返す
      * 有効期限切れのレコードを除外したい場合は事前にgc()しておくこと
      *
+     * @param string $prefix
      * @param array $orderBy
      * @param int $limit
      * @param int $offset
      * @param bool $getRaw
      * @return array
      */
-    public function getAll(array $orderBy = null,
-                           $limit = null, $offset = null,
+    public function getAll($prefix = null,
+                           array $orderBy = null,
+                           $limit = null,
+                           $offset = null,
                            $getRaw = false)
     {
-        $query = self::Q_GETALL
-               . $this->buildOrderBy($orderBy)
-               . $this->buildLimit($limit, $offset);
+        $query = self::Q_GETALL;
+        if ($prefix !== null) {
+            $query .= ' WHERE ' . self::C_KEY_BEGINS;
+        }
+        $query.= $this->buildOrderBy($orderBy);
+        $query.= $this->buildLimit($limit, $offset);
+
         $stmt = $this->_prepare($query, true);
+        if ($prefix !== null) {
+            $this->bindValueForPrefixSearch($stmt, $prefix);
+        }
         $stmt->execute();
 
         $values = array();
         if ($getRaw) {
             $stmt->setFetchMode(PDO::FETCH_CLASS, 'P2KeyValueStore_Result');
             while ($row = $stmt->fetch()) {
-                $values[$this->_codec->decodeKey($row->key)] = $row;
+                $values[$this->_codec->decodeKey($row->arkey)] = $row;
             }
         } else {
             $stmt->setFetchMode(PDO::FETCH_INTO, $this->_sharedResult);
             while ($row = $stmt->fetch()) {
                 $value = $this->_codec->decodeValue($row->value);
-                $values[$this->_codec->decodeKey($row->key)] = $value;
+                $values[$this->_codec->decodeKey($row->arkey)] = $value;
             }
         }
 
@@ -479,17 +526,28 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * 主としてP2KeyValueStore_Iteratorで使う
      * 有効期限切れのレコードを除外したい場合は事前にgc()しておくこと
      *
+     * @param string $prefix
      * @param array $orderBy
      * @param int $limit
      * @param int $offset
      * @return array
      */
-    public function getIds(array $orderBy = null, $limit = null, $offset = null)
+    public function getIds($prefix = null,
+                           array $orderBy = null,
+                           $limit = null,
+                           $offset = null)
     {
-        $query = self::Q_GETIDS
-               . $this->buildOrderBy($orderBy)
-               . $this->buildLimit($limit, $offset);
+        $query = self::Q_GETIDS;
+        if ($prefix !== null) {
+            $query .= ' WHERE ' . self::C_KEY_BEGINS;
+        }
+        $query.= $this->buildOrderBy($orderBy);
+        $query.= $this->buildLimit($limit, $offset);
+
         $stmt = $this->_prepare($query, true);
+        if ($prefix !== null) {
+            $this->bindValueForPrefixSearch($stmt, $prefix);
+        }
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
@@ -502,19 +560,30 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * 全てのキーの配列を返す
      * 有効期限切れのレコードを除外したい場合は事前にgc()しておくこと
      *
+     * @param string $prefix
      * @param array $orderBy
      * @param int $limit
      * @param int $offset
      * @return array
      */
-    public function getKeys(array $orderBy = null, $limit = null, $offset = null)
+    public function getKeys($prefix = null,
+                            array $orderBy = null,
+                            $limit = null,
+                            $offset = null)
     {
-        $query = self::Q_GETKEYS
-               . $this->buildOrderBy($orderBy)
-               . $this->buildLimit($limit, $offset);
+        $query = self::Q_GETKEYS;
+        if ($prefix !== null) {
+            $query .= ' WHERE ' . self::C_KEY_BEGINS;
+        }
+        $query.= $this->buildOrderBy($orderBy);
+        $query.= $this->buildLimit($limit, $offset);
+
         $stmt = $this->_prepare($query, true);
-        $stmt->setFetchMode(PDO::FETCH_COLUMN, 0);
+        if ($prefix !== null) {
+            $this->bindValueForPrefixSearch($stmt, $prefix);
+        }
         $stmt->execute();
+        $stmt->setFetchMode(PDO::FETCH_COLUMN, 0);
 
         $keys = array();
         while (($key = $stmt->fetch()) !== false) {
@@ -664,14 +733,23 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     // {{{ clear()
 
     /**
-     * すべてのレコードを削除する
+     * すべてのレコードまたはキーが指定された接頭辞で始まるレコードを削除する
      *
-     * @param void
+     * @param string $prefix
      * @return int
      */
-    public function clear()
+    public function clear($prefix = null)
     {
-        $stmt = $this->_prepare(self::Q_CLEAR, true);
+        $query = self::Q_CLEAR;
+        if ($prefix !== null) {
+            $query .= ' WHERE ' . self::C_KEY_BEGINS;
+        }
+
+        $stmt = $this->_prepare($query, true);
+        if ($prefix !== null) {
+            $this->bindValueForPrefixSearch($stmt, $prefix);
+        }
+
         if ($stmt->execute()) {
             return $stmt->rowCount();
         } else {
@@ -700,19 +778,20 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     }
 
     // }}}
-    // {{{ vacuum()
+    // {{{ optimize()
 
     /**
-     * 作成済みプリペアードステートメントをクリアし、VACUUMを発行する
+     * 作成済みプリペアードステートメントをクリアし、VACUUMとREINDEXを発行する
      * 他のプロセスが同じデータベースを開いているときに実行すべきではない
      *
      * @param void
      * @return void
      */
-    public function vacuum()
+    public function optimize()
     {
         self::$_stmtCache[$this->_pdoId] = array();
         $this->_pdo->exec('VACUUM');
+        $this->_pdo->exec('REINDEX');
     }
 
     // }}}

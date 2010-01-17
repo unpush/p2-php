@@ -1142,9 +1142,7 @@ class P2Util
      */
     static public function isBrowserSafariGroup()
     {
-        return (strpos($_SERVER['HTTP_USER_AGENT'], 'Safari')      !== false ||
-                strpos($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit') !== false ||
-                strpos($_SERVER['HTTP_USER_AGENT'], 'Konqueror')   !== false);
+        return UA::isSafariGroup();
     }
 
     // }}}
@@ -1166,8 +1164,7 @@ class P2Util
      */
     static public function isBrowserNintendoDS()
     {
-        return (strpos($_SERVER['HTTP_USER_AGENT'], 'Nitro') !== false &&
-                strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') !== false);
+        return UA::isNintendoDS();
     }
 
     // }}}
@@ -1178,31 +1175,18 @@ class P2Util
      */
     static public function isBrowserPSP()
     {
-        return (strpos($_SERVER['HTTP_USER_AGENT'], 'PlayStation Portable') !== false);
+        return UA::isPSP();
     }
 
     // }}}
     // {{{ isBrowserIphone()
 
     /**
-     * ブラウザがiPhone or iPod Touchならtrueを返す
+     * ブラウザがiPhone, iPod Touch or Androidならtrueを返す
      */
     static public function isBrowserIphone()
     {
-        return (strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone') !== false ||
-                strpos($_SERVER['HTTP_USER_AGENT'], 'iPod')   !== false);
-    }
-
-    // }}}
-    // }}}
-    // {{{ isBrowserAndroid()
-
-    /**
-     * ブラウザがAndroidhならtrueを返す
-     */
-    static public function isBrowserAndroid()
-    {
-        return (strpos($_SERVER['HTTP_USER_AGENT'], 'Android') !== false);
+        return UA::isIPhoneGroup();
     }
 
     // }}}
@@ -1305,7 +1289,7 @@ EOP;
             $key .= $_SESSION['login_microtime'];
         }
 
-        return self::urlSafeBase64Encode(sha1($key, true));
+        return UrlSafeBase64::encode(sha1($key, true));
     }
 
     // }}}
@@ -1996,38 +1980,6 @@ ERR;
         } catch (P2Exception $e) {
             p2die($e->getMessage());
         }
-    }
-
-    // }}}
-    // {{{ urlSafeBase64Decode()
-
-    /**
-     * URL-safe Base64 デコード
-     *
-     * @param string $str
-     * @return string
-     */
-    static public function urlSafeBase64Decode($str)
-    {
-        $mod = strlen($str) % 4;
-        if ($mod) {
-            $str .= str_repeat('=', 4 - $mod);
-        }
-        return base64_decode(strtr($str, '-_', '+/'), true);
-    }
-
-    // }}}
-    // {{{ urlSafeBase64Encode()
-
-    /**
-     * URL-safe Base64 エンコード
-     *
-     * @param string $str
-     * @return string
-     */
-    static public function urlSafeBase64Encode($str)
-    {
-        return strtr(rtrim(base64_encode($str), '='), '+/', '-_');
     }
 
     // }}}

@@ -37,7 +37,7 @@ a.viewer_title {
 }
 
 div#header {
-	height: 3.75em;
+	height: 4em;
 }
 
 div#content {

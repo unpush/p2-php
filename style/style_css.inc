@@ -115,6 +115,8 @@ if (isset($STYLE['respop_color']) && strlen($STYLE['respop_color']) > 0) {
 
 .popup_element {
 	position: absolute;
+	top: 0;
+	left: 0;
 	visibility: hidden; /* •’i‚Í‰B‚µ‚Ä‚¨‚­*/
 	{$respop_background}
 	{$respop_border}

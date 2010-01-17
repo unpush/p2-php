@@ -1,78 +1,28 @@
 <?php
 /**
- * rep2expack - P2KeyValueStoreをラップする
- * ユーティリティクラスのための基底抽象クラス
- *
- * P2KeyValueStoreはrep2に依存せず単体で使えるが、
- * P2DataStoreはrep2で使うために設計されている。
+ * rep2expack - 新着まとめ読みキャッシュ管理クラス
  */
 
-// {{{ AbstractDataStore
+// {{{ MatomeCacheDataStore
 
-abstract class AbstractDataStore
+class MatomeCacheDataStore extends AbstractDataStore
 {
-    // {{{ properties
-
-    /**
-     * P2KeyValueStoreオブジェクトを保持する連想配列
-     *
-     * @var array
-     */
-    static private $_kvs = array();
-
-    // }}}
-    // {{{ _getKVS()
-
-    /**
-     * データを保存するP2KeyValueStoreオブジェクトを取得する
-     *
-     * @param string $databasePath
-     * @param string $codec
-     * @param string $tableName
-     * @return P2KeyValueStore
-     */
-    static protected function _getKVS($databasePath,
-                                      $codec = P2KeyValueStore::CODEC_SERIALIZING,
-                                      $tableName = null)
-    {
-        global $_conf;
-
-        $id = $codec . ':' . $databasePath;
-
-        if (array_key_exists($id, self::$_kvs)) {
-            return self::$_kvs[$id];
-        }
-
-        if (!file_exists($databasePath) && !is_dir(dirname($databasePath))) {
-            FileCtl::mkdir_for($databasePath);
-        }
-
-        try {
-            $kvs = P2KeyValueStore::getStore($databasePath, $codec, $tableName);
-            self::$_kvs[$id] = $kvs;
-        } catch (Exception $e) {
-            p2die(get_class($e) . ': ' . $e->getMessage());
-        }
-
-        return $kvs;
-    }
-
-    // }}}
     // {{{ getKVS()
 
     /**
-     * _getKVS() を呼び出してP2KeyValueStoreオブジェクトを取得する
-     *
-     * 現在は self::getKVS() の都合でこれより下のメソッドを
-     * サブクラスにコピペという保守性が極めて悪い実装となっている。
-     * 将来は PHP 5.3 縛りにして static::getKVS() に変更したい。
+     * 書き込みデータを保存するP2KeyValueStoreオブジェクトを取得する
      *
      * @param void
      * @return P2KeyValueStore
      */
-    abstract static public function getKVS();
+    static public function getKVS()
+    {
+        return self::_getKVS($GLOBALS['_conf']['matome_db_path'],
+                             P2KeyValueStore::CODEC_COMPRESSING);
+    }
 
     // }}}
+    // {{{ AbstractDataStore.php からのコピペ / PHP 5.3 の遅延静的束縛を使って削除したい
     // {{{ get()
 
     /**
@@ -145,6 +95,7 @@ abstract class AbstractDataStore
     }
 
     // }}}
+    // }}} コピペここまで
 }
 
 // }}}

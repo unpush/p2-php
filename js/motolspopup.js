@@ -39,7 +39,19 @@ function showMotoLsPopUp(event, origin, title)
 		title = '';
 	}
 
-	target = origin.hasAttribute('target') ? origin.getAttribute('target') : null;
+	if (typeof origin.hasAttribute == 'function') {
+		if (origin.hasAttribute('target')) {
+			target = origin.getAttribute('target');
+		} else {
+			target = null;
+		}
+	} else {
+		target = origin.getAttribute('target');
+	}
+	if (target && !target.length) {
+		target = null;
+	}
+
 	baseUrl = origin.getAttribute('href');
 	for (i = 0; i < l; i++) {
 		anchor = div.childNodes[i];

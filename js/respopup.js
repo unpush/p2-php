@@ -195,6 +195,9 @@ function ResPopUp(divID) {
 		var y_adjust = -10;	// yé≤à íuí≤êÆ
 		if (this.divID.indexOf('spm_') == 0) {
 			y_adjust = -10;
+		} else if (this.divID.indexOf('matome_cache_meta') == 0) {
+			x_adjust += 10;
+			y_adjust += 10;
 		}
 		if (this.popOBJ.style.visibility != "visible") {
 			this.popOBJ.style.zIndex = this.zNum;

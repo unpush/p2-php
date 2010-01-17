@@ -154,27 +154,29 @@ function p2_load_class($name)
     if (preg_match('/^(?:
             BbsMap |
             BrdCtl |
-            BrdMenu(?:[A-Z][A-Za-z]*)? |
+            BrdMenu(?:Cate|Ita)? |
             DataPhp |
             FavSetManager |
             FileCtl |
             HostCheck |
             Login |
             MD5Crypt |
+            MatomeCache(List)? |
             NgAbornCtl |
             P2[A-Z][A-Za-z]* |
             PresetManager |
             ResHist |
             Session |
             SettingTxt |
-            ShowBrdMenu(?:[A-Z][A-Za-z]*)? |
-            ShowThread(?:[A-Z][A-Za-z]*)? |
+            ShowBrdMenu(?:K|Pc) |
+            ShowThread(?:K|Pc)? |
             StrCtl |
             StrSjis |
             SubjectTxt |
-            Thread(?:[A-Z][A-Za-z]*)? |
+            Thread(?:List|Read)? |
             UA |
-            Wap[A-Z][A-Za-z]*
+            UrlSafeBase64 |
+            Wap(UserAgent|Request|Response)
         )$/x', $name))
     {
         if (strncmp($name, 'Wap', 3) === 0) {

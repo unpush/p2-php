@@ -34,6 +34,7 @@ class CookieDataStore extends AbstractDataStore
     static public function get($key)
     {
         return self::getKVS()->get($key);
+            // static::getKVS()
     }
 
     // }}}
@@ -52,6 +53,7 @@ class CookieDataStore extends AbstractDataStore
     static public function set($key, $value)
     {
         $kvs = self::getKVS();
+            // static::getKVS()
         if ($kvs->exists($key)) {
             return $kvs->update($key, $value);
         } else {
@@ -72,6 +74,7 @@ class CookieDataStore extends AbstractDataStore
     static public function delete($key)
     {
         return self::getKVS()->delete($key);
+            // static::getKVS()
     }
 
     // }}}
@@ -86,25 +89,8 @@ class CookieDataStore extends AbstractDataStore
      */
     static public function clear($prefix = null)
     {
-        $kvs = self::getKVS();
-
-        if ($prefix === null) {
-            return $kvs->clear();
-        }
-
-        $pattern = str_replace(array(  '%',   '_',   '\\'),
-                               array('\\%', '\\_', '\\\\'),
-                               $kvs->encodeKey($prefix));
-        $query = 'DELETE FROM $__table WHERE $__key LIKE :pattern ESCAPE :escape';
-        $stmt = $kvs->prepare($query);
-        $stmt->bindValue(':pattern', $pattern);
-        $stmt->bindValue(':escape', '\\');
-
-        if ($stmt->execute()) {
-            return $stmt->rowCount();
-        } else {
-            return false;
-        }
+        return self::getKVS()->clear($prefix);
+            // static::getKVS();
     }
 
     // }}}

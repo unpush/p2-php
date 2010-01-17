@@ -30,7 +30,7 @@ if (isset($_POST['sync'])) {
         if ($_conf['expack.misc.multi_favs']) {
             $sync_boards[] = $_conf['orig_favita_brd'];
             for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
-                $sync_boards[] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favita%d.brd', $i);
+                $sync_boards[] = sprintf('%s/p2_favita%d.brd', $_conf['pref_dir'], $i);
             }
         } else {
             $sync_boards[] = $_conf['favita_brd'];
@@ -40,7 +40,7 @@ if (isset($_POST['sync'])) {
         if ($_conf['expack.misc.multi_favs']) {
             $sync_indexes[] = $_conf['orig_favlist_idx'];
             for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
-                $sync_indexes[] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favlist%d.idx', $i);
+                $sync_indexes[] = sprintf('%s/p2_favlist%d.idx', $_conf['pref_dir'], $i);
             }
         } else {
             $sync_indexes[] = $_conf['favlist_idx'];
@@ -60,8 +60,8 @@ if (isset($_POST['sync'])) {
             $sync_boards[] = $_conf['orig_favita_brd'];
             $sync_indexes[] = $_conf['orig_favlist_idx'];
             for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
-                $sync_boards[] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favita%d.brd', $i);
-                $sync_indexes[] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favlist%d.idx', $i);
+                $sync_boards[] = sprintf('%s/p2_favita%d.brd', $_conf['pref_dir'], $i);
+                $sync_indexes[] = sprintf('%s/p2_favlist%d.idx', $_conf['pref_dir'], $i);
             }
         } else {
             $sync_boards[] = $_conf['favita_brd'];
@@ -133,10 +133,13 @@ EOP;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <script type="text/javascript" src="js/changeskin.js?{$_conf['p2_version_id']}"></script>
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
     <link rel="stylesheet" type="text/css" href="css.php?css=editpref&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/changeskin.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/respopup.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/editpref.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
     $body_at = ' onload="window.top.document.title=window.self.document.title;"';
 } elseif (!$_conf['iphone']) {
@@ -304,13 +307,12 @@ EOP;
     }
 
     // }}}
-
-    echo "</table>\n";
 }
 
 // 携帯用表示
 if ($_conf['ktai']) {
     echo <<<EOP
+<hr>
 <p>ｱﾎﾞﾝ/NGﾜｰﾄﾞ編集</p>
 <form method="GET" action="edit_aborn_word.php">
 {$_conf['k_input_ht']}
@@ -332,6 +334,7 @@ if ($_conf['ktai']) {
 <input type="hidden" name="file" value="{$aborn_res_txt}">
 <input type="submit" value="ｱﾎﾞﾝﾚｽ編集">
 </form>
+<hr>
 EOP;
     echo "<p>ﾎｽﾄの同期（2chの板移転に対応します）</p>\n";
     echo getSyncFavoritesFormHt('all', 'すべて');
@@ -363,39 +366,92 @@ EOP;
 
 // {{{ 新着まとめ読みのキャッシュ表示
 
-$max = $_conf['matome_cache_max'];
+$matome_cache_list = MatomeCacheList::getList();
+if ($matome_cache_list) {
+    $ckeyprefixlen = strlen(MatomeCacheList::getKeyPrefix());
+    $i = 0;
 
-if ($_conf['ktai']) {
-    $ext = '.k' . $_conf['matome_cache_ext'];
-} else {
-    $ext = $_conf['matome_cache_ext'];
-}
-
-for ($i = 0; $i <= $max; $i++) {
-    $dnum = ($i) ? '.'.$i : '';
-    $ai = '&amp;cnum=' . $i;
-    $file = $_conf['matome_cache_path'] . $dnum . $ext;
-    //echo '<!-- '.$file.' -->';
-    if (file_exists($file)) {
-        $filemtime = filemtime($file);
-        $date = date('Y/m/d G:i:s', $filemtime);
-        $kib = round(filesize($file) / 1024, 0);
-        $url = 'read_new.php?cview=1' . $ai . '&amp;filemtime=' . $filemtime . $_conf['k_at_a'];
-        $links[] = '<a href="' . $url . '" target="read">' . $date . '</a> ' . $kib . 'KiB';
-    }
-}
-if (!empty($links)) {
     if ($_conf['ktai']) {
-        echo '<hr>'."\n";
+        echo "<hr>\n<p>新着まとめ読みキャッシュ</p>\n";
+    } else {
+        echo "<tr><td colspan=\"2\">\n";
+        echo "<fieldset>\n<legend>新着まとめ読みキャッシュ</legend>\n";
     }
-    echo $htm['matome'] = '<p>新着まとめ読みの前回キャッシュを表示<br>' . implode('<br>', $links) . '</p>';
+
+    echo "<ul id=\"matome_cache\">\n";
+
+    foreach ($matome_cache_list as $cache_key => $cache_info) {
+        echo '<li>';
+
+        $i++;
+        $ckey = substr($cache_key, $ckeyprefixlen);
+        $clink = 'read_new_cache.php?ckey=' . rawurlencode($ckey) . $_conf['k_at_a'];
+        if ($cache_info['title']) {
+            $ctitle = $cache_info['title'];
+        } else {
+            $ctitle = $ckey;
+        }
+        $cnumthreads = count($cache_info['threads']);
+
+        if ($_conf['ktai']) {
+            $cdate = date('y/m/d G:i', $cache_info['time']);
+            echo "{$cdate}<br><a href=\"{$clink}\">{$ctitle}</a>";
+        } else {
+            $cid = 'matome_cache_meta' . $i;
+            $cdate = date('Y/m/d H:i:s', $cache_info['time']);
+            if ($cnumthreads) {
+                $cpopup_at = " onmouseover=\"showCacheMetaData('{$cid}', event)\"";
+                $cpopup_at .= " onmouseout=\"hideCacheMetaData('{$cid}')\"";
+            } else {
+                $cpopup_at = '';
+            }
+            echo "<span class=\"matome_cache_date\">{$cdate}</span> ";
+            echo "[<a href=\"{$clink}\" target=\"read\"{$cpopup_at}>{$ctitle}</a>]";
+            if ($cnumthreads) {
+                echo "<div class=\"popup_element\" id=\"{$cid}\"{$cpopup_at}>";
+            }
+        }
+
+        if ($cnumthreads) {
+            if ($_conf['ktai']) {
+                $ctarget_at = '';
+            } else {
+                $ctarget_at = ' target="read"';
+            }
+
+            echo '<ul>';
+            foreach ($cache_info['threads'] as $cthread) {
+                $cthreadlink = $_conf['read_php']
+                             . '?host=' . rawurlencode($cthread['host'])
+                             . '&amp;bbs=' . rawurlencode($cthread['bbs'])
+                             . '&amp;key=' . rawurlencode($cthread['key'])
+                             . '&amp;ls=' . rawurlencode($cthread['ls'])
+                             . '&amp;offline=true' . $_conf['k_at_a'];
+                echo "<li><a href=\"{$cthreadlink}\"{$ctarget_at}>{$cthread['title']}</a></li>";
+            }
+            echo '</ul>';
+
+            if (!$_conf['ktai']) {
+                echo '</div>';
+            }
+        }
+
+        echo "</li>\n";
+    }
+
+    echo "</ul>\n";
+    if (!$_conf['ktai']) {
+        echo "</fieldset>\n";
+        echo "</td></tr>\n";
+    }
 }
 
 // }}}
 
-// 携帯用フッタ
 if ($_conf['ktai']) {
     echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
+} else {
+    echo "</table>\n";
 }
 
 echo '</body></html>';
@@ -418,7 +474,7 @@ function printEditFileForm($filename, $submit_value)
 {
     global $_conf;
 
-    $path = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . $filename;
+    $path = $_conf['pref_dir'] . '/' . $filename;
 
     if ((file_exists($path) && is_writable($path)) ||
         (!file_exists($path) && is_writable(dirname($path)))

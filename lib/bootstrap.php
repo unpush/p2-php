@@ -157,10 +157,11 @@ $_conf['extra_headers_ht'] = '';
 
 $_conf['use_cookies'] = true;
 
-$mobile = Net_UserAgent_Mobile::singleton();
+$userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null;
+$mobile = Net_UserAgent_Mobile::singleton($userAgent);
 
 // iPhone, iPod Touch or Android
-if (P2Util::isBrowserIphone() || P2Util::isBrowserAndroid()) {
+if (UA::isIPhoneGroup($userAgent)) {
     $_conf['ktai'] = true;
     $_conf['iphone'] = true;
     $_conf['input_type_search'] = true;
@@ -169,7 +170,7 @@ if (P2Util::isBrowserIphone() || P2Util::isBrowserAndroid()) {
 // PCìô
 } elseif ($mobile->isNonMobile()) {
     // Safari
-    if (P2Util::isBrowserSafariGroup()) {
+    if (UA::isSafariGroup($userAgent)) {
         $_conf['input_type_search'] = true;
         $_conf['accept_charset'] = 'UTF-8';
 
@@ -178,7 +179,7 @@ if (P2Util::isBrowserIphone() || P2Util::isBrowserAndroid()) {
         $_conf['ktai'] = true;
 
     // ågë—ÉQÅ[ÉÄã@
-    } elseif (P2Util::isBrowserNintendoDS() || P2Util::isBrowserPSP()) {
+    } elseif (UA::isNintendoDS($userAgent) || UA::isPSP($userAgent)) {
         $_conf['ktai'] = true;
     }
 

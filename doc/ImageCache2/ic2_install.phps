@@ -27,10 +27,7 @@ require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
 require_once 'HTML/Template/Flexy.php';
 require_once 'HTML/Template/Flexy/Element.php';
 require_once 'Validate.php';
-require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
-require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 
 // 設定ファイル読み込み
 $ini = ic2_loadconfig();
@@ -77,12 +74,11 @@ case 'pgsql':
     $table_extra_defs = '';
     break;
 case 'sqlite':
-case 'sqlite3':
     $serial = 'INTEGER PRIMARY KEY';
     $table_extra_defs = '';
     break;
 default:
-    die('MySQL, PostgreSQL, SQLite2, SQLite3以外のデータベースには対応していません。');
+    die('MySQL, PostgreSQL, SQLite2以外のデータベースには対応していません。');
 }
 
 // テーブル名は設定によってはDBの予約語が使われるかもしれないのでDB_xxx::quoteIdentifier()で

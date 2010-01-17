@@ -24,6 +24,11 @@ require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 
 // 設定読み込み
 $ini = ic2_loadconfig();
+if ($ini['Viewer']['cache'] && file_exists($_conf['iv2_cache_db_path'])) {
+    $viewer_cache_exists = true;
+} else {
+    $viewer_cache_exists = false;
+}
 
 // データベースに接続
 $db = DB::connect($ini['General']['dsn']);
@@ -48,11 +53,14 @@ $flexy = new HTML_Template_Flexy($_flexy_options);
 if (isset($_POST['action'])) {
     switch ($_POST['action']) {
 
+        // 画像を削除する
         case 'dropZero':
         case 'dropAborn':
             if ($_POST['action'] == 'dropZero') {
+                // ランク=0 の画像を削除する
                 $where = $db->quoteIdentifier('rank') . ' = 0';
                 if (isset($_POST['dropZeroLimit'])) {
+                    // 取得した期間を限定
                     switch ($_POST['dropZeroSelectTime']) {
                         case '24hours': $expires = 86400; break;
                         case 'aday':    $expires = 86400; break;
@@ -69,8 +77,10 @@ if (isset($_POST['action'])) {
                             time() - $expires);
                     }
                 }
+                // ブラックリストに登録する
                 $to_blacklist = !empty($_POST['dropZeroToBlackList']);
             } else {
+                // あぼーん画像を削除し、ブラックリストに登録する
                 $where = $db->quoteIdentifier('rank') . ' < 0';
                 $to_blacklist = TRUE;
             }
@@ -89,6 +99,7 @@ if (isset($_POST['action'])) {
             $flexy->setData('toBlackList', $to_blacklist);
             break;
 
+        // PC用以外の作成済みサムネイルを消去する
         case 'clearThumb':
             $thumb_dir2 = $ini['General']['cachedir'] . '/' . $ini['Thumb2']['name'];
             $thumb_dir3 = $ini['General']['cachedir'] . '/' . $ini['Thumb3']['name'];
@@ -104,8 +115,10 @@ if (isset($_POST['action'])) {
             }
             break;
 
+        // 一覧表示用のデータキャッシュを消去する
         case 'clearCache':
-            if (file_exists($_conf['iv2_cache_db_path'])) {
+            // 一覧表示用データキャッシュをクリア
+            if ($viewer_cache_exists) {
                 $kvs = P2KeyValueStore::getStore($_conf['iv2_cache_db_path'],
                                                  P2KeyValueStore::CODEC_SERIALIZING);
                 if ($kvs->clear() === false) {
@@ -114,16 +127,19 @@ if (isset($_POST['action'])) {
                     $_info_msg_ht .= '<p>一覧表示用のデータキャッシュを消去しました。</p>';
                 }
             }
+
+            // コンパイル済みテンプレートを削除
             $result_files = P2Util::garbageCollection($flexy->options['compileDir'], -1, '', '', TRUE);
             $removed_files = $result_files['successed'];
             if (!empty($result_files['failed'])) {
-                $_info_msg_ht .= '<p>以下のファイルが削除できませんでした。</p>';
+                $_info_msg_ht .= '<p>以下のコンパイル済みテンプレートが削除できませんでした。</p>';
                 $_info_msg_ht .= '<ul><li>';
                 $_info_msg_ht .= implode('</li><li>', array_map('htmlspecialchars', $result_files['failed']));
                 $_info_msg_ht .= '</li></ul>';
             }
             break;
 
+        // エラーログを消去する
         case 'clearErrorLog':
             $result = $db->query('DELETE FROM ' . $db->quoteIdentifier($ini['General']['error_table']));
             if (DB::isError($result)) {
@@ -133,6 +149,7 @@ if (isset($_POST['action'])) {
             }
             break;
 
+        // ブラックリストを消去する
         case 'clearBlackList':
             $result = $db->query('DELETE FROM ' . $db->quoteIdentifier($ini['General']['blacklist_table']));
             if (DB::isError($result)) {
@@ -142,31 +159,33 @@ if (isset($_POST['action'])) {
             }
             break;
 
-        case 'vacuumDB':
+        // データベースを最適化する
+        case 'optimizeDB':
             // SQLite2 の画像キャッシュデータベースをVACUUM
             if ($db->dsn['phptype'] == 'sqlite') {
                 $result = $db->query('VACUUM');
                 if (DB::isError($result)) {
                     $_info_msg_ht .= $result->getMessage();
                 } else {
-                $_info_msg_ht .= '<p>画像データベースを整理しました。</p>';
+                    $_info_msg_ht .= '<p>画像データベースを最適化しました。</p>';
                 }
             }
 
-            // SQLite3 の一覧表示用データキャッシュをVACUUM
-            if (file_exists($_conf['iv2_cache_db_path'])) {
+            // SQLite3 の一覧表示用データキャッシュをVACUUM,REINDX
+            if ($viewer_cache_exists) {
                 $kvs = P2KeyValueStore::getStore($_conf['iv2_cache_db_path'],
                                                  P2KeyValueStore::CODEC_SERIALIZING);
-                $kvs->vacuum();
+                $kvs->optimize();
                 unset($kvs);
-                $_info_msg_ht .= '<p>一覧表示用のデータキャッシュを整理しました。</p>';
+                $_info_msg_ht .= '<p>一覧表示用のデータキャッシュを最適化しました。</p>';
             }
             break;
 
+        // 未定義のリクエスト
         default:
-            $_info_msg_ht .= '<p>不正なクエリ: ' . htmlspecialchars($_POST['action'], ENT_QUOTES) . '</p>';
-
+            $_info_msg_ht .= '<p>未定義のリクエストです。</p>';
     }
+
     if (isset($removed_files)) {
         $flexy->setData('removedFiles', $removed_files);
     }
@@ -183,6 +202,11 @@ $flexy->setData('iphone', $_conf['iphone']);
 $flexy->setData('doctype', $_conf['doctype']);
 $flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
 $flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
+if ($db->dsn['phptype'] == 'sqlite' || $viewer_cache_exists) {
+    $flexy->setData('enable_optimize_db', true);
+} else {
+    $flexy->setData('enable_optimize_db', false);
+}
 
 P2Util::header_nocache();
 $flexy->compile('ic2mng.tpl.html');

@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29+1.8.x',  // rep2のバージョン
-    'p2expack'  => '100113.1300',   // 拡張パックのバージョン
+    'p2expack'  => '100117.0000',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -225,6 +225,7 @@ function p2_init()
     $_conf['dat_dir']  = p2_realpath($_conf['dat_dir']);
     $_conf['idx_dir']  = p2_realpath($_conf['idx_dir']);
     $_conf['pref_dir'] = p2_realpath($_conf['pref_dir']);
+    $_conf['db_dir']   = p2_realpath($_conf['db_dir']);
 
     // 管理用保存ディレクトリ
     $_conf['admin_dir'] = $_conf['data_dir'] . '/admin';
@@ -282,16 +283,13 @@ function p2_init()
         $_conf[$k] = $_conf['pref_dir'] . '/' . $v;
     }
 
-    $_conf['matome_cache_path'] = $_conf['pref_dir'] . '/matome_cache';
-    $_conf['matome_cache_ext']  = '.htm';
-    $_conf['matome_cache_max']  = 3; // 予備キャッシュの数
-
     $_conf['orig_favita_brd']   = $_conf['favita_brd'];
     $_conf['orig_favlist_idx']  = $_conf['favlist_idx'];
 
     $_conf['cookie_db_path']    = $_conf['db_dir'] . '/p2_cookies.sqlite3';
     $_conf['post_db_path']      = $_conf['db_dir'] . '/p2_post_data.sqlite3';
     $_conf['hostcheck_db_path'] = $_conf['db_dir'] . '/p2_hostcheck_cache.sqlite3';
+    $_conf['matome_db_path']    = $_conf['db_dir'] . '/p2_matome_cache.sqlite3';
     $_conf['iv2_cache_db_path'] = $_conf['db_dir'] . '/iv2_cache.sqlite3';
 
     // 補正

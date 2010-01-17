@@ -174,19 +174,19 @@ if ($ini['Viewer']['cache']) {
     } else {
         $cache_clear = false;
     }
-    $do_vacuum = false;
+    $optimize_db = false;
 
     if ($cache_clear == 'all') {
         $kvs->clear();
-        $do_vacuum = true;
+        $optimize_db = true;
     } elseif ($cache_clear == 'gc') {
         $kvs->gc($cache_lifetime);
-        $do_vacuum = true;
+        $optimize_db = true;
     }
 
-    if ($do_vacuum) {
-        // キャッシュをVACUUM
-        $kvs->vacuum();
+    if ($optimize_db) {
+        // キャッシュをVACUUM,REINDEX
+        $kvs->optimize();
 
         // SQLiteならVACUUMを実行
         if ($db_class == 'db_sqlite') {
@@ -931,6 +931,16 @@ var ic2_lightbox_options = {
     no_loop: false,
     no_updown: false
 };
+p2BindReady(function(){
+    var toolbar = document.getElementById('toolbar');
+    var toolbarHeight = getCurrentStyle(toolbar).height;
+    if (toolbarHeight == 'auto') {
+        toolbarHeight = toolbar.clientHeight;
+    } else {
+        toolbarHeight = parsePixels(toolbarHeight);
+    }
+    document.getElementById('header').style.height = toolbarHeight + 'px';
+}, null);
 // ]]>
 </script>\n
 EOJS;

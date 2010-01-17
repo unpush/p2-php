@@ -429,7 +429,7 @@ class UA
         }
 
         // Mozilla/4.0 (PSP (PlayStation Portable); 2.00)
-        if (preg_match('/PlayStation Portable/', $ua)) {
+        if (false !== strpos($ua, 'PlayStation Portable')) {
             return true;
         }
         return false;
@@ -451,7 +451,7 @@ class UA
         }
 
         // Mozilla/4.0 (compatible; MSIE 6.0; Nitro) Opera 8.5 [ja]
-        if (preg_match('/ Nitro/', $ua)) {
+        if (false !== strpos($ua, ' Nitro')) {
             return true;
         }
         return false;
