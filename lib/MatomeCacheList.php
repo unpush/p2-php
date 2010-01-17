@@ -107,7 +107,9 @@ class MatomeCacheList
 
         // $lengthがゼロの場合は全件削除
         if ($length == 0) {
-            return self::clear($prefix);
+            MatomeCacheDataStore::clear($prefix);
+            MatomeCacheMetaDataStore::clear($prefix);
+            return true;
         }
 
         // 更新時刻順にソートして$length+1番目のレコードを取得
@@ -118,6 +120,7 @@ class MatomeCacheList
             return 0;
         }
 
+        $key = key($result);
         $mtime = current($result)->mtime;
         $query = 'DELETE FROM $__table WHERE '
                . P2KeyValueStore::C_KEY_BEGINS
@@ -135,6 +138,16 @@ class MatomeCacheList
 
         // メタデータも削除
         $kvs = MatomeCacheMetaDataStore::getKVS();
+        /*
+         * メタデータの方が一瞬遅れて挿入されるため、ごく稀にデータのmtimeと
+         * メタデータのmtimeが異なる可能性がある。このときデータのmtimeを
+         * そのまま使うとgetList()の結果にデータが存在しないレコードが
+         * 含まれることになるので、それを防ぐためにデータと同一キーの
+         * メタデータのmtimeを取得する。
+         */
+        if ($record = $kvs->getRaw($key)) {
+            $mtime = $record->mtime;
+        }
         $stmt = $kvs->prepare($query);
         $kvs->bindValueForPrefixSearch($stmt, $prefix);
         $stmt->bindValue(':mtime', $mtime, PDO::PARAM_INT);
