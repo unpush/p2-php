@@ -5,6 +5,8 @@
 /**
  * 配列をシリアライズ・アンシリアライズするCodec
  *
+ * 実際は非圧縮シリアライズCodecなので配列以外にも対応している。
+ *
  * シリアライズ後のサイズが圧縮を必要とするほど大きくない場合に使う。
  * 配列の要素に含まれる文字列は妥当なShift_JISシーケンスでなければならず、
  * キーは数値かUS-ASCII文字列であることを期待する。
@@ -14,7 +16,7 @@ class P2KeyValueStore_Codec_ArrayShiftJIS extends P2KeyValueStore_Codec_Array
     // {{{ encodeValue()
 
     /**
-     * 値をシリアライズする
+     * 値をUTF-8に変換した後、シリアライズする
      *
      * @param array $array
      * @return string
@@ -29,7 +31,7 @@ class P2KeyValueStore_Codec_ArrayShiftJIS extends P2KeyValueStore_Codec_Array
     // {{{ decodeValue()
 
     /**
-     * 値をアンシリアライズする
+     * 値をアンシリアライズした後、Shift_JISに変換する
      *
      * @param string $value
      * @return array

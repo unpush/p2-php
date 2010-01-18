@@ -36,13 +36,15 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
 
     const C_KEY_BEGINS = 'arkey LIKE :pattern ESCAPE :escape';
 
-    const CODEC_DEFAULT     = 'P2KeyValueStore_Codec_Default';
-    const CODEC_BINARY      = 'P2KeyValueStore_Codec_Binary';
-    const CODEC_COMPRESSING = 'P2KeyValueStore_Codec_Compressing';
-    const CODEC_SHIFTJIS    = 'P2KeyValueStore_Codec_ShiftJIS';
-    const CODEC_SERIALIZING = 'P2KeyValueStore_Codec_Serializing';
-    const CODEC_ARRAY       = 'P2KeyValueStore_Codec_Array';
-    const CODEC_ARRAYSHIFTJIS = 'P2KeyValueStore_Codec_ArrayShiftJIS';
+    const CODEC_DEFAULT         = 'P2KeyValueStore_Codec_Default';
+    const CODEC_BINARY          = 'P2KeyValueStore_Codec_Binary';
+    const CODEC_COMPRESSING     = 'P2KeyValueStore_Codec_Compressing';
+    const CODEC_SHIFTJIS        = 'P2KeyValueStore_Codec_ShiftJIS';
+    const CODEC_SERIALIZING     = 'P2KeyValueStore_Codec_Serializing';
+    const CODEC_ARRAY           = 'P2KeyValueStore_Codec_Array';
+    const CODEC_ARRAYSHIFTJIS   = 'P2KeyValueStore_Codec_ArrayShiftJIS';
+    const CODEC_JSON            = 'P2KeyValueStore_Codec_JSON';
+    const CODEC_JSONSHIFTJIS    = 'P2KeyValueStore_Codec_JSONShiftJIS';
 
     const MEMORY_DATABASE   = ':memory:';
 
@@ -82,6 +84,13 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * @var P2KeyValueStore_Codec_Interface
      */
     private $_codec;
+
+    /**
+     * テーブル名
+     *
+     * @var string
+     */
+    private $_tableName;
 
     /**
      * 識別子としてクォート済みのテーブル名
@@ -184,6 +193,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
         $this->_pdo = $pdo;
         $this->_pdoId = spl_object_hash($pdo);
         $this->_codec = $codec;
+        $this->_tableName = $tableName;
         $this->_quotedTableName = '"' . str_replace('"', '""', $tableName) . '"';
         $this->_sharedResult = new P2KeyValueStore_Result;
 
@@ -921,14 +931,40 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     // {{{ getTableName()
 
     /**
-     * クォート済みのテーブル名を返す
+     * テーブル名を返す
      *
-     * @param void
+     * @param bool $quoted
      * @return string
      */
-    public function getTableName()
+    public function getTableName($quoted = false)
     {
-        return $this->_quotedTableName;
+        if ($quoted) {
+            return $this->_quotedTableName;
+        } else {
+            return $this->_tableName;
+        }
+    }
+
+    // }}}
+    // {{{ getRawKVS()
+
+    /**
+     * 同じテーブルを扱い、キー・値の変換をしないKey-Value Storeを返す
+     *
+     * @param void
+     * @return new P2KeyValueStore
+     */
+    public function getRawKVS()
+    {
+        if (array_key_exists('__raw__', self::$_codecCache)) {
+            $codec = self::$_codecCache['__raw__'];
+        } else {
+            $className = self::CODEC_DEFAULT;
+            $codec = new $className;
+            self::$_codecCache['__raw__'] = $codec;
+        }
+
+        return new P2KeyValueStore($this->_pdo, $codec, $this->_tableName);
     }
 
     // }}}

@@ -10,7 +10,7 @@ class MatomeCacheDataStore extends AbstractDataStore
     // {{{ getKVS()
 
     /**
-     * 書き込みデータを保存するP2KeyValueStoreオブジェクトを取得する
+     * まとめ読みデータを保存するP2KeyValueStoreオブジェクトを取得する
      *
      * @param void
      * @return P2KeyValueStore
@@ -96,6 +96,26 @@ class MatomeCacheDataStore extends AbstractDataStore
 
     // }}}
     // }}} コピペここまで
+    // {{{ setRaw()
+
+    /**
+     * Codecによる変換なしでデータを保存する
+     *
+     * @param string $key
+     * @param string $value
+     * @return bool
+     */
+    static public function setRaw($key, $value)
+    {
+        $kvs = self::getKVS()->getRawKVS();
+        if ($kvs->exists($key)) {
+            return $kvs->update($key, $value);
+        } else {
+            return $kvs->set($key, $value);
+        }
+    }
+
+    // }}}
 }
 
 // }}}

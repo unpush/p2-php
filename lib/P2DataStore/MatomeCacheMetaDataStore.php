@@ -10,7 +10,7 @@ class MatomeCacheMetaDataStore extends AbstractDataStore
     // {{{ getKVS()
 
     /**
-     * 書き込みデータを保存するP2KeyValueStoreオブジェクトを取得する
+     * まとめ読みメタデータを保存するP2KeyValueStoreオブジェクトを取得する
      *
      * @param void
      * @return P2KeyValueStore

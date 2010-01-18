@@ -16,7 +16,7 @@ class P2Client
     const COOKIE_STORE_NAME = 'p2_2ch_net_cookies.sqlite3';
 
     /**
-     * 公式P2のURIと各エントリポイント
+     * 公式p2のURIと各エントリポイント
      */
     const P2_ROOT_URI = 'http://p2.2ch.net/p2/';
     const SCRIPT_NAME_READ = 'read.php';
@@ -133,7 +133,7 @@ class P2Client
         }
 
         if ($cookieManager = $cookieStore->get($loginId)) {
-            if (!$cookieManager instanceof HTTP_Client_CookieManager) {
+            if (!($cookieManager instanceof HTTP_Client_CookieManager)) {
                 $cookieStore->delete($loginId);
                 throw new Exception('Cannot restore the cookie manager.');
             }
@@ -289,7 +289,7 @@ class P2Client
         $expression = './/a[contains(@href, "' . self::SCRIPT_NAME_READ . '?")'
                     . ' and contains(@href, "&moritapodat=")]';
         $result = $dom->query($expression);
-        if ($result instanceof DOMNodeList && $result->length > 0) {
+        if (($result instanceof DOMNodeList) && $result->length > 0) {
             $anchor = $result->item(0);
             $uri = self::P2_ROOT_URI
                  . strstr($anchor->getAttribute('href'), self::SCRIPT_NAME_READ);
@@ -365,7 +365,7 @@ class P2Client
             $dom = new P2DOM($html);
             $expression = './/form[contains(@action, "' . self::SCRIPT_NAME_POST . '")]';
             $result = $dom->query($expression);
-            if ($result instanceof DOMNodeList && $result->length > 0) {
+            if (($result instanceof DOMNodeList) && $result->length > 0) {
                 $postData = $this->setupPostData($dom, $result->item(0), $name, $mail, $message);
                 $response = $this->httpPost($uri, $postData, true);
             } else {
@@ -437,7 +437,7 @@ class P2Client
     protected function getLoginForm(P2DOM $dom)
     {
         $result = $dom->query('.//form[@action and @id="login"]');
-        if ($result instanceof DOMNodeList && $result->length > 0) {
+        if (($result instanceof DOMNodeList) && $result->length > 0) {
             return $result->item(0);
         }
         return null;
@@ -455,7 +455,7 @@ class P2Client
     protected function getPostForm(P2DOM $dom)
     {
         $result = $dom->query('.//form[@action and @id="resform"]');
-        if ($result instanceof DOMNodeList && $result->length > 0) {
+        if (($result instanceof DOMNodeList) && $result->length > 0) {
             return $result->item(0);
         }
         return null;

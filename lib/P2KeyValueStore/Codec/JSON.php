@@ -1,16 +1,13 @@
 <?php
 
-// {{{ P2KeyValueStore_Codec_Array
+// {{{ P2KeyValueStore_Codec_JSON
 
 /**
- * 配列をシリアライズ・アンシリアライズするCodec
+ * 値をJSONエンコード・デコードするCodec
  *
- * 実際は非圧縮シリアライズCodecなので配列以外にも対応している。
- *
- * シリアライズ後のサイズが圧縮を必要とするほど大きくない場合に使う。
- * 配列の要素に文字列を含む場合、妥当なUTF-8シーケンスでなければならない。
+ * 文字列は妥当なUTF-8シーケンスでなければならない。
  */
-class P2KeyValueStore_Codec_Array implements P2KeyValueStore_Codec_Interface
+class P2KeyValueStore_Codec_JSON implements P2KeyValueStore_Codec_Interface
 {
     // {{{ encodeKey()
 
@@ -43,28 +40,31 @@ class P2KeyValueStore_Codec_Array implements P2KeyValueStore_Codec_Interface
     // {{{ encodeValue()
 
     /**
-     * 値をシリアライズする
+     * 値をJSONエンコードする
      *
-     * @param array $array
+     * @param mixed $value
      * @return string
      */
-    public function encodeValue($array)
+    public function encodeValue($value)
     {
-        return serialize($array);
+        return json_encode($value);
     }
 
     // }}}
     // {{{ decodeValue()
 
     /**
-     * 値をアンシリアライズする
+     * 値をJSONデコードする
      *
-     * @param string $value
-     * @return array
+     * JSONのオブジェクトはstdClassオブジェクトではなく
+     * 連想配列に変換する
+     *
+     * @param string $json
+     * @return mixed
      */
-    public function decodeValue($value)
+    public function decodeValue($json)
     {
-        return unserialize($value);
+        return json_decode($json, true);
     }
 
     // }}}

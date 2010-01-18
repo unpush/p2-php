@@ -14,13 +14,22 @@ class MatomeCacheList
      *
      * @param string $content
      * @param array $metaData
-     * @return $key
+     * @param bool $isRawFile   trueなら$contentはファイル名で、その内容は
+     *                          deflate圧縮+Base64エンコードされたデータ
+     * @return string
      */
-    static public function add($content, array $metaData)
+    static public function add($content, array $metaData, $isRawFile = false)
     {
         $key = sprintf('%s%0.6f', self::getKeyPrefix(), microtime(true));
-        MatomeCacheDataStore::set($key, $content);
+
+        if ($isRawFile) {
+            MatomeCacheDataStore::setRaw($key, file_get_contents($content));
+        } else {
+            MatomeCacheDataStore::set($key, $content);
+        }
+
         MatomeCacheMetaDataStore::set($key, $metaData);
+
         return $key;
     }
 
@@ -107,9 +116,12 @@ class MatomeCacheList
 
         // $lengthがゼロの場合は全件削除
         if ($length == 0) {
-            MatomeCacheDataStore::clear($prefix);
+            $numRemoved = MatomeCacheDataStore::clear($prefix);
+            if ($numRemoved === false) {
+                return false;
+            }
             MatomeCacheMetaDataStore::clear($prefix);
-            return true;
+            return $numRemoved;
         }
 
         // 更新時刻順にソートして$length+1番目のレコードを取得
@@ -159,7 +171,7 @@ class MatomeCacheList
 
     // }}}
     // {{{ optimize()
-    
+
     /**
      * まとめ読みキャッシュを最適化する
      *
