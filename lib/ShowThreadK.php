@@ -540,7 +540,7 @@ EOP;
             return $retry ? self::$_spm_objects[$this->spmObjName] : '';
         }
 
-        $ttitle_en = rawurlencode(base64_encode($this->thread->ttitle));
+        $ttitle_en = UrlSafeBase64::encode($this->thread->ttitle);
 
         $motothre_url = $this->thread->getMotoThread();
         $motothre_url = substr($motothre_url, 0, strlen($this->thread->ls) * -1);

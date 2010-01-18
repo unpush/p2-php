@@ -212,7 +212,7 @@ function sb_print_k($aThreadList)
 
         $thre_url = "{$_conf['read_php']}?{$host_bbs_key_q}";
         if ($_conf['iphone']) {
-            $thre_url .= '&amp;ttitle_en=' . rawurlencode(base64_encode($aThread->ttitle));
+            $thre_url .= '&amp;ttitle_en=' . UrlSafeBase64::encode($aThread->ttitle);
         }
         $thre_url .= "{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
 

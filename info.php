@@ -77,7 +77,7 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
     if (!function_exists('setFav')) {
         include P2_LIB_DIR . '/setfav.inc.php';
     }
-    $ttitle = is_string($ttitle_en) ? base64_decode($ttitle_en) : null;
+    $ttitle = is_string($ttitle_en) ? UrlSafeBase64::decode($ttitle_en) : null;
     if (isset($_GET['setnum'])) {
         setFav($host, $bbs, $key, $_GET['setfav'], $ttitle, $_GET['setnum']);
     } else {
@@ -121,19 +121,19 @@ $hc['itaj'] = $aThread->itaj;
 
 if (!$aThread->ttitle) {
     if (isset($ttitle_en)) {
-        $aThread->setTtitle(base64_decode($ttitle_en));
+        $aThread->setTtitle(UrlSafeBase64::decode($ttitle_en));
     } else {
         $aThread->setTitleFromLocal();
     }
 }
 if (!$ttitle_en) {
     if ($aThread->ttitle) {
-        $ttitle_en = base64_encode($aThread->ttitle);
+        $ttitle_en = UrlSafeBase64::encode($aThread->ttitle);
         //$ttitle_urlen = rawurlencode($ttitle_en);
     }
 }
 if ($ttitle_en) {
-    $ttitle_en_q = '&amp;ttitle_en=' . rawurlencode($ttitle_en);
+    $ttitle_en_q = '&amp;ttitle_en=' . $ttitle_en;
 } else {
     $ttitle_en_q = '';
 }

@@ -116,7 +116,7 @@ if (is_array($lines)) {
         if (preg_match("/^\t?(.+?)\t(.+?)\t(.+?)\$/", $l, $matches)) {
             $id = "li{$i}";
             $okini_itas[$id]['itaj']       = $itaj = rtrim($matches[3]);
-            $okini_itas[$id]['itaj_en']    = $itaj_en = base64_encode($itaj);
+            $okini_itas[$id]['itaj_en']    = $itaj_en = UrlSafeBase64::encode($itaj);
             $okini_itas[$id]['host']       = $host = $matches[1];
             $okini_itas[$id]['bbs']        = $bbs = $matches[2];
             $okini_itas[$id]['itaj_view']  = htmlspecialchars($itaj);
@@ -285,7 +285,7 @@ if ($lines) {
     foreach ($lines as $l) {
         if (preg_match('/^\t?(.+?)\t(.+?)\t(.+?)$/', rtrim($l), $matches)) {
             $itaj       = rtrim($matches[3]);
-            $itaj_en    = rawurlencode(base64_encode($itaj));
+            $itaj_en    = UrlSafeBase64::encode($itaj);
             $host       = $matches[1];
             $bbs        = $matches[2];
             $itaj_view  = htmlspecialchars($itaj, ENT_QUOTES);

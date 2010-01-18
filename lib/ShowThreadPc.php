@@ -928,7 +928,7 @@ EOJS;
             return $retry ? self::$_spm_objects[$this->spmObjName] : '';
         }
 
-        $ttitle_en = rawurlencode(base64_encode($this->thread->ttitle));
+        $ttitle_en = UrlSafeBase64::encode($this->thread->ttitle);
 
         if ($_conf['expack.spm.filter_target'] == '' || $_conf['expack.spm.filter_target'] == 'read') {
             $_conf['expack.spm.filter_target'] = '_self';

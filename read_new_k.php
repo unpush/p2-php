@@ -393,7 +393,7 @@ function readNew($aThread)
     //==================================================================
     $motothre_url = $aThread->getMotoThread();
 
-    $ttitle_en = rawurlencode(base64_encode($aThread->ttitle));
+    $ttitle_en = UrlSafeBase64::encode($aThread->ttitle);
     $ttitle_en_q = '&amp;ttitle_en=' . $ttitle_en;
     $bbs_q = '&amp;bbs=' . $aThread->bbs;
     $key_q = '&amp;key=' . $aThread->key;

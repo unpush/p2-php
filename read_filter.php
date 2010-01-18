@@ -26,7 +26,7 @@ $res_filter = array();
 $res_filter['field'] = $field;
 $itaj = P2Util::getItaName($host, $bbs);
 if (!$itaj) { $itaj = $bbs; }
-$ttitle_name = base64_decode($ttitle_en);
+$ttitle_name = UrlSafeBase64::decode($ttitle_en);
 $popup_filter = 1;
 
 /**

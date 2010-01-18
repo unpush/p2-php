@@ -46,7 +46,7 @@ function setFavItaByRequest()
             $bbs = $_GET['bbs'];
         }
         if (isset($_GET['itaj_en'])) {
-            $itaj = base64_decode($_GET['itaj_en']);
+            $itaj = UrlSafeBase64::decode($_GET['itaj_en']);
         }
     } elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_POST['setfavita'])) {
@@ -178,7 +178,7 @@ function setFavItaByList($list, $setnum = null)
     $rec_lines = array();
     foreach (explode(',', $list) as $aList) {
         list($host, $bbs, $itaj_en) = explode('@', $aList);
-        $rec_lines[] = "\t{$host}\t{$bbs}\t" . base64_decode($itaj_en);
+        $rec_lines[] = "\t{$host}\t{$bbs}\t" . UrlSafeBase64::decode($itaj_en);
     }
 
     $_info_msg_ht .= <<<EOJS

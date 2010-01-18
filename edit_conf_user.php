@@ -87,11 +87,11 @@ if (!empty($_POST['submit_save'])) {
 
 if ($_conf['ktai']) {
     if (isset($_POST['edit_conf_user_group_en'])) {
-        $selected_group = base64_decode($_POST['edit_conf_user_group_en']);
+        $selected_group = UrlSafeBase64::decode($_POST['edit_conf_user_group_en']);
     } elseif (isset($_POST['edit_conf_user_group'])) {
         $selected_group = $_POST['edit_conf_user_group'];
     } elseif (isset($_GET['edit_conf_user_group_en'])) {
-        $selected_group = base64_decode($_GET['edit_conf_user_group_en']);
+        $selected_group = UrlSafeBase64::decode($_GET['edit_conf_user_group_en']);
     } elseif (isset($_GET['edit_conf_user_group'])) {
         $selected_group = $_GET['edit_conf_user_group'];
     } else {
@@ -678,7 +678,7 @@ EOP;
 // Œg‘Ñ—p•\Ž¦
 } else {
     if (!empty($selected_group)) {
-        $group_en = htmlspecialchars(base64_encode($selected_group));
+        $group_en = UrlSafeBase64::encode($selected_group);
         echo "<input type=\"hidden\" name=\"edit_conf_user_group_en\" value=\"{$group_en}\">";
         echo $htm['form_submit'];
     }
@@ -709,7 +709,7 @@ EOP;
             }
         }
         $group_ht = htmlspecialchars($groupname, ENT_QUOTES);
-        $group_en = htmlspecialchars(base64_encode($groupname));
+        $group_en = UrlSafeBase64::encode($groupname);
         $selected = ($selected_group == $groupname) ? ' selected' : '';
         echo "<option value=\"{$group_en}\"{$selected}>{$group_ht}</option>";
     }

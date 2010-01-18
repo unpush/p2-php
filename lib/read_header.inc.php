@@ -21,9 +21,8 @@ $dores_st       = '書込'; // 'レス';
 $aborn_st       = 'あぼん';
 
 $motothre_url = $aThread->getMotoThread(false, '');
-$ttitle_en = base64_encode($aThread->ttitle);
-$ttitle_urlen = rawurlencode($ttitle_en);
-$ttitle_en_q = '&amp;ttitle_en=' . $ttitle_urlen;
+$ttitle_en = UrlSafeBase64::encode($aThread->ttitle);
+$ttitle_en_q = '&amp;ttitle_en=' . $ttitle_en;
 $bbs_q = '&amp;bbs=' . $aThread->bbs;
 $key_q = '&amp;key=' . $aThread->key;
 $host_bbs_key_q = 'host=' . $aThread->host . $bbs_q . $key_q;
@@ -128,7 +127,9 @@ GOTO;
 // ツールバー部分HTML =======
 
 // お気にマーク設定
-$similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc) . '&amp;refresh=1';
+$similar_q = '&amp;itaj_en=' . UrlSafeBase64::encode($aThread->itaj)
+           . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc)
+           . '&amp;refresh=1';
 $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
 
 if ($_conf['expack.misc.multi_favs']) {

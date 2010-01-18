@@ -94,7 +94,7 @@ if (!empty($_REQUEST['viewnum'])) {
 }
 
 if (isset($_GET['itaj_en'])) {
-    $p2_setting['itaj'] = base64_decode($_GET['itaj_en']);
+    $p2_setting['itaj'] = UrlSafeBase64::decode($_GET['itaj_en']);
 }
 
 // }}}
@@ -210,7 +210,7 @@ if (!empty($_GET['dele']) || (isset($_POST['submit']) && $_POST['submit'] == $de
 } elseif (isset($_GET['setfav']) && !empty($_GET['key']) && $host && $bbs) {
     require_once P2_LIB_DIR . '/setfav.inc.php';
     setFav($host, $bbs, $_GET['key'], $_GET['setfav'],
-           isset($_GET['ttitle_en']) ? base64_decode($_GET['ttitle_en']) : null);
+           isset($_GET['ttitle_en']) ? UrlSafeBase64::decode($_GET['ttitle_en']) : null);
 
 // “a“°“ü‚è
 } elseif (isset($_GET['setpal']) && $_GET['key'] && $host && $bbs) {

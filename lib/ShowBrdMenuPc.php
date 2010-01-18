@@ -121,7 +121,7 @@ EOP;
             foreach ($favitas as $favita) {
                 extract($favita);
                 $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
-                $itaj_en = rawurlencode(base64_encode($itaj));
+                $itaj_en = UrlSafeBase64::encode($itaj);
                 $itaj_js = addslashes($itaj_view);
 
                 $p_htm['star'] = <<<EOP

@@ -41,7 +41,7 @@ if (file_exists($aThread->keydat)) {
     $aThread->readDat($aThread->keydat);
     $one = $aThread->explodeDatLine($aThread->datlines[0]);
     $ttitle = trim($one[4]);
-    $ttitle_en = rawurlencode(base64_encode($ttitle));
+    $ttitle_en = UrlSafeBase64::encode($ttitle);
     $ttitle_ht = htmlspecialchars($ttitle, ENT_QUOTES);
     $url_txt = $aThread->getMotoThread(true);
     $url_k_txt = $aThread->getMotoThread();

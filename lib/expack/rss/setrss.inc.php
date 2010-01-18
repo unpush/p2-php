@@ -64,7 +64,7 @@ $xml = preg_replace('|^feed://|', 'http://', $xml);
 // RSS‚Ìƒ^ƒCƒgƒ‹İ’è
 if ($site === '') {
     if ($site_en !== '') {
-        $site = base64_decode($site_en);
+        $site = UrlSafeBase64::decode($site_en);
     } else {
         $purl = @parse_url($xml);
         if (is_array($purl)) {

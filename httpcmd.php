@@ -77,7 +77,7 @@ case 'setfavita':
             include P2_LIB_DIR . '/setfavita.inc.php';
         }
         if (isset($_REQUEST['itaj_en'])) {
-            $itaj = base64_decode($_REQUEST['itaj_en']);
+            $itaj = UrlSafeBase64::decode($_REQUEST['itaj_en']);
         } elseif (isset($_REQUEST['itaj'])) {
             $itaj = $_REQUEST['itaj'];
         } else {
@@ -105,7 +105,7 @@ case 'setfav':
             include P2_LIB_DIR . '/setfav.inc.php';
         }
         if (isset($_REQUEST['ttitle_en'])) {
-            $ttitle = base64_decode($_REQUEST['ttitle_en']);
+            $ttitle = UrlSafeBase64::decode($_REQUEST['ttitle_en']);
         } elseif (isset($_REQUEST['ttitle'])) {
             $ttitle = $_REQUEST['ttitle'];
         } else {
@@ -133,7 +133,7 @@ case 'setpal':
             include P2_LIB_DIR . '/setpalace.inc.php';
         }
         if (isset($_REQUEST['ttitle_en'])) {
-            $ttitle = base64_decode($_REQUEST['ttitle_en']);
+            $ttitle = UrlSafeBase64::decode($_REQUEST['ttitle_en']);
         } elseif (isset($_REQUEST['ttitle'])) {
             $ttitle = $_REQUEST['ttitle'];
         } else {
@@ -195,7 +195,7 @@ case 'bookmark':
         }
         $set = (bool)$_REQUEST['bookmark'];
         if (isset($_REQUEST['ttitle_en'])) {
-            $ttitle = base64_decode($_REQUEST['ttitle_en']);
+            $ttitle = UrlSafeBase64::decode($_REQUEST['ttitle_en']);
         } elseif (isset($_REQUEST['ttitle'])) {
             $ttitle = $_REQUEST['ttitle'];
         } else {

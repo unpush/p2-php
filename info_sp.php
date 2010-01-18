@@ -21,7 +21,7 @@ $mode   = isset($_GET['mode']) ? $_GET['mode'] : null;
 
 if (isset($_GET['aborn_str_en'])) {
     $aborn_str_en = $_GET['aborn_str_en'];
-    $aborn_str = base64_decode($aborn_str_en);
+    $aborn_str = UrlSafeBase64::decode($aborn_str_en);
 } elseif (isset($_GET['aborn_str'])) {
     $aborn_str = $_GET['aborn_str'];
 }
@@ -34,7 +34,7 @@ if (!$itaj) {
     $itaj = $bbs;
 }
 
-$ttitle_name = is_string($ttitle_en) ? base64_decode($ttitle_en) : '';
+$ttitle_name = is_string($ttitle_en) ? UrlSafeBase64::decode($ttitle_en) : '';
 
 $thread_url = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}{$_conf['k_at_a']}";
 
@@ -84,7 +84,7 @@ if ($popup == 1 || $_conf['expack.spm.ngaborn_confirm'] == 0) {
     }
     if (!is_string($ttitle_en)) {
         $onear = $aThread->explodeDatLine($aThread->datlines[0]);
-        $_GET['ttitle_en'] = $ttitle_en = base64_encode($ttitle_name = $onear[4]);
+        $_GET['ttitle_en'] = $ttitle_en = UrlSafeBase64::encode($ttitle_name = $onear[4]);
     }
 }
 
@@ -133,7 +133,7 @@ switch ($mode) {
         } else {
             $aborn_str = $host . '/' . $bbs . '/' . $key . '/' . $resnum;
             $msg = '<b>' . $aborn_str . '</b> をあぼーんしてよろしいですか？';
-            $aborn_str_en = base64_encode($aborn_str);
+            $aborn_str_en = UrlSafeBase64::encode($aborn_str);
         }
         $edit_value = 'あぼーんレス編集';
         break;
@@ -143,7 +143,7 @@ switch ($mode) {
             $msg = 'あぼーんワード（名前）に <b>' . $aborn_str . '</b> を登録しました。';
         } elseif ($resar[0] != "") {
             $msg = 'あぼーんワード（名前）に <b>' . $resar[0] . '</b> を登録してよろしいですか？';
-            $aborn_str_en = base64_encode($resar[0]);
+            $aborn_str_en = UrlSafeBase64::encode($resar[0]);
         }
         $edit_value = 'あぼーんワード編集：名前';
         break;
@@ -153,7 +153,7 @@ switch ($mode) {
             $msg = 'あぼーんワード（メール）に <b>' . $aborn_str . '</b> を登録しました。';
         } elseif ($resar[1] != "") {
             $msg = 'あぼーんワード（メール）に <b>' . $resar[1] . '</b> を登録してよろしいですか？';
-            $aborn_str_en = base64_encode($resar[1]);
+            $aborn_str_en = UrlSafeBase64::encode($resar[1]);
         }
         $edit_value = 'あぼーんワード編集：メール';
         break;
@@ -172,7 +172,7 @@ switch ($mode) {
             $msg = 'あぼーんワード（ID）に <b>' . $aborn_str . '</b> を登録しました。';
         } elseif ($aborn_id != "") {
             $msg = 'あぼーんワード（ID）に <b>' . $aborn_id . '</b> を登録してよろしいですか？';
-            $aborn_str_en = base64_encode($aborn_id);
+            $aborn_str_en = UrlSafeBase64::encode($aborn_id);
         }
         $edit_value = 'あぼーんワード編集：ID';
         break;
@@ -182,7 +182,7 @@ switch ($mode) {
             $msg = 'NGワード（名前）に <b>' . $aborn_str . '</b> を登録しました。';
         } elseif ($resar[0] != "") {
             $msg = 'NGワード（名前）に <b>' . $resar[0] . '</b> を登録してよろしいですか？';
-            $aborn_str_en = base64_encode($resar[0]);
+            $aborn_str_en = UrlSafeBase64::encode($resar[0]);
         }
         $edit_value = 'NGワード編集：名前';
         break;
@@ -192,7 +192,7 @@ switch ($mode) {
             $msg = 'NGワード（メール）に <b>' . $aborn_str . '</b> を登録しました。';
         } elseif ($resar[1] != "") {
             $msg = 'NGワード（メール）に <b>' . $resar[1] . '</b> を登録してよろしいですか？';
-            $aborn_str_en = base64_encode($resar[1]);
+            $aborn_str_en = UrlSafeBase64::encode($resar[1]);
         }
         $edit_value = 'NGワード編集：メール';
         break;
@@ -211,7 +211,7 @@ switch ($mode) {
             $msg = 'NGワード（ID）に <b>' . $aborn_str . '</b> を登録しました。';
         } elseif ($aborn_id != "") {
             $msg = 'NGワード（ID）に <b>' . $aborn_id . '</b> を登録してよろしいですか？';
-            $aborn_str_en = base64_encode($aborn_id);
+            $aborn_str_en = UrlSafeBase64::encode($aborn_id);
         }
         $edit_value = 'NGワード編集：ID';
         break;

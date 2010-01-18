@@ -13,7 +13,7 @@ if ($_conf['bottom_res_form']) {
     $key = $aThread->key;
     $host = $aThread->host;
     $rescount = $aThread->rescount;
-    $ttitle_en = base64_encode($aThread->ttitle);
+    $ttitle_en = UrlSafeBase64::encode($aThread->ttitle);
 
     $submit_value = '‘‚«‚Ş';
 

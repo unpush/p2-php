@@ -30,7 +30,7 @@ if (!$itaj) {
 $itaj_hd = htmlspecialchars($itaj, ENT_QUOTES, 'Shift_JIS', false);
 
 $ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : '';
-$ttitle = (strlen($ttitle_en) > 0) ? base64_decode($ttitle_en) : '';
+$ttitle = (strlen($ttitle_en) > 0) ? UrlSafeBase64::decode($ttitle_en) : '';
 $ttitle_hd = htmlspecialchars($ttitle, ENT_QUOTES);
 
 $key_idx = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';

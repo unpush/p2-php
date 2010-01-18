@@ -48,7 +48,7 @@ foreach ($post_internal_keys as $pk) {
 
 if (!isset($ttitle)) {
     if ($ttitle_en) {
-        $ttitle = base64_decode($ttitle_en);
+        $ttitle = UrlSafeBase64::decode($ttitle_en);
     } elseif ($subject) {
         $ttitle = $subject;
     } else {

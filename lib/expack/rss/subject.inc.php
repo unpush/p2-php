@@ -32,7 +32,7 @@ if ($rss_parse_success) {
     // ツールバー共通部品
     $matomeyomi = '';
     if (rss_item_exists($items, 'content:encoded') || rss_item_exists($items, 'description')) {
-        $all_en = rawurlencode(base64_encode(base64_decode($site_en) . ' の 概要まとめ読み'));
+        $all_en = UrlSafeBase64::encode(UrlSafeBase64::decode($site_en) . ' の 概要まとめ読み');
         $matomeyomi = <<<EOP
 <a class="toolanchor" href="read_rss.php?xml={$xml_en}&amp;title_en={$all_en}&amp;num=all{$atom_q}" target="read">概要まとめ読み</a>\n
 EOP;
@@ -145,7 +145,7 @@ foreach ($items as $item) {
     // 概要
     if ($description_column_ht) {
         if (isset($item['content:encoded']) || isset($item['description'])) {
-            $title_en = rawurlencode(base64_encode($item['title']));
+            $title_en = UrlSafeBase64::encode($item['title']);
             $description_ht = "<td class=\"tu\"><a class=\"thre_title\" href=\"read_rss.php?xml={$xml_en}&amp;title_en={$title_en}&amp;num={$i}{$atom_q}{$mtime_q}\" target=\"{$_conf['expack.rss.desc_target_frame']}\">●</a></td>";
         } else {
             $description_ht = "<td class=\"tu\"></td>";

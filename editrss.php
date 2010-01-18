@@ -126,7 +126,7 @@ if ($lines = FileCtl::file_read_lines($_conf['expack.rss.setting_path'], FILE_IG
             $site = $p[0];
             $xml  = $p[1];
             $atom = !empty($p[2]) ? '1' : '0';
-            $site_en = base64_encode($site);
+            $site_en = UrlSafeBase64::encode($site);
             $myrss["li{$i}"] = array(
                 'site'      => $site,
                 'site_en'   => $site_en,
@@ -311,7 +311,7 @@ if ($lines) {
                 $type_ht = 'RSS';
                 $cngtype_ht = '&amp;setrss=atom';
             }
-            $site_ht = '&amp;site_en=' . rawurlencode(base64_encode($site));
+            $site_ht = '&amp;site_en=' . UrlSafeBase64::encode($site);
             echo <<<EOP
     <tr>
         <td><a href="{$editrss_php_ht}?xml={$xml_en}&amp;setrss=0" class="fav">Åö</a></td>

@@ -21,7 +21,7 @@ class BrdMenuIta
     public function setItaj($itaj)
     {
         $this->itaj = $itaj;
-        $this->itaj_en = rawurlencode(base64_encode($this->itaj));
+        $this->itaj_en = UrlSafeBase64::encode($this->itaj);
         $this->itaj_ht = htmlspecialchars($this->itaj, ENT_QUOTES);
     }
 

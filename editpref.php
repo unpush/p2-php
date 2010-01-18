@@ -376,13 +376,11 @@ if ($matome_cache_list) {
     } else {
         echo "<tr><td colspan=\"2\">\n";
         echo "<fieldset>\n<legend>新着まとめ読みキャッシュ</legend>\n";
+        echo "<ul id=\"matome_cache\">\n";
     }
 
-    echo "<ul id=\"matome_cache\">\n";
-
     foreach ($matome_cache_list as $cache_key => $cache_info) {
-        echo '<li>';
-
+        // PC・携帯共通変数
         $i++;
         $ckey = substr($cache_key, $ckeyprefixlen);
         $clink = 'read_new_cache.php?ckey=' . rawurlencode($ckey) . $_conf['k_at_a'];
@@ -394,9 +392,16 @@ if ($matome_cache_list) {
         $cnumthreads = count($cache_info['threads']);
 
         if ($_conf['ktai']) {
-            $cdate = date('y/m/d G:i', $cache_info['time']);
-            echo "{$cdate}<br><a href=\"{$clink}\">{$ctitle}</a>";
+            // キャッシュへのリンク、携帯用
+            if ($_conf['iphone']) {
+                $cdate = date('y/m/d H:i', $cache_info['time']);
+                echo "<p>{$cdate} [<a href=\"{$clink}\">{$ctitle}</a>]</p>";
+            } else {
+                $cdate = date('y/m/d G:i', $cache_info['time']);
+                echo "<p>{$cdate}<br>[<a href=\"{$clink}\">{$ctitle}</a>]</p>";
+            }
         } else {
+            // キャッシュへのリンク、PC用
             $cid = 'matome_cache_meta' . $i;
             $cdate = date('Y/m/d H:i:s', $cache_info['time']);
             if ($cnumthreads) {
@@ -405,15 +410,16 @@ if ($matome_cache_list) {
             } else {
                 $cpopup_at = '';
             }
-            echo "<span class=\"matome_cache_date\">{$cdate}</span> ";
+            echo "<li><span class=\"matome_cache_date\">{$cdate}</span> ";
             echo "[<a href=\"{$clink}\" target=\"read\"{$cpopup_at}>{$ctitle}</a>]";
             if ($cnumthreads) {
                 echo "<div class=\"popup_element\" id=\"{$cid}\"{$cpopup_at}>";
             }
         }
 
-        if ($cnumthreads) {
-            if ($_conf['ktai']) {
+        // まとめ読みに含まれる各スレッドへのリンク
+        if ($cnumthreads && (!$_conf['ktai'] || $_conf['iphone'])) {
+            if ($_conf['iphone']) {
                 $ctarget_at = '';
             } else {
                 $ctarget_at = ' target="read"';
@@ -430,17 +436,20 @@ if ($matome_cache_list) {
                 echo "<li><a href=\"{$cthreadlink}\"{$ctarget_at}>{$cthread['title']}</a></li>";
             }
             echo '</ul>';
-
-            if (!$_conf['ktai']) {
-                echo '</div>';
-            }
         }
 
-        echo "</li>\n";
+        // 閉じタグ、PC用
+        if (!$_conf['ktai']) {
+            if ($cnumthreads) {
+                echo '</div>';
+            }
+            echo "</li>\n";
+        }
     }
 
-    echo "</ul>\n";
+    // 閉じタグ、PC用
     if (!$_conf['ktai']) {
+        echo "</ul>\n";
         echo "</fieldset>\n";
         echo "</td></tr>\n";
     }

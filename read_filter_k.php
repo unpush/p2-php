@@ -13,7 +13,7 @@ $_login->authorize(); // ÉÜÅ[ÉUîFèÿ
 $host = $_GET['host'];
 $bbs  = $_GET['bbs'];
 $key  = $_GET['key'];
-$ttitle = base64_decode($_GET['ttitle_en']);
+$ttitle = UrlSafeBase64::decode($_GET['ttitle_en']);
 $ttitle_back = (isset($_SERVER['HTTP_REFERER']))
     ? '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="ñﬂÇÈ">' . $ttitle . '</a>'
     : $ttitle;
