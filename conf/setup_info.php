@@ -39,7 +39,7 @@ $p2_incompatible_ini_directives = array(
 // 値は "yymmdd.hhmm" 形式でユニークかつ昇順にソートされていなければならない
 $p2_changed_versions = array(
     '100113.1300',
-    '100117.0000',
+    '100120.0700',
 );
 
 /*

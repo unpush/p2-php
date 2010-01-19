@@ -17,7 +17,8 @@ class PostDataStore extends AbstractDataStore
      */
     static public function getKVS()
     {
-        return self::_getKVS($GLOBALS['_conf']['post_db_path']);
+        return self::_getKVS($GLOBALS['_conf']['post_db_path'],
+                             P2KeyValueStore::CODEC_ARRAYSHIFTJIS);
     }
 
     // }}}
