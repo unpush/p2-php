@@ -40,7 +40,6 @@ class MatomeCacheList
      * キー接頭辞を取得する
      *
      * @param string $type
-     * @param bool $forSearch
      * @return array
      */
     static public function getKeyPrefix($type = null)
@@ -83,7 +82,6 @@ class MatomeCacheList
     /**
      * 全まとめ読みキャッシュのリストを取得する
      *
-     * @param string $type
      * @return array
      */
     static public function getAllList()
@@ -102,7 +100,8 @@ class MatomeCacheList
     /**
      * 残す数を指定してキャッシュを削除する
      *
-     * @param int $number
+     * @param int $length
+     * @param string $type
      * @return int
      */
     static public function trim($length, $type = null)
@@ -150,20 +149,16 @@ class MatomeCacheList
 
         // メタデータも削除
         $kvs = MatomeCacheMetaDataStore::getKVS();
-        /*
-         * メタデータの方が一瞬遅れて挿入されるため、ごく稀にデータのmtimeと
-         * メタデータのmtimeが異なる可能性がある。このときデータのmtimeを
-         * そのまま使うとgetList()の結果にデータが存在しないレコードが
-         * 含まれることになるので、それを防ぐためにデータと同一キーの
-         * メタデータのmtimeを取得する。
-         */
-        if ($record = $kvs->getRaw($key)) {
-            $mtime = $record->mtime;
-        }
         $stmt = $kvs->prepare($query);
         $kvs->bindValueForPrefixSearch($stmt, $prefix);
         $stmt->bindValue(':mtime', $mtime, PDO::PARAM_INT);
-        $stmt->execute();
+        if ($stmt->execute()) {
+            if ($stmt->rowCount() != $numRemoved) {
+                // メタデータの方が一瞬遅れて挿入されるため、ごく稀にデータの
+                // mtimeとメタデータのmtimeが異なることがあり、ここに到達する
+                $kvs->delete($key);
+            }
+        }
 
         // 削除したデータ数を返す
         return $numRemoved;

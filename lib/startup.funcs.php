@@ -165,7 +165,7 @@ function p2_load_class($name)
             NgAbornCtl |
             P2[A-Z][A-Za-z]* |
             PresetManager |
-            ResHist |
+            Res(Article|Hist) |
             Session |
             SettingTxt |
             ShowBrdMenu(?:K|Pc) |
