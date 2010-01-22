@@ -514,12 +514,18 @@ class UA
      */
     static public function isIModeBrowser2($ua = null)
     {
-        $nuam = self::getNet_UserAgent_Mobile($ua);
-        if ($nuam->isDoCoMo() && preg_match('!^DoCoMo/2\\.!', $nuam->getUserAgent())) {
-            return true;
-        } else {
-            return false;
+        if (is_null($ua) and isset($_SERVER['HTTP_USER_AGENT'])) {
+            $ua = $_SERVER['HTTP_USER_AGENT'];
         }
+
+        if (preg_match('!^DoCoMo/2\\.\\d \\w+\\(c(\\d+)!', $ua, $matches)) {
+            // キャッシュ500KB以上ならiモードブラウザ2.xとみなす
+            if (500 <= (int)$matches[1]) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // }}}

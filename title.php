@@ -62,13 +62,15 @@ if (!empty($_conf['updatan_haahaa'])) {
 $htm['auth_user'] = "<p>ログインユーザ: {$_login->user_u} - " . date("Y/m/d (D) G:i") . "</p>\n";
 
 // （携帯）ログイン用URL
-$url_b = htmlspecialchars(rtrim(dirname(P2Util::getMyUrl()), '/') . '/?b=', ENT_QUOTES);
+$base_url = rtrim(dirname(P2Util::getMyUrl()), '/');
+$url_b = $base_url . '?user=' . rawurlencode($_login->user_u) . '&b=';
+$url_b_ht = htmlspecialchars($url_b, ENT_QUOTES);
 
 $htm['ktai_url'] = <<<EOT
 <table border="0" cellspacing="0" cellpadding="1">
     <tbody>
-        <tr><th>携帯用URL:</th><td><a href="{$url_b}k" target="_blank">{$url_b}k</a></td></tr>
-        <tr><th>iPhone用URL:</th><td><a href="{$url_b}i" target="_blank">{$url_b}i</a></td></tr>
+        <tr><th>携帯用URL:</th><td><a href="{$url_b_ht}k" target="_blank">{$url_b_ht}k</a></td></tr>
+        <tr><th>iPhone用URL:</th><td><a href="{$url_b_ht}i" target="_blank">{$url_b_ht}i</a></td></tr>
     </tbody>
 </table>
 EOT;

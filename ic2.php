@@ -244,7 +244,6 @@ if ($result) {
 }
 
 // 画像がブラックリストにあるか確認
-require_once P2EX_LIB_DIR . '/ic2/DataObject/BlackList.php';
 $blacklist = new IC2_DataObject_BlackList;
 if ($blacklist->get($uri)) {
     switch ($blacklist->type) {
@@ -265,7 +264,6 @@ if ($blacklist->get($uri)) {
 
 // 画像がエラーログにあるか確認
 if (!$force && $ini['Getter']['checkerror']) {
-    require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
     $errlog = new IC2_DataObject_Errors;
     if ($errlog->get($uri)) {
         ic2_error($errlog->errcode, '', false);
@@ -932,7 +930,6 @@ function ic2_error($code, $optmsg = '', $write_log = true)
     }
 
     if ($write_log) {
-        require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
         $logger = new IC2_DataObject_Errors;
         $logger->uri     = isset($uri) ? $uri : (isset($id) ? $id : $file);
         $logger->errcode = $code;
