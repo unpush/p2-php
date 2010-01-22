@@ -54,11 +54,18 @@ class P2Util
     static private $_hostIsJbbsShitaraba = array();
 
     /**
-     * 板ごとの書き込み設定およびスレッドごとの書き込みデータを保存するデータベース
+     * P2Imeオブジェクト
      *
-     * @var P2KeyValueStore
+     * @var P2Ime
      */
-    static private $_postDataStore = null;
+    static private $_ime = null;
+
+    /**
+     * P2Imeで自動転送しない拡張子のリスト
+     *
+     * @var array
+     */
+    static private $_imeMenualExtensions = null;
 
     // }}}
     // {{{ getMyHost()
@@ -101,7 +108,7 @@ class P2Util
         // 配列指定用に、[]だけそのまま残して、URLエンコードをかける
         return $key_urlen = preg_replace_callback(
             '/[^\\[\\]]+/',
-            array(__CLASS__, 'rawurldecodeCallback'),
+            array(__CLASS__, 'rawurlencodeCallback'),
             $key
         );
     }
@@ -694,73 +701,35 @@ class P2Util
 
     /**
      * 中継ゲートを通すためのURL変換
+     *
+     * @param   string  $url
+     * @param   int     $delay  負数の場合は手動転送、それ以外はゲートの仕様による
+     * @return  string
      */
-    static public function throughIme($url)
+    static public function throughIme($url, $delay = null)
     {
-        global $_conf;
-        static $manual_exts = null;
-
-        if (is_null($manual_exts)) {
-            if ($_conf['ime_manual_ext']) {
-                $manual_exts = explode(',', trim($_conf['ime_manual_ext']));
-            } else {
-                $manual_exts = array();
-            }
+        if (self::$_ime === null) {
+            self::configureIme();
         }
 
-        $url_en = rawurlencode($url);
+        return self::$_ime->through($url, $delay);
+    }
 
-        $gate = $_conf['through_ime'];
-        if ($manual_exts &&
-            false !== ($ppos = strrpos($url, '.')) &&
-            in_array(substr($url, $ppos + 1), $manual_exts) &&
-            ($gate == 'p2' || $gate == 'ex')
-        ) {
-            $gate .= 'm';
-        }
+    // }}}
+    // {{{ configureIme()
 
-        // p2imeは、enc, m, url の引数順序が固定されているので注意
-        switch ($gate) {
-        /*
-        case '2ch': // ime.nu
-            $url_r = preg_replace('|^(\w+)://(.+)$|', '$1://ime.nu/$2', $url);
-            break;
-        */
-        case 'p2': // 自動転送
-        case 'p2pm': // pのみ手動転送
-            $url_r = $_conf['p2ime_url'] . '?enc=1&amp;url=' . $url_en;
-            break;
-        case 'p2m': // 手動転送
-            $url_r = $_conf['p2ime_url'] . '?enc=1&amp;m=1&amp;url=' . $url_en;
-            break;
-        case 'ex': // 自動転送1秒
-        case 'expm': // pのみ手動転送
-            $url_r = $_conf['expack.ime_url'] . '?u=' . $url_en . '&amp;d=1';
-            break;
-        case 'exq': // 自動転送0秒
-            $url_r = $_conf['expack.ime_url'] . '?u=' . $url_en . '&amp;d=0';
-            break;
-        case 'exm': // 手動転送
-            $url_r = $_conf['expack.ime_url'] . '?u=' . $url_en;
-            break;
-        case 'google':
-            $url_r = 'http://www.google.co.jp/';
-            if ($_conf['ktai'] && !$_conf['iphone']) {
-                $url_r .= 'gwt/x?u=';
-            } else {
-                $url_r .= 'url?q=';
-            }
-            $url_r .= $url_en;
-            break;
-        default:
-            if ($_conf['use_cookies']) {
-                $url_r = $url;
-            } else {
-                $url_r = $_conf['expack.ime_url'] . '?u=' . $url_en;
-            }
-        }
-
-        return $url_r;
+    /**
+     * URL変換の設定をする
+     *
+     * @param   string  $type
+     * @param   array   $exceptions
+     * @param   boolean $ignoreHttp
+     * @return  void
+     * @see     P2Ime::__construct()
+     */
+    static public function configureIme($type = null, array $exceptions = null, $ignoreHttp = null)
+    {
+        self::$_ime = new P2Ime($type, $exceptions, $ignoreHttp);
     }
 
     // }}}
@@ -1983,16 +1952,16 @@ ERR;
     }
 
     // }}}
-    // {{{ rawurldecodeCallback()
+    // {{{ rawurlencodeCallback()
 
     /**
      * preg_replace_callback()のコールバック関数として
-     * マッチ箇所全体にrawurldecode()をかける
+     * マッチ箇所全体にrawurlencode()をかける
      *
      * @param   array   $m
      * @return  string
      */
-    static public function rawurldecodeCallback(array $m)
+    static public function rawurlencodeCallback(array $m)
     {
         return rawurlencode($m[0]);
     }

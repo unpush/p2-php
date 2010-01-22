@@ -86,19 +86,49 @@ if (!empty($_POST['submit_save'])) {
 // {{{ 携帯で表示するグループ
 
 if ($_conf['ktai']) {
-    if (isset($_POST['edit_conf_user_group_en'])) {
-        $selected_group = UrlSafeBase64::decode($_POST['edit_conf_user_group_en']);
-    } elseif (isset($_POST['edit_conf_user_group'])) {
-        $selected_group = $_POST['edit_conf_user_group'];
-    } elseif (isset($_GET['edit_conf_user_group_en'])) {
-        $selected_group = UrlSafeBase64::decode($_GET['edit_conf_user_group_en']);
-    } elseif (isset($_GET['edit_conf_user_group'])) {
-        $selected_group = $_GET['edit_conf_user_group'];
+    if (isset($_REQUEST['edit_conf_user_group_en'])) {
+        $selected_group = UrlSafeBase64::decode($_REQUEST['edit_conf_user_group_en']);
+    } elseif (isset($_REQUEST['edit_conf_user_group'])) {
+        $selected_group = $_REQUEST['edit_conf_user_group'];
     } else {
         $selected_group = null;
     }
 } else {
     $selected_group = 'all';
+    if (isset($_REQUEST['active_tab1'])) {
+        $active_tab1 = $_REQUEST['active_tab1'];
+        $active_tab1_ht = htmlspecialchars($active_tab1, ENT_QUOTES);
+        $active_tab1_js = "'" . StrCtl::toJavaScript($active_tab1) . "'";
+    } else {
+        $active_tab1 = null;
+        $active_tab1_ht = '';
+        $active_tab1_js = 'null';
+    }
+    if (isset($_REQUEST['active_tab2'])) {
+        $active_tab2 = $_REQUEST['active_tab2'];
+        $active_tab2_ht = htmlspecialchars($active_tab2, ENT_QUOTES);
+        $active_tab2_js = "'" . StrCtl::toJavaScript($active_tab2) . "'";
+    } else {
+        $active_tab2 = null;
+        $active_tab2_ht = '';
+        $active_tab2_js = 'null';
+    }
+    $parent_tabs_js = "['" . implode("','", array(
+        StrCtl::toJavaScript('rep2基本設定'),
+        StrCtl::toJavaScript('携帯端末設定'),
+        StrCtl::toJavaScript('拡張パック設定'),
+    )) . "']";
+    $active_tab_hidden_ht = <<<EOP
+<input type="hidden" id="active_tab1" name="active_tab1" value="{$active_tab1_ht}">
+<input type="hidden" id="active_tab2" name="active_tab2" value="{$active_tab2_ht}">
+<script type="text/javascript">
+// <![CDATA[
+_EDIT_CONF_USER_JS_PARENT_TABS = $parent_tabs_js;
+_EDIT_CONF_USER_JS_ACTIVE_TAB1 = $active_tab1_js;
+_EDIT_CONF_USER_JS_ACTIVE_TAB2 = $active_tab2_js;
+// ]]>
+</script>
+EOP;
 }
 
 $groups = array();
@@ -173,6 +203,7 @@ EOP;
 
 // PC用表示
 if (!$_conf['ktai']) {
+    echo $active_tab_hidden_ht;
     echo <<<EOP
 <div class="tabber">
 <div class="tabbertab" title="rep2基本設定">
@@ -335,6 +366,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('res_hist_rec_num', '書き込み履歴の記録数'),
         array('res_write_rec', '書き込み内容ログを記録'),
         array('through_ime', '外部URLジャンプする際に通すゲート<br>「直接」でもCookieが使えない端末では gate.php を通す'),
+        array('through_ime_http_only', ' HTTPSでアクセスしているときは外部URLゲートを通さない<br>(最近のWebブラウザの多くは https → http の遷移でRefererを送出しませんが、<br>「HTTPSでは直」にする場合は、お使いのブラウザの仕様を確認してください)'),
         array('ime_manual_ext', 'ゲートで自動転送しない拡張子（カンマ区切りで、拡張子の前のピリオドは不要）'),
         array('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加'),
         array('merge_favita', 'お気に板のスレ一覧をまとめて表示 (お気に板の数によっては処理に時間がかかる)'),

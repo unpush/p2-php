@@ -90,7 +90,7 @@ function p2_init()
     $_conf['expack.download_url']   = 'http://page2.skr.jp/rep2/downloads.html';
     $_conf['expack.history_url']    = 'http://page2.skr.jp/rep2/history.html';
     $_conf['expack.tgrep_url']      = 'http://page2.xrea.jp/tgrep/search';
-    $_conf['expack.ime_url']        = 'http://page2.skr.jp/gate.php';
+    $_conf['expack.gate_php']       = 'http://page2.skr.jp/gate.php';
     $_conf['menu_php']              = 'menu.php';
     $_conf['subject_php']           = 'subject.php';
     $_conf['read_php']              = 'read.php';
@@ -125,7 +125,7 @@ function p2_init()
     ini_set('arg_separator.output', '&amp;');
 
     // Windows Ç»ÇÁ
-    if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
+    if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
         // Windows
         defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ';');
         defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '\\');
@@ -134,6 +134,13 @@ function p2_init()
         defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ':');
         defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '/');
         define('P2_OS_WINDOWS', 0);
+    }
+
+    // HTTPSê⁄ë±Ç»ÇÁ
+    if (array_key_exists('HTTPS', $_SERVER) && strcasecmp($_SERVER['HTTPS'], 'on') === 0) {
+        define('P2_HTTPS_CONNECTION', 1);
+    } else {
+        define('P2_HTTPS_CONNECTION', 0);
     }
 
     // ÉkÉãÉoÉCÉgíËêî

@@ -189,7 +189,11 @@ if (UA::isIPhoneGroup($userAgent)) {
 
     // NTT docomo iƒ‚[ƒh
     if ($mobile->isDoCoMo()) {
-        $_conf['use_cookies'] = false;
+        if (UA::isIModeBrowser2()) {
+            $_conf['use_cookies'] = true;
+        } else {
+            $_conf['use_cookies'] = false;
+        }
 
     // au EZweb
     //} elseif ($mobile->isEZweb()) {

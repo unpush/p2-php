@@ -1024,11 +1024,9 @@ EOJS;
 
             // HTMLポップアップ
             if ($_conf['iframe_popup'] && $is_http) {
-                // p2pm/expm 指定の場合のみ、特別に手動転送指定を追加する
-                if ($_conf['through_ime'] == 'p2pm') {
-                    $pop_url = preg_replace('/\\?(enc=1&amp;)url=/', '?$1m=1&amp;url=', $link_url);
-                } elseif ($_conf['through_ime'] == 'expm') {
-                    $pop_url = preg_replace('/(&amp;d=-?\d+)?$/', '&amp;d=-1', $link_url);
+                // *pm 指定の場合のみ、特別に手動転送指定を追加する
+                if (substr($_conf['through_ime'], -2) == 'pm') {
+                    $pop_url = P2Util::throughIme($purl[0], -1);
                 } else {
                     $pop_url = $link_url;
                 }
@@ -1044,6 +1042,7 @@ EOJS;
                 } else {
                     $brocra_checker_url = rtrim($_conf['brocra_checker_url'], '/') . '/' . $url;
                 }
+                $brocra_checker_url_orig = $brocra_checker_url;
                 // ブラクラチェッカ・ime
                 if ($_conf['through_ime']) {
                     $brocra_checker_url = P2Util::throughIme($brocra_checker_url);
@@ -1053,11 +1052,9 @@ EOJS;
                 $check_mark_suffix = ']';
                 // ブラクラチェッカ・HTMLポップアップ
                 if ($_conf['iframe_popup']) {
-                    // p2pm/expm 指定の場合のみ、特別に手動転送指定を追加する
-                    if ($_conf['through_ime'] == 'p2pm') {
-                        $brocra_pop_url = preg_replace('/\\?(enc=1&amp;)url=/', '?$1m=1&amp;url=', $brocra_checker_url);
-                    } elseif ($_conf['through_ime'] == 'expm') {
-                        $brocra_pop_url = $brocra_checker_url . '&amp;d=-1';
+                    // *pm 指定の場合のみ、特別に手動転送指定を追加する
+                    if (substr($_conf['through_ime'], -2) == 'pm') {
+                        $brocra_checker_url = P2Util::throughIme($brocra_checker_url_orig, -1);
                     } else {
                         $brocra_pop_url = $brocra_checker_url;
                     }

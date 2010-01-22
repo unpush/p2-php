@@ -104,7 +104,7 @@ class UA
         }
 
         $isMobile = false;
-        if ($nuam = &self::getNet_UserAgent_Mobile($ua)) {
+        if ($nuam = self::getNet_UserAgent_Mobile($ua)) {
             if (!$nuam->isNonMobile()) {
                 $isMobile = true;
             }
@@ -501,6 +501,25 @@ class UA
         }
 
         return (boolean)preg_match('/Safari|AppleWebKit|Konqueror/', $ua);
+    }
+
+    // }}}
+    // {{{ isIModeBrowser2()
+
+    /**
+     * UAがiモードブラウザ2.xなら true を返す
+     *
+     * @param   string   $ua  UAを指定するなら
+     * @return  boolean
+     */
+    static public function isIModeBrowser2($ua = null)
+    {
+        $nuam = self::getNet_UserAgent_Mobile($ua);
+        if ($nuam->isDoCoMo() && preg_match('!^DoCoMo/2\\.!', $nuam->getUserAgent())) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // }}}

@@ -337,6 +337,10 @@ $conf_user_sel['through_ime'] = array(
     'google' => 'Google',
 );
 
+// HTTPSでアクセスしているときは外部URLゲートを通さない（HTTPSでは直:1, 常に通す:0）
+$conf_user_def['through_ime_http_only'] = 0; // (0)
+$conf_user_rad['through_ime_http_only'] = array('1' => 'HTTPSでは直', '0' => '常に通す');
+
 // ゲートで自動転送しない拡張子（カンマ区切りで、拡張子の前のピリオドは不要）
 $conf_user_def['ime_manual_ext'] = "exe,zip"; // ("exe,zip") 
 
