@@ -45,6 +45,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     const CODEC_ARRAYSHIFTJIS   = 'P2KeyValueStore_Codec_ArrayShiftJIS';
     const CODEC_JSON            = 'P2KeyValueStore_Codec_JSON';
     const CODEC_JSONSHIFTJIS    = 'P2KeyValueStore_Codec_JSONShiftJIS';
+    const CODEC_SIMPLECSV       = 'P2KeyValueStore_Codec_SimpleCSV';
 
     const MEMORY_DATABASE   = ':memory:';
 
@@ -211,6 +212,8 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
 
         // 無ければ作る
         if (!$exists) {
+            // 先に作成済みプリペアードステートメントをクリア
+            self::$_stmtCache[$this->_pdoId] = array();
             $pdo->exec(str_replace('$__table', $this->_quotedTableName, self::Q_CREATETABLE));
         }
     }

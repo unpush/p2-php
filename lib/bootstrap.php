@@ -189,11 +189,8 @@ if (UA::isIPhoneGroup($userAgent)) {
 
     // NTT docomo iモード
     if ($mobile->isDoCoMo()) {
-        if (UA::isIModeBrowser2()) {
-            $_conf['use_cookies'] = true;
-        } else {
-            $_conf['use_cookies'] = false;
-        }
+        // iモードブラウザ2.0からCookieに対応している
+        $_conf['use_cookies'] = UA::isIModeBrowser2();
 
     // au EZweb
     //} elseif ($mobile->isEZweb()) {
