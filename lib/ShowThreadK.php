@@ -17,8 +17,6 @@ class ShowThreadK extends ShowThread
 
     static private $_spm_objects = array();
 
-    public $BBS_NONAME_NAME = '';
-
     public $am_autong = false; // 自動AA略をするか否か
 
     public $aas_rotate = '90°回転'; // AAS 回転リンク文字列
@@ -33,6 +31,9 @@ class ShowThreadK extends ShowThread
     private $_dateIdReplace;    // 日付書き換えの置換文字列
 
     //private $_lineBreaksReplace; // 連続する改行の置換文字列
+
+    private $_nanashiName = null;   // デフォルトの名前
+    private $_kushiYakiName = null; // BBQに焼かれているときの名前接頭辞
 
     // }}}
     // {{{ constructor
@@ -66,13 +67,19 @@ class ShowThreadK extends ShowThread
         }
         $this->_url_handlers[] = 'plugin_linkURL';
 
-        $this->BBS_NONAME_NAME = null;
         if (!$_conf['mobile.bbs_noname_name']) {
             $st = new SettingTxt($this->thread->host, $this->thread->bbs);
             $st->setSettingArray();
-            if (!empty($st->setting_array['BBS_NONAME_NAME'])) {
-                $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
+            if (array_key_exists('BBS_NONAME_NAME', $st->setting_array)) {
+                $BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
+                if (strlen($BBS_NONAME_NAME)) {
+                    $this->_nanashiName = $BBS_NONAME_NAME;
+                }
             }
+        }
+
+        if (P2Util::isHost2chs($aThread->host)) {
+            $this->_kushiYakiName = ' </b>[―{}@{}@{}-]<b> ';
         }
 
         if ($_conf['mobile.date_zerosuppress']) {
@@ -154,11 +161,6 @@ class ShowThreadK extends ShowThread
             $idstr = null;
         }
 
-        // デフォルトの名前と同じなら省略
-        if ($name === $this->BBS_NONAME_NAME) {
-            $name = '';
-        }
-
         // {{{ フィルタリング
 
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
@@ -182,7 +184,6 @@ class ShowThreadK extends ShowThread
             $res_id = "r{$i}";
         }
 
-
         // NGあぼーんチェック
         $nong = !empty($_GET['nong']);
         $ng_type = $this->_ngAbornCheck($i, strip_tags($name), $mail, $date_id, $id, $msg, $nong, $ng_info);
@@ -203,7 +204,21 @@ class ShowThreadK extends ShowThread
             $ngaborns_body_hits = self::$_ngaborns_body_hits;
         }
 
-        // {{{ 日付・IDを調整
+        // {{{ 名前と日付・IDを調整
+
+        // 串焼きマークを短縮
+        if ($this->_kushiYakiName !== null && strpos($name, $this->_kushiYakiName) === 0) {
+            $name = substr($name, strlen($this->_kushiYakiName));
+            // デフォルトの名前は省略
+            if ($name === $this->_nanashiName) {
+                $name = '[串]';
+            } else {
+                $name = '[串]' . $name;
+            }
+        // デフォルトの名前と同じなら省略
+        } elseif ($name === $this->_nanashiName) {
+            $name = '';
+        }
 
         // 現在の年号は省略カットする。月日の先頭0もカット。
         $date_id = preg_replace($this->_dateIdPattern, $this->_dateIdReplace, $date_id);

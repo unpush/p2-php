@@ -92,6 +92,9 @@ function _100120_0700_convert_post_data_store($post_db_path)
     if ($oldKvs->getTableName() != $newKvs->getTableName()) {
         $oldKvs->prepare('DROP TABLE $__table')->execute();
     }
+
+    // プリペアードステートメントを破棄するために optimize()
+    $newKvs->optimize();
 }
 
 // }}}

@@ -4,7 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_CONF_DIR . '/conf_user_def.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -24,6 +23,8 @@ define('P2_EDIT_CONF_USER_SKIPPED',     8);
 define('P2_EDIT_CONF_USER_PASSWORD',   16);
 define('P2_EDIT_CONF_FILE_ADMIN',    1024);
 define('P2_EDIT_CONF_FILE_ADMIN_EX', 2048);
+
+include P2_CONF_DIR . '/conf_user_def.inc.php';
 
 //=====================================================================
 // 前処理
@@ -45,7 +46,7 @@ if (!empty($_POST['submit_save'])) {
     applyRules();
 
     // ポストされた値 > 現在の値 > デフォルト値 の順で新しい設定を作成する
-    $conf_save = array('.' => P2_VERSION_ID);
+    $conf_save = array('.' => $_conf['p2expack']);
     foreach ($conf_user_def as $k => $v) {
         if (array_key_exists($k, $_POST['conf_edit'])) {
             $conf_save[$k] = $_POST['conf_edit'][$k];

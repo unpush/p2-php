@@ -8,9 +8,6 @@ require_once 'Net/UserAgent/Mobile.php';
 
 // {{{ ユーザー設定 読込
 
-// ユーザー設定ファイル
-$_conf['conf_user_file'] = $_conf['pref_dir'] . '/conf_user.srd.cgi';
-
 // ユーザー設定があれば読み込む
 if (file_exists($_conf['conf_user_file'])) {
     if ($cont = file_get_contents($_conf['conf_user_file'])) {
@@ -48,26 +45,28 @@ if (file_exists($_conf['conf_user_file'])) {
         // デフォルト設定を読み込み、ユーザー設定とともにマージ
         include P2_CONF_DIR . '/conf_user_def.inc.php';
         $_conf = array_merge($_conf, $conf_user_def, $conf_user);
-        $creae_config_cache = true;
+        $save_conf_user = true;
     } else {
         // キャッシュされていたユーザー設定をマージ
         $_conf = array_merge($_conf, $conf_user);
-        $creae_config_cache = false;
+        $save_conf_user = false;
     }
 } else {
     // デフォルト設定を読み込み、マージ
     include P2_CONF_DIR . '/conf_user_def.inc.php';
     $_conf = array_merge($_conf, $conf_user_def);
-    $creae_config_cache = true;
+    $save_conf_user = true;
 }
 
-// 新しいユーザー設定をキャッシュ
-if ($creae_config_cache) {
-    $conf_user = array('.' => $_conf['p2expack']);
+// 新しいユーザー設定をシリアライズして保存
+if ($save_conf_user) {
+    $conf_save = array('.' => $_conf['p2expack']);
     foreach ($conf_user_def as $k => $v) {
-        $conf_user[$k] = $_conf[$k];
+        $conf_save[$k] = $_conf[$k];
     }
-    $cont = serialize($conf_user);
+
+    $cont = serialize($conf_save);
+    FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
     if (FileCtl::file_write_contents($_conf['conf_user_file'], $cont) === false) {
         $dispname = '$_conf[\'pref_dir\']/' . basename($_conf['conf_user_file']);
         p2die("ユーザー設定ファイル {$dispname} に書き込めませんでした。");
