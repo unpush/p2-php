@@ -136,10 +136,6 @@ div.message a {
 	word-break: break-all;
 }
 
-/* 新着レス番号（ここではカラーが新着確認の機能を持っているので特別にfontで
-カラー指定をしている。thread_class.inc - transRes を参照)	*/
-/* .newres{color:{$newres_color};} ← よって現在は無効の設定 */
-
 .onthefly{ /* on the fly */
 	color:#0a0;
 	border:1px #0a0 solid;

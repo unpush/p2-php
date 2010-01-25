@@ -189,7 +189,7 @@ class ThreadRead extends Thread
         $request .= "\r\n";
 
         // WEBサーバへ接続
-        $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
+        $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
         if (!$fp) {
             $this->_pushInfoConnectionTimedOut($url, $errno, $errstr);
             $this->diedat = true;
@@ -417,7 +417,7 @@ class ThreadRead extends Thread
         $request .= "\r\n";
 
         // WEBサーバへ接続
-        $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
+        $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
         if (!$fp) {
             $this->_pushInfoConnectionTimedOut($url, $errno, $errstr);
             $this->diedat = true;
@@ -603,7 +603,7 @@ class ThreadRead extends Thread
         $request .= "\r\n";
 
         // WEBサーバへ接続
-        $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
+        $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
         if (!$fp) {
             $this->_pushInfoConnectionTimedOut($url, $errno, $errstr);
             return false;
@@ -899,7 +899,7 @@ class ThreadRead extends Thread
             $request .= "\r\n";
 
             // WEBサーバへ接続
-            $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
+            $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
             if (!$fp) {
                 $this->_pushInfoConnectionTimedOut($url, $errno, $errstr);
                 $this->diedat = true;
@@ -1491,7 +1491,7 @@ EOF;
         }
 
         if (is_null($body)) {
-            $msg = '<p class="info-msg"><strong>gzip展開エラー</strong><br>';
+            $msg = '<p class="info-msg">gzip展開エラー<br>';
             $msg .= sprintf('rep2 error: <a href="%s"%s>%s</a> をgzipデコードできませんでした。',
                             P2Util::throughIme($url),
                             $_conf['ext_win_target_at'],
@@ -1519,11 +1519,11 @@ EOF;
     {
         global $_conf;
 
-        $msg = '<p class="info-msg"><strong>';
+        $msg = '<p class="info-msg">';
         $msg .= sprintf('HTTP接続エラー (%d) %s',
                         $errno,
                         htmlspecialchars($errstr, ENT_QUOTES));
-        $msg .= '</strong><br>';
+        $msg .= '<br>';
         $msg .= sprintf('rep2 info: <a href="%s"%s>%s</a> に接続できませんでした。',
                         P2Util::throughIme($url),
                         $_conf['ext_win_target_at'],
@@ -1547,7 +1547,7 @@ EOF;
     {
         global $_conf;
 
-        $msg = '<p class="info-msg"><strong>HTTP接続タイムアウト</strong><br>';
+        $msg = '<p class="info-msg">HTTP接続タイムアウト<br>';
         $msg .= sprintf('rep2 info: <a href="%s"%s>%s</a> を読み込み完了できませんでした。',
                         P2Util::throughIme($url),
                         $_conf['ext_win_target_at'],

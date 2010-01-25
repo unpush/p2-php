@@ -1072,17 +1072,24 @@ class P2Util
         $date = date('Y/m/d (D) G:i:s');
 
         // HOSTを取得
-        if (!$remoto_host = $_SERVER['REMOTE_HOST']) {
-            $remoto_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+        if (array_key_exists('REMOTE_HOST', $_SERVER)) {
+            $remote_host = $_SERVER['REMOTE_HOST'];
+        } else {
+            $remote_host = '';
         }
-        if ($remoto_host == $_SERVER['REMOTE_ADDR']) {
-            $remoto_host = "";
+        if (!$remote_host) {
+            $remote_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+        }
+        if ($remote_host == $_SERVER['REMOTE_ADDR']) {
+            $remote_host = '';
         }
 
-        $user = (isset($_login->user_u)) ? $_login->user_u : "";
+        $user = (isset($_login->user_u)) ? $_login->user_u : '';
 
         // 新しいログ行を設定
-        $newdata = $date."<>".$_SERVER['REMOTE_ADDR']."<>".$remoto_host."<>".$_SERVER['HTTP_USER_AGENT']."<>".$_SERVER['HTTP_REFERER']."<>".""."<>".$user;
+        $newdata = implode('<>', array($date, $_SERVER['REMOTE_ADDR'], $remote_host,
+                                       $_SERVER['HTTP_USER_AGENT'], $_SERVER['HTTP_REFERER'],
+                                       '', $user));
         //$newdata = htmlspecialchars($newdata, ENT_QUOTES);
 
         // まずタブを全て外して
@@ -1671,7 +1678,7 @@ ERR;
             return;
         }
 
-        if ($_conf['ktai'] && $_conf['k_save_packet']) {
+        if ($_conf['ktai'] && $_conf['mobile.save_packet']) {
             echo mb_convert_kana($_info_msg_ht, 'rnsk');
         } else {
             echo $_info_msg_ht;

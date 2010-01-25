@@ -321,7 +321,7 @@ EOP;
     // HTMLƒvƒŠƒ“ƒg
     //=========================================================
     P2Util::header_nocache();
-    echo $doctype;
+    echo $_conf['doctype'];
     echo <<<EOP
 <html lang="ja">
 <head>

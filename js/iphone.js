@@ -251,6 +251,70 @@ iutil.setLabelAction = function(contextNode) {
 };
 
 // }}}
+// {{{ setHashScrool()
+
+/**
+ * ページ内リンクのクリックをスクロールにする
+ *
+ * あまり動きがよくなかったので封印。
+ *
+ * @param {Node|String} contextNode
+ * @return void
+ */
+iutil.setHashScrool = function(contextNode) {
+	var anchors, anchor, targetId, targetElement, i, l, expr;
+
+	switch (typeof contextNode) {
+		case 'string':
+			contextNode = document.getElementById(contextNode);
+			break;
+		case 'undefined':
+			contextNode = document.body;
+			break;
+	}
+	if (!contextNode) {
+		return;
+	}
+
+	expr = './/a[starts-with(@href, "#") and ('
+		+ '@href = "#header" or @href = "#footer" or @href = "#top" or @href = "#bottom"'
+		+ ' or contains(concat(" ", @class, " "), " button ")'
+		+ ')]';
+	anchors = document.evaluate(expr,
+	                            contextNode, null,
+	                            XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	l = anchors.snapshotLength;
+
+	for (i = 0; i < l; i++) {
+		anchor = anchors.snapshotItem(i);
+		targetId = anchor.getAttribute('href').substring(1);
+		targetElement = document.getElementById(targetId);
+		if (!targetElement) {
+			continue;
+		}
+
+		anchor.onclick = (function (element) {
+			return function (event) {
+				var from, to, d, e, f, g;
+
+				from = iutil.getPageY(event || window.event);
+				to = element.offsetTop;
+				d = to - from;
+				e = 30;
+				f = 30;
+
+				for (g = 1; g < f; g++) {
+					window.setTimeout(window.scrollTo, e * g,
+						0, from + Math.floor(d * Math.sqrt(g / f)));
+				}
+				window.setTimeout(window.scrollTo, e * g, 0, to);
+
+				return false;
+			};
+		})(targetElement);
+	}
+};
+
 // {{{ adjustTextareaSize()
 
 /**
@@ -365,6 +429,9 @@ iutil.changeLinkTarget = function(expr, toggle, contextNode) {
 		case 'undefined':
 			contextNode = document.body;
 			break;
+	}
+	if (!contextNode) {
+		return;
 	}
 
 	if (typeof expr != 'string') {
@@ -995,6 +1062,7 @@ window.addEventListener('DOMContentLoaded', function(event) {
 		// labelにイベントハンドラを登録する
 		if (iutil.iphone) {
 			iutil.setLabelAction(document.body);
+			//iutil.setHashScrool(document.body);
 		}
 
 		// textareaの幅を調整

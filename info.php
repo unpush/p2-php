@@ -205,6 +205,7 @@ EOP;
 // {{{ palace チェック
 
 // 殿堂入りスレリスト 読込
+$isPalace = false;
 if ($pallines = FileCtl::file_read_lines($_conf['palace_idx'], FILE_IGNORE_NEW_LINES)) {
     foreach ($pallines as $l) {
         $palarray = explode('<>', $l);
@@ -266,6 +267,8 @@ EOP;
 // ログありなしフラグセット
 if (file_exists($aThread->keydat) or file_exists($aThread->keyidx)) {
     $existLog = true;
+} else {
+    $existLog = false;
 }
 
 //=================================================================
@@ -345,6 +348,8 @@ if ($_conf['ktai']) {
 
 if (checkRecent($aThread->host, $aThread->bbs, $aThread->key) or checkResHist($aThread->host, $aThread->bbs, $aThread->key)) {
     $offrec_ht = " / [<a href=\"info.php?{$common_q}&amp;offrec=true{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}\" title=\"このスレを「最近読んだスレ」と「書き込み履歴」から外します\">履歴から外す</a>]";
+} else {
+    $offrec_ht = '';
 }
 
 if (!$_conf['ktai']) {
