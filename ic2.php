@@ -622,7 +622,7 @@ function ic2_checkSizeOvered($tmpfile, $params)
     } else {
         $maxsize = (int)$maxsize;
     }
-    if (0 < $maxsize) {
+    if (0 < $maxsize && $maxsize < $size) {
         $isError = true;
         $errmsg = "ファイルサイズが大きすぎます。(file:{$size}; max:{$maxsize};)";
     }

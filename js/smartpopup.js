@@ -384,7 +384,11 @@ SPM.openFilter = function (aThread, field, match, event) {
 			window.top.location.href = inUrl;
 			break;
 		default:
-			if (window.parent != window.self && typeof window.parent[target] !== 'undefined') {
+			if (window.parent != window.self &&
+				typeof window.parent[target] !== 'undefined' &&
+				typeof window.parent[target].location !== 'undefined' &&
+				typeof window.parent[target].location.href !== 'undefined')
+			{
 				window.parent[target].location.href = inUrl;
 			} else {
 				window.open(inUrl, target, '')
