@@ -43,6 +43,11 @@ SPM.init = function (aThread) {
 		spm.appendItem('引用してレス', [aThread, 'post_form.php', 'inyou=' + ((2 & opt[1]) + 1).toString()]);
 	}
 
+	// 逆参照
+	spm.appendItem('逆参照', (function (event) {
+		SPM.openFilter(aThread, 'rres', 'on', event);
+	}));
+
 	// ここまで読んだ
 	spm.appendItem('ここまで読んだ', (function () {
 		SPM.httpcmd('setreadnum', aThread, SPM.callbacks.setreadnum);
@@ -73,11 +78,6 @@ SPM.init = function (aThread) {
 	} else {
 		var SpmFilter = false;
 	}
-
-	// 逆参照
-	spm.appendItem('逆参照', (function (event) {
-		SPM.openFilter(aThread, 'rres', 'on', event);
-	}));
 
 	// アクティブモナー
 	if (opt[4] == 1) {
