@@ -2014,7 +2014,7 @@ ERR;
 // }}}
 
 //register_shutdown_function(array('P2Util', 'debug'));
-register_shutdown_function(array('P2Util', 'printInfoHtml'));
+//register_shutdown_function(array('P2Util', 'printInfoHtml'));
 
 /*
  * Local Variables:

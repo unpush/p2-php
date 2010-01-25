@@ -237,13 +237,13 @@ class WapUserAgent
 
         // WEBƒT[ƒo‚ÖÚ‘±
         if ($this->_timeout > 0) {
-            if ($this->atFsockopen) {
+            if ($this->_atFsockopen) {
                 $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $this->_timeout);
             } else {
                 $fp = fsockopen($send_host, $send_port, $errno, $errstr, $this->_timeout);
             }
         } else {
-            if ($this->atFsockopen) {
+            if ($this->_atFsockopen) {
                 $fp = @fsockopen($send_host, $send_port, $errno, $errstr);
             } else {
                 $fp = fsockopen($send_host, $send_port, $errno, $errstr);
