@@ -1085,7 +1085,8 @@ EOP;
         */
 
         // 範囲指定子
-        $anchor['range_delimiter'] = "(?:-|‐|\x81\\x5b)"; // ー
+        // -|‐|ー = HYPHEN-MINUS | HYPHEN | KATAKANA-HIRAGANA PROLONGED SOUND MARK
+        $anchor['range_delimiter'] = '(?:-|\\x81\\x5d|\\x81\\x5b)'; // [\\-\\x{2010}\\x{30fc}]
 
         // 列挙指定子
         $anchor['delimiter'] = "{$anchor_space}?(?:[,=+]|、|・|＝|，){$anchor_space}?";
@@ -1098,11 +1099,11 @@ EOP;
 
         // レス範囲
         /*
-        $anchor['a_range'] = sprintf("%s(?:%s%s)?",
+        $anchor['a_range'] = sprintf('%s(?:%s%s)?',
             $anchor['a_num'], $anchor['range_delimiter'], $anchor['a_num']
         );
         */
-        $anchor['a_range'] = sprintf("%s(?:%s(?:%s)?%s)?",
+        $anchor['a_range'] = sprintf('%s(?:%s(?:%s)?%s)?',
             $anchor['a_num'], $anchor['range_delimiter'], $anchor['prefix'], $anchor['a_num']
         );
 
@@ -1112,7 +1113,7 @@ EOP;
         );
 
         // レス番号の列挙
-        $anchor['nums'] = sprintf("%s(?:%s%s)*(?!%s)",
+        $anchor['nums'] = sprintf('%s(?:%s%s)*(?!%s)',
             $anchor['a_num'], $anchor['delimiter'], $anchor['a_num'], $anchor['a_digit']
         );
 

@@ -354,13 +354,21 @@ SPM.openSubWin = function (aThread, inUrl, option) {
  * URIの処理をし、フィルタリング結果を表示する
  */
 SPM.openFilter = function (aThread, field, match, event) {
+	var target;
 	var inUrl = 'read_filter.php?bbs=' + aThread.bbs + '&key=' + aThread.key + '&host=' + aThread.host;
 	inUrl += '&rescount=' + aThread.rc + '&ttitle_en=' + aThread.ttitle_en + '&resnum=' + spmResNum;
 	inUrl += '&ls=all&field=' + field + '&method=just&match=' + match + '&offline=1';
 
-	switch (spmFlexTarget) {
+	event = event || window.event;
+	if (event.shiftKey) {
+		target = '_blank';
+	} else {
+		target = spmFlexTarget;
+	}
+
+	switch (target) {
 		case '_popup':
-			showHtmlPopUp(inUrl, event || window.event, 0);
+			showHtmlPopUp(inUrl, event, 0);
 			SPM.hideImmediately(aThread, event);
 			break;
 		case '_blank':
@@ -376,10 +384,10 @@ SPM.openFilter = function (aThread, field, match, event) {
 			window.top.location.href = inUrl;
 			break;
 		default:
-			if (window.parent != window.self && typeof window.parent[spmFlexTarget] !== 'undefined') {
-				window.parent[spmFlexTarget].location.href = inUrl;
+			if (window.parent != window.self && typeof window.parent[target] !== 'undefined') {
+				window.parent[target].location.href = inUrl;
 			} else {
-				window.open(inUrl, spmFlexTarget, '')
+				window.open(inUrl, target, '')
 			}
 	}
 
