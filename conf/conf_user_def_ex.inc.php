@@ -91,7 +91,14 @@ $conf_user_def['expack.spm.filter'] = 1; // (1)
 $conf_user_rad['expack.spm.filter'] = array('1' => '表示', '0' => '非表示');
 
 // フィルタリング結果を開くフレームまたはウインドウ
-$conf_user_def['expack.spm.filter_target'] = "read"; // ("read")
+$conf_user_def['expack.spm.filter_target'] = "_popup"; // ("_popup")
+$conf_user_sel['expack.spm.filter_target'] = array(
+    '_popup'    => 'HTMLポップアップ',
+    '_blank'    => '新規ウインドウ',
+    '_self'     => '同じフレーム',
+    //'_parent' => '親フレーム',
+    //'_top'    => '同じウインドウ',
+);
 
 // }}}
 // {{{ アクティブモナー

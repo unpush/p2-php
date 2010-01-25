@@ -54,7 +54,7 @@ echo <<<EOF
 <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 {$_conf['extra_headers_ht']}
-<title>p2 - スレ内検索</title>
+<title>rep2 - スレ内検索</title>
 </head>
 <body{$_conf['k_colors']}>
 <p>{$ttitle_back}</p>

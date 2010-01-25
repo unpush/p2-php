@@ -45,7 +45,15 @@ if (isset($aThread->datlines[$resnum - 1])) {
     $msg = $resar[3];
 
     $aShowThread = new ShowThreadPc($aThread);
-    $word = $aShowThread->getFilterTarget($ares, $resnum, $name, $mail, $date_id, $msg);
+    if ($field == 'rres') {
+        $_REQUEST['field']  = 'msg';
+        $_REQUEST['method'] = 'regex';
+        $word = ShowThread::getAnchorRegex(
+            '%prefix%(.+%delimiter%)?' . $resnum . '(?!\\d|%range_delimiter%)'
+        );
+    } else {
+        $word = $aShowThread->getFilterTarget($ares, $resnum, $name, $mail, $date_id, $msg);
+    }
     if (strlen($word) == 0) {
         unset($word);
     } else {

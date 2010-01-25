@@ -17,7 +17,7 @@ $_conf['expack.php_cli_path'] = "php"; // ("php")
 // Zend Framework (Zend Gdataでも可) のlibraryディレクトリへのパス
 $_conf['expack.zf_path'] = ""; // ("")
 
-// pecl_http が利用できる場合、HttpRequestPool による並列ダウロードを有効にする
+// pecl_http が利用できる場合、HttpRequestPool による並列ダウンロードを有効にする
 // (off:0, on:1, コマンドラインで実行:2)
 $_conf['expack.use_pecl_http'] = 1; // (1)
 

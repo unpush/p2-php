@@ -12,7 +12,7 @@ abstract class ShowThread
     /**
      * リンクとして扱うパターン
      *
-     * @type string
+     * @var string
      */
     const LINK_REGEX = '{
 (?P<link>(<[Aa][ ].+?>)(.*?)(</[Aa]>)) # リンク（PCREの特性上、必ずこのパターンを最初に試行する）
@@ -41,7 +41,7 @@ abstract class ShowThread
     /**
      * リダイレクタの種類
      *
-     * @type int
+     * @var int
      */
     const REDIRECTOR_NONE = 0;
     const REDIRECTOR_IMENU = 1;
@@ -51,7 +51,7 @@ abstract class ShowThread
     /**
      * NGあぼーんの種類
      *
-     * @type int
+     * @var int
      */
     const ABORN = -1;
     const NG_NONE = 0;
@@ -69,23 +69,37 @@ abstract class ShowThread
     /**
      * まとめ読みモード時のスレッド数
      *
-     * @type int
+     * @var int
      */
     static private $_matome_count = 0;
 
     /**
      * 本文以外がNGあぼーんにヒットした総数
      *
-     * @type int
+     * @var int
      */
     static protected $_ngaborns_head_hits = 0;
 
     /**
      * 本文がNGあぼーんにヒットした総数
      *
-     * @type int
+     * @var int
      */
     static protected $_ngaborns_body_hits = 0;
+
+    /**
+     * getAnchorRegex() のキャッシュ
+     *
+     * @var array
+     */
+    static private $_anchorRegexes = array();
+
+    /**
+     * _getAnchorRegexParts() のキャッシュ
+     *
+     * @var array
+     */
+    static private $_anchorRegexParts = null;
 
     // }}}
     // {{{ properties
@@ -93,7 +107,7 @@ abstract class ShowThread
     /**
      * まとめ読みモード時のスレッド番号
      *
-     * @type int
+     * @var int
      */
     protected $_matome;
 
@@ -101,7 +115,7 @@ abstract class ShowThread
      * URLを処理する関数・メソッド名などを格納する配列
      * (組み込み)
      *
-     * @type array
+     * @var array
      */
     protected $_url_handlers;
 
@@ -109,21 +123,21 @@ abstract class ShowThread
      * URLを処理する関数・メソッド名などを格納する配列
      * (ユーザ定義、組み込みのものより優先)
      *
-     * @type array
+     * @var array
      */
     protected $_user_url_handlers;
 
     /**
      * 頻出IDをあぼーんする
      *
-     * @type bool
+     * @var bool
      */
     protected $_ngaborn_frequent;
 
     /**
      * NG or あぼーんレスがあるかどうか
      *
-     * @type bool
+     * @var bool
      */
     protected $_has_ngaborns;
 
@@ -131,7 +145,7 @@ abstract class ShowThread
      * あぼーんレス番号およびNGレス番号を格納する配列
      * array_intersect()を効率よく行うため、該当するレス番号は文字列にキャストして格納する
      *
-     * @type array
+     * @var array
      */
     protected $_aborn_nums;
     protected $_ng_nums;
@@ -139,28 +153,28 @@ abstract class ShowThread
     /**
      * リダイレクタの種類
      *
-     * @type int
+     * @var int
      */
     protected $_redirector;
 
     /**
      * スレッドオブジェクト
      *
-     * @type ThreadRead
+     * @var ThreadRead
      */
     public $thread;
 
     /**
      * アクティブモナー・オブジェクト
      *
-     * @type ActiveMona
+     * @var ActiveMona
      */
     public $activeMona;
 
     /**
      * アクティブモナーが有効か否か
      *
-     * @type bool
+     * @var bool
      */
     public $am_enabled = false;
 
@@ -1009,6 +1023,139 @@ EOP;
     final public function quoteResRangeCallback(array $s)
     {
         return $this->quoteResRange($s[0], $s[1], $s[2]);
+    }
+
+    // }}}
+    // {{{ getAnchorRegex()
+
+    /**
+     * アンカーの正規表現を返す
+     *
+     * @param   string  $pattern  ex)'/%full%/'
+     * @return  string
+     */
+    static public function getAnchorRegex($pattern)
+    {
+        if (!array_key_exists($pattern, self::$_anchorRegexes)) {
+            self::$_anchorRegexes[$pattern] = strtr($pattern, self::_getAnchorRegexParts());
+            // 大差はないが compileMobile2chUriCallBack() のように preg_relplace_callback()してもいいかも。
+        }
+        return self::$_anchorRegexes[$pattern];
+    }
+
+    // }}}
+    // {{{ _getAnchorRegexParts()
+
+    /**
+     * アンカーの構成要素（正規表現パーツの配列）を返す
+     *
+     * @param   void
+     * @return  string
+     */
+    static private function _getAnchorRegexParts()
+    {
+        if (!is_null(self::$_anchorRegexParts)) {
+            return self::$_anchorRegexParts;
+        }
+
+        $anchor = array();
+
+        // アンカーの構成要素（正規表現パーツの配列）
+
+        // 空白文字
+        $anchor_space = '(?:[ ]|　)';
+        //$anchor[' '] = '';
+
+        // アンカー引用子 >>
+        $anchor['prefix'] = "(?:&gt;|＞|&lt;|＜|〉|》|≫){1,2}{$anchor_space}*\.?";
+
+        // 数字
+        $anchor['a_digit'] = '(?:\\d|０|１|２|３|４|５|６|７|８|９)';
+        /*
+        $anchor[0] = '(?:0|０)';
+        $anchor[1] = '(?:1|１)';
+        $anchor[2] = '(?:2|２)';
+        $anchor[3] = '(?:3|３)';
+        $anchor[4] = '(?:4|４)';
+        $anchor[5] = '(?:5|５)';
+        $anchor[6] = '(?:6|６)';
+        $anchor[7] = '(?:7|７)';
+        $anchor[8] = '(?:8|８)';
+        $anchor[9] = '(?:9|９)';
+        */
+
+        // 範囲指定子
+        $anchor['range_delimiter'] = "(?:-|‐|\x81\\x5b)"; // ー
+
+        // 列挙指定子
+        $anchor['delimiter'] = "{$anchor_space}?(?:[,=+]|、|・|＝|，){$anchor_space}?";
+
+        // あぼーん用アンカー引用子
+        //$anchor['prefix_abon'] = "&gt;{1,2}{$anchor_space}?";
+
+        // レス番号
+        $anchor['a_num'] = sprintf('%s{1,4}', $anchor['a_digit']);
+
+        // レス範囲
+        /*
+        $anchor['a_range'] = sprintf("%s(?:%s%s)?",
+            $anchor['a_num'], $anchor['range_delimiter'], $anchor['a_num']
+        );
+        */
+        $anchor['a_range'] = sprintf("%s(?:%s(?:%s)?%s)?",
+            $anchor['a_num'], $anchor['range_delimiter'], $anchor['prefix'], $anchor['a_num']
+        );
+
+        // レス範囲の列挙
+        $anchor['ranges'] = sprintf('%s(?:%s%s)*(?!%s)',
+            $anchor['a_range'], $anchor['delimiter'], $anchor['a_range'], $anchor['a_digit']
+        );
+
+        // レス番号の列挙
+        $anchor['nums'] = sprintf("%s(?:%s%s)*(?!%s)",
+            $anchor['a_num'], $anchor['delimiter'], $anchor['a_num'], $anchor['a_digit']
+        );
+
+        // アンカー全体
+        $anchor['full'] = sprintf('(%s)(%s)', $anchor['prefix'], $anchor['ranges']);
+
+        // getAnchorRegex() の strtr() 置換用にkeyを '%key%' に変換する
+        foreach ($anchor as $k => $v) {
+            $anchor['%' . $k . '%'] = $v;
+            unset($anchor[$k]);
+        }
+
+        self::$_anchorRegexParts = $anchor;
+
+        return self::$_anchorRegexParts;
+    }
+
+    // }}}
+    // {{{_buildStrToLinkRegex()
+
+    /**
+     * リンクとして扱うパターンを返す
+     *
+     * @param   void
+     * @return  string
+     */
+    static protected function _buildStrToLinkRegex()
+    {
+        return '{'
+            . '(?P<link>(<[Aa] .+?>)(.*?)(</[Aa]>))' // リンク（PCREの特性上、必ずこのパターンを最初に試行する）
+            . '|'
+            . '(?:'
+            .   '(?P<quote>' // 引用
+            .       $this->getAnchorRegex('%full%')
+            .   ')'
+            . '|'
+            .   '(?P<url>'
+            .       '(ftp|h?ttps?|tps?)://([0-9A-Za-z][\\w!#%&+*,\\-./:;=?@\\[\\]^~]+)' // URL
+            .   ')'
+            . '|'
+            .   '(?P<id>ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$))' // ID（8,10桁 +PC/携帯識別フラグ）
+            . ')'
+            . '}';
     }
 
     // }}}

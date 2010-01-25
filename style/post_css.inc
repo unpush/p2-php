@@ -6,6 +6,8 @@
 
 if($STYLE['a_underline_none'] == 2){
 	$thre_title_underline_css = "a.thre_title{text-decoration:none;}";
+} else {
+    thre_title_underline_css = '';
 }
 
 echo <<<EOSTYLE
