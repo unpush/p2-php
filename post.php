@@ -377,7 +377,7 @@ function postIt($host, $bbs, $key, $post)
         $send_path = $bbs_cgi_url;
     } else {
         $send_host = $URL['host'];
-        $send_port = $URL['port'];
+        $send_port = isset($URL['port']) ? $URL['port'] : 80;
         $send_path = $URL['path'] . $URL['query'];
     }
 
@@ -446,10 +446,13 @@ function postIt($host, $bbs, $key, $post)
     //echo '<h4>$request</h4><p>' . $request . "</p>"; //for debug
     fputs($fp, $request);
 
+    $start_here = false;
+    $post_seikou = false;
+
     while (!p2_stream_eof($fp, $timed_out)) {
 
         if ($start_here) {
-
+            $wr = '';
             while (!p2_stream_eof($fp, $timed_out)) {
                 $wr .= fread($fp, 164000);
             }
@@ -459,7 +462,6 @@ function postIt($host, $bbs, $key, $post)
         } else {
             $l = fgets($fp, 164000);
             //echo $l .'<br>'; // for debug
-            $response_header_ht .= $l . '<br>';
             // クッキーキタ
             if (preg_match('/Set-Cookie: (.+?)\\r\\n/', $l, $matches)) {
                 //echo '<p>' . $matches[0] . '</p>'; //
@@ -478,7 +480,7 @@ function postIt($host, $bbs, $key, $post)
                     }
                 }
                 if ($p2cookies) {
-                    unset($cookies_to_send);
+                    $cookies_to_send = '';
                     foreach ($p2cookies as $cname => $cvalue) {
                         if ($cname != 'expires') {
                             $cookies_to_send .= " {$cname}={$cvalue};";
@@ -610,6 +612,7 @@ function showPostMsg($isDone, $result_msg, $reload)
 EOJS;
 
     } else {
+        $popup_ht = '';
         $_conf['extra_headers_ht'] .= <<<EOP
 <meta http-equiv="refresh" content="1;URL={$location_noenc}">
 EOP;
@@ -651,6 +654,7 @@ EOSCRIPT;
         if ($reload) {
             echo $popup_ht;
         }
+        $kakunin_ht = '';
     } else {
         $kakunin_ht = <<<EOP
 <p><a href="{$location_ht}">確認</a></p>

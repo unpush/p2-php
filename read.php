@@ -70,7 +70,7 @@ if (!isset($GLOBALS['word'])) {
         if ($res_filter) {
             $res_filter_cont = serialize($res_filter);
         }
-        if ($res_filter_cont && !$popup_filter) {
+        if ($res_filter_cont && empty($popup_filter)) {
             if (FileCtl::file_write_contents($cachefile, $res_filter_cont) === false) {
                 p2die('cannot write file.');
             }

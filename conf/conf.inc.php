@@ -301,11 +301,6 @@ function p2_init()
         }
     }
 
-    // コマンドラインモードではここまで
-    if (defined('P2_CLI_RUN')) {
-        return;
-    }
-
     // }}}
 
     include P2_LIB_DIR . '/bootstrap.php';

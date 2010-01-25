@@ -459,8 +459,7 @@ if ($filepath && $force && $time && $size == $_size && $md5 == $_md5 && $mime ==
     ic2_finish($filepath, $thumb, $params, false);
 }
 
-$params = array('uri' => $uri, 'host' => $host, 'name' => $name, 'size' => $size, 'md5' => $md5,
-                'width' => $width, 'height' => $height, 'mime' => $mime, 'memo' => $memo);
+$params = compact('uri', 'host', 'name', 'size', 'md5', 'width', 'height', 'mime', 'memo');
 
 // ファイルサイズが上限を越えていないか確認
 ic2_checkSizeOvered($tmpfile, $params);
@@ -623,7 +622,7 @@ function ic2_checkSizeOvered($tmpfile, $params)
     } else {
         $maxsize = (int)$maxsize;
     }
-    if (0 < $maxsize && $maxsize < $conent_length) {
+    if (0 < $maxsize) {
         $isError = true;
         $errmsg = "ファイルサイズが大きすぎます。(file:{$size}; max:{$maxsize};)";
     }

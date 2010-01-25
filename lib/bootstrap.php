@@ -18,7 +18,9 @@ if (file_exists($_conf['conf_user_file'])) {
 
     // 何らかの理由でユーザー設定ファイルが壊れていたら
     if (!is_array($conf_user)) {
-        if (unlink($_conf['conf_user_file'])) {
+        if (defined('P2_CLI_RUN')) {
+            p2die("ユーザー設定ファイル {$dispname} が読み込めなかったか、壊れています。");
+        } elseif (unlink($_conf['conf_user_file'])) {
             P2Util::pushInfoHtml('<p>ユーザー設定ファイルが壊れていたので削除しました。</p>');
             $conf_user = array();
         } else {
@@ -36,7 +38,7 @@ if (file_exists($_conf['conf_user_file'])) {
         $config_version = '000000.0000';
     }
 
-    if ($config_version !== $_conf['p2expack']) {
+    if ($config_version !== $_conf['p2expack'] && !defined('P2_CLI_RUN')) {
         // 設定の更新
         if ($migrators = p2_check_migration($config_version)) {
             $conf_user = p2_invoke_migrators($migrators, $conf_user);
@@ -56,6 +58,11 @@ if (file_exists($_conf['conf_user_file'])) {
     include P2_CONF_DIR . '/conf_user_def.inc.php';
     $_conf = array_merge($_conf, $conf_user_def);
     $save_conf_user = true;
+}
+
+// コマンドラインモードではここまで
+if (defined('P2_CLI_RUN')) {
+    return;
 }
 
 // 新しいユーザー設定をシリアライズして保存

@@ -82,7 +82,7 @@ if ($have_sb_footer_links) {
 // スペシャルモードでなければフォーム入力補完========================
 $ini_url_text = '';
 if (!$aThreadList->spmode) {
-    if (P2Util::isHostJbbsShitaraba($aThread->host)) { // したらば
+    if (P2Util::isHostJbbsShitaraba($aThreadList->host)) { // したらば
         $ini_url_text = "http://{$aThreadList->host}/bbs/read.cgi?BBS={$aThreadList->bbs}&KEY=";
     } elseif (P2Util::isHostMachiBbs($aThreadList->host)) { // まちBBS
         $ini_url_text = "http://{$aThreadList->host}/bbs/read.pl?BBS={$aThreadList->bbs}&KEY=";
