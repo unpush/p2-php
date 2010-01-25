@@ -103,8 +103,7 @@ EOHEADER;
 
 echo "<body{$_conf['k_colors']}>";
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
 echo "<p><a href=\"{$thread_url}\">{$ptitle_ht}</a></p>";
 echo '<hr>';

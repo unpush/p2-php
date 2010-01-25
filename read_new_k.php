@@ -175,8 +175,7 @@ echo <<<EOP
 <a class="button" id="above" name="above" href="#bottom"{$_conf['k_accesskey_at']['bottom']}>{$_conf['k_accesskey_st']['bottom']}Å•</a></div>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 //==============================================================
 // ÇªÇÍÇºÇÍÇÃçsâêÕ
@@ -300,8 +299,7 @@ for ($x = 0; $x < $linesize; $x++) {
 
     if ($aThread->isonline) { $online_num++; } // ê∂ë∂êîset
 
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
+    P2Util::printInfoHtml();
 
     $matomeCache->concat(ob_get_flush());
     flush();
@@ -333,7 +331,7 @@ for ($x = 0; $x < $linesize; $x++) {
 function readNew($aThread)
 {
     global $_conf, $newthre_num, $STYLE;
-    global $_info_msg_ht, $spmode, $word;
+    global $spmode, $word;
 
     $newthre_num++;
 
@@ -416,8 +414,7 @@ function readNew($aThread)
         $read_header_itaj_ht = " ({$itaj_hd})";
     }
 
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
+    P2Util::printInfoHtml();
 
     $read_header_ht = <<<EOP
 <hr><div id="ntt{$newthre_num}" name="ntt{$newthre_num}"><font color="{$STYLE['mobile_read_ttitle_color']}"><b>{$aThread->ttitle_hd}</b></font>{$read_header_itaj_ht} {$next_thre_ht}</div>

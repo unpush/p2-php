@@ -47,7 +47,7 @@ $path = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . $filename;
 //=========================================================
 if (isset($filecont)) {
     if (setFile($path, $filecont, $encode)) {
-        $_info_msg_ht .= "saved, OK.";
+        P2Util::pushInfoHtml('saved, OK.');
     }
 }
 
@@ -89,7 +89,7 @@ function setFile($path, $cont, $encode)
  */
 function editFile($path, $encode, $title)
 {
-    global $_conf, $modori_url, $_info_msg_ht, $rows, $cols, $csrfid;
+    global $_conf, $modori_url, $rows, $cols, $csrfid;
 
     if ($path == '') {
         p2die('path ‚ªŽw’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ');
@@ -131,6 +131,8 @@ function editFile($path, $encode, $title)
 <body onload="top.document.title=self.document.title;">
 EOHEADER;
 
+    $info_msg_ht = P2Util::getInfoHtml();
+
     echo $modori_url_ht;
     echo $ptitle;
     echo <<<EOFORM
@@ -142,7 +144,7 @@ EOHEADER;
     <input type="hidden" name="cols" value="{$cols}">
     <input type="hidden" name="csrfid" value="{$csrfid}">
     <input type="submit" name="submit" value="Save">
-    {$_info_msg_ht}<br>
+    {$info_msg_ht}<br>
     <textarea style="font-size:9pt;" id="filecont" name="filecont" wrap="off"{$rows_at}{$cols_at}>{$cont_area}</textarea>
     {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>

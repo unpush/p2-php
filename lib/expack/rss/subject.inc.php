@@ -84,9 +84,9 @@ echo <<<EOH
     </script>
 </head>
 <body onload="setWinTitle();">
-{$_info_msg_ht}
-
 EOH;
+
+P2Util::printInfoHtml();
 
 // RSS‚ªƒp[ƒX‚Å‚«‚È‚©‚Á‚½‚Æ‚«
 if (!$rss_parse_success) {

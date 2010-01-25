@@ -330,8 +330,7 @@ EOP;
 
 include P2_LIB_DIR . '/sb_toolbar.inc.php';
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
 echo <<<EOP
 {$taborn_check_ht}{$check_form_ht}

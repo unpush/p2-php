@@ -87,7 +87,7 @@ class SubjectTxt
      */
     public function downloadSubject()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 
@@ -114,7 +114,8 @@ class SubjectTxt
         }
 
         $params = array();
-        $params['timeout'] = $_conf['fsockopen_time_limit'];
+        $params['timeout'] = $_conf['http_conn_timeout'];
+        $params['readTimeout'] = array($_conf['http_read_timeout'], 0);
         if ($_conf['proxy_use']) {
             $params['proxy_host'] = $_conf['proxy_host'];
             $params['proxy_port'] = $_conf['proxy_port'];
@@ -146,8 +147,9 @@ class SubjectTxt
 
         if (isset($error_msg) && strlen($error_msg) > 0) {
             $url_t = P2Util::throughIme($this->subject_url);
-            $_info_msg_ht .= "<div>Error: {$error_msg}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->subject_url}</a> ‚ÉÚ‘±‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B</div>";
+            $info_msg_ht = "<p class=\"info-msg\">Error: {$error_msg}<br>";
+            $info_msg_ht .= "rep2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->subject_url}</a> ‚ÉÚ‘±‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B</p>";
+            P2Util::pushInfoHtml($info_msg_ht);
             $body = '';
         } else {
             $body = $req->getResponseBody();

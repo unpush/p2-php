@@ -32,7 +32,6 @@ class BbsMap
      */
     static public function getCurrentHost($host, $bbs, $autosync = true)
     {
-        global $_info_msg_ht;
         static $synced = false;
 
         // マッピング読み込み
@@ -49,7 +48,7 @@ class BbsMap
                 // 移転を検出したらお気に板、お気にスレ、最近読んだスレを自動で同期
                 $msg_fmt = '<p>rep2 info: ホストの移転を検出しました。(%s/%s → %s/%s)<br>';
                 $msg_fmt .= 'お気に板、お気にスレ、最近読んだスレを自動で同期します。</p>';
-                $_info_msg_ht .= sprintf($msg_fmt, $host, $bbs, $new_host, $bbs);
+                P2Util::pushInfoHtml(sprintf($msg_fmt, $host, $bbs, $new_host, $bbs));
                 self::syncFav();
                 $synced = true;
             }
@@ -99,7 +98,7 @@ class BbsMap
      */
     static public function syncBrd($brd_path)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
         static $done = array();
 
         // {{{ 読込
@@ -158,9 +157,9 @@ class BbsMap
         $brd_name = htmlspecialchars(basename($brd_path), ENT_QUOTES);
         if ($updated) {
             self::_writeData($brd_path, $neolines);
-            $_info_msg_ht .= sprintf('<p class="info-msg">rep2 info: %s を同期しました。</p>', $brd_name);
+            P2Util::pushInfoHtml(sprintf('<p class="info-msg">rep2 info: %s を同期しました。</p>', $brd_name));
         } else {
-            $_info_msg_ht .= sprintf('<p class="info-msg">rep2 info: %s は変更されませんでした。</p>', $brd_name);
+            P2Util::pushInfoHtml(sprintf('<p class="info-msg">rep2 info: %s は変更されませんでした。</p>'), $brd_name);
         }
         $done[$brd_path] = true;
 
@@ -178,7 +177,7 @@ class BbsMap
      */
     static public function syncIdx($idx_path)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
         static $done = array();
 
         // {{{ 読込
@@ -227,9 +226,9 @@ class BbsMap
         $idx_name = htmlspecialchars(basename($idx_path), ENT_QUOTES);
         if ($updated) {
             self::_writeData($idx_path, $neolines);
-            $_info_msg_ht .= sprintf('<p class="info-msg">rep2 info: %s を同期しました。</p>', $idx_name);
+            P2Util::pushInfoHtml(sprintf('<p class="info-msg">rep2 info: %s を同期しました。</p>', $idx_name));
         } else {
-            $_info_msg_ht .= sprintf('<p class="info-msg">rep2 info: %s は変更されませんでした。</p>', $idx_name);
+            P2Util::pushInfoHtml(sprintf('<p class="info-msg">rep2 info: %s は変更されませんでした。</p>', $idx_name));
         }
         $done[$idx_path] = true;
 
@@ -263,7 +262,7 @@ class BbsMap
      */
     static private function _getMapping()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         // {{{ 設定
 
@@ -301,8 +300,8 @@ class BbsMap
         }
 
         $params = array();
-        $params['timeout'] = $_conf['fsockopen_time_limit'];
-        //$params['readTimeout'] = array($_conf['fsockopen_time_limit'], 0);
+        $params['timeout'] = $_conf['http_conn_timeout'];
+        $params['readTimeout'] = array($_conf['http_read_timeout'], 0);
         if (isset($mtime)) {
             $params['requestHeaders'] = array('If-Modified-Since' => http_date($mtime));
         }
@@ -316,8 +315,8 @@ class BbsMap
 
         // エラーのとき、代わりのメニューを使ってみる
         if (PEAR::isError($err) && $use_alt) {
-            $_info_msg_ht .= sprintf($err_fmt, htmlspecialchars($err->getMessage(), ENT_QUOTES), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
-            $_info_msg_ht .= sprintf("<p>代わりに %s をダウンロードします。</p>", htmlspecialchars($altmenu_url, ENT_QUOTES));
+            P2Util::pushInfoHtml(sprintf($err_fmt, htmlspecialchars($err->getMessage(), ENT_QUOTES), htmlspecialchars($bbsmenu_url, ENT_QUOTES)));
+            P2Util::pushInfoHtml(sprintf("<p>代わりに %s をダウンロードします。</p>", htmlspecialchars($altmenu_url, ENT_QUOTES)));
             $bbsmenu_url = $altmenu_url;
             unset ($req, $err);
             $req = new HTTP_Request($bbsmenu_url, $params);
@@ -327,7 +326,7 @@ class BbsMap
 
         // エラーを検証
         if (PEAR::isError($err)) {
-            $_info_msg_ht .= sprintf($err_fmt, htmlspecialchars($err->getMessage(), ENT_QUOTES), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
+            P2Util::pushInfoHtml(sprintf($err_fmt, htmlspecialchars($err->getMessage(), ENT_QUOTES), htmlspecialchars($bbsmenu_url, ENT_QUOTES)));
             if (file_exists($map_cache_path)) {
                 return unserialize(file_get_contents($map_cache_path));
             } else {
@@ -342,7 +341,7 @@ class BbsMap
             self::$_map = unserialize($map_cahce);
             return self::$_map;
         } elseif ($code != 200) {
-            $_info_msg_ht .= sprintf($err_fmt, htmlspecialchars(strval($code), ENT_QUOTES), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
+            P2Util::pushInfoHtml(sprintf($err_fmt, htmlspecialchars(strval($code), ENT_QUOTES), htmlspecialchars($bbsmenu_url, ENT_QUOTES)));
             if (file_exists($map_cache_path)) {
                 return unserialize(file_get_contents($map_cache_path));
             } else {

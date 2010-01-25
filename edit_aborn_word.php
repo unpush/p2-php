@@ -72,9 +72,9 @@ if (!empty($_POST['submit_save'])) {
         $newdata .= $a_mode . $a_word . "\t" . $a_time . "\t" . $a_hits . "\n";
     }
     if (FileCtl::file_write_contents($path, $newdata) !== FALSE) {
-        $_info_msg_ht .= "<p>○設定を更新保存しました</p>";
+        P2Util::pushInfoHtml('<p>○設定を更新保存しました</p>');
     } else {
-        $_info_msg_ht .= "<p>×設定を更新保存できませんでした</p>";
+        P2Util::pushInfoHtml('<p>×設定を更新保存できませんでした</p>');
     }
 
 // }}}
@@ -82,9 +82,9 @@ if (!empty($_POST['submit_save'])) {
 
 } elseif (!empty($_POST['submit_default'])) {
     if (@unlink($path)) {
-        $_info_msg_ht .= "<p>○リストを空にしました</p>";
+        P2Util::pushInfoHtml('<p>○リストを空にしました</p>');
     } else {
-        $_info_msg_ht .= "<p>×リストを空にできませんでした</p>";
+        P2Util::pushInfoHtml('<p>×リストを空にできませんでした</p>');
     }
 }
 
@@ -207,10 +207,7 @@ EOP;
 }
 
 // 情報メッセージ表示
-if (!empty($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
-}
+P2Util::printInfoHtml();
 
 if ($filename == 'p2_aborn_thread.txt') {
     $usage_ttitle = '<li>スレタイ: 「あぼーんスレッドタイトル」では不使用</li>';

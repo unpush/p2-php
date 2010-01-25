@@ -6,6 +6,7 @@
 // {{{ ƒwƒbƒ_
 
 $ch_title = htmlspecialchars($channel['title'], ENT_QUOTES, 'Shift_JIS', false);
+$info_msg_ht = P2Util::getInfoHtml();
 
 echo <<<EOH
 <html lang="ja">
@@ -16,7 +17,7 @@ echo <<<EOH
 <title>{$title}</title>
 </head>
 <body{$_conf['k_colors']}>
-{$_info_msg_ht}
+{$info_msg_ht}
 <h1>{$ch_title}</h1>
 <hr>
 EOH;

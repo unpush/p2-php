@@ -124,7 +124,7 @@ class ThreadList
      */
     public function readList()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('readList()');
 
@@ -133,7 +133,7 @@ class ThreadList
         // ローカルの履歴ファイル 読み込み
         case 'recent':
             if ($lines = FileCtl::file_read_lines($_conf['recent_idx'])) {
-                //$_info_msg_ht = '<p>履歴は空っぽです</p>';
+                //P2Util::pushInfoHtml('<p>履歴は空っぽです</p>');
                 //return false;
             }
             break;
@@ -141,7 +141,7 @@ class ThreadList
         // ローカルの書き込み履歴ファイル 読み込み
         case 'res_hist':
             if ($lines = FileCtl::file_read_lines($_conf['res_hist_idx'])) {
-                //$_info_msg_ht = '<p>書き込み履歴は空っぽです</p>';
+                //P2Util::pushInfoHtml('<p>書き込み履歴は空っぽです</p>');
                 //return false;
             }
             break;
@@ -149,7 +149,7 @@ class ThreadList
         //ローカルのお気にファイル 読み込み
         case 'fav':
             if ($lines = FileCtl::file_read_lines($_conf['favlist_idx'])) {
-                //$_info_msg_ht = '<p>お気にスレは空っぽです</p>';
+                //P2Util::pushInfoHtml('<p>お気にスレは空っぽです</p>');
                 //return false;
             }
             break;
@@ -273,8 +273,8 @@ class ThreadList
         // スレの殿堂の場合  // p2_palace.idx 読み込み
         case 'palace':
             if ($lines = FileCtl::file_read_lines($_conf['palace_idx'])) {
-                // $_info_msg_ht = "<p>殿堂はがらんどうです</p>";
-                // return false;
+                //P2Util::pushInfoHtml('<p>殿堂はがらんどうです</p>');
+                //return false;
             }
             break;
 
@@ -321,7 +321,7 @@ class ThreadList
      */
     public function sort($mode, $reverse = false)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         if (!$this->threads) {
             return;
@@ -373,8 +373,9 @@ class ThreadList
             }
             break;
         default:
-            $_info_msg_ht .= sprintf('<p class="info-msg">ソート指定が変です。(%s)</p>',
-                                     htmlspecialchars($mode, ENT_QUOTES));
+            $info_msg_ht = sprintf('<p class="info-msg">ソート指定が変です。(%s)</p>',
+                                   htmlspecialchars($mode, ENT_QUOTES));
+            P2Util::pushInfoHtml($info_msg_ht);
         }
 
         if ($cmp) {
@@ -397,13 +398,13 @@ class ThreadList
         if ($cmp && $do_benchmark) {
             $after = microtime(true);
             $count = count($this->threads);
-            $_info_msg_ht .= sprintf(
+            P2Util::pushInfoHtml(sprintf(
                 '<p class="info-msg" style="font-family:monospace">%s(%d thread%s)%s = %0.6f sec.</p>',
                 $cmp,
                 number_format($count),
                 ($count > 1) ? 's' : '',
                 $reverse ? '+reverse' : '',
-                $after - $before);
+                $after - $before));
         }
 
         //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sort');

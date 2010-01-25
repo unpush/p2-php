@@ -192,8 +192,7 @@ echo <<<EOP
 <body><div id="popUpContainer"></div>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 //echo $ptitle_ht."<br>";
 
@@ -316,8 +315,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 
     if ($aThread->isonline) { $online_num++; } // ê∂ë∂êîset
 
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
+    P2Util::printInfoHtml();
 
     $matomeCache->concat(ob_get_flush());
     flush();
@@ -349,7 +347,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 function readNew($aThread)
 {
     global $_conf, $newthre_num, $STYLE;
-    global $_info_msg_ht, $word;
+    global $word;
     static $favlist_titles = null;
 
     if ($_conf['expack.misc.multi_favs'] && is_null($favlist_titles)) {
@@ -443,8 +441,7 @@ function readNew($aThread)
     }
     $next_thre_ht = "<a id=\"ntta{$next_thre_num}\" href=\"#ntt{$next_thre_num}\">Å•</a>";
 
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
+    P2Util::printInfoHtml();
 
     // ÉwÉbÉ_ïîï™HTML
     $read_header_ht = <<<EOP

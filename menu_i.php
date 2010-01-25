@@ -141,7 +141,7 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
 ?>
 
 <ul id="top" title="rep2" selected="true">
-<?php if ($_info_msg_ht) { ?>
+<?php if (P2Util::hasInfoHtml()) { ?>
     <li><a href="#info_msg" class="color-r">エラー</a></li>
 <?php } ?>
     <li class="group">リスト</li>
@@ -183,8 +183,10 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
 // }}}
 // {{{ エラー
 
-if ($_info_msg_ht) { 
-    echo '<div id="info_msg" class="panel" title="エラー">', $_info_msg_ht, '</div>';
+if (P2Util::hasInfoHtml()) { 
+    echo '<div id="info_msg" class="panel" title="エラー">';
+    P2Util::printInfoHtml();
+    echo '</div>';
 }
 
 // }}}

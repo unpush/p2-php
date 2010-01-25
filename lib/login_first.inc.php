@@ -10,7 +10,7 @@
  */
 function printLoginFirst(Login $_login)
 {
-    global $_info_msg_ht, $STYLE, $_conf;
+    global $STYLE, $_conf;
     global $_login_failed_flag, $_p2session;
     global $skin_en;
 
@@ -263,7 +263,7 @@ EOP;
         // {{{ 入力エラーをチェック、判定
 
         if (!preg_match('/^[0-9A-Za-z_]+$/', $_POST['form_login_id']) || !preg_match('/^[0-9A-Za-z_]+$/', $_POST['form_login_pass'])) {
-            $_info_msg_ht .= "<p class=\"infomsg\">rep2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>";
+            P2Util::pushInfoHtml("<p class=\"info-msg\">rep2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>");
             $show_login_form_flag = true;
 
         // }}}
@@ -275,7 +275,7 @@ EOP;
 
             // 新規登録成功
             $hd['form_login_id'] = htmlspecialchars($_POST['form_login_id'], ENT_QUOTES);
-            $body_ht .= "<p class=\"infomsg\">○ 認証{$p_str['user']}「{$hd['form_login_id']}」を登録しました</p>";
+            $body_ht .= "<p class=\"info-msg\">○ 認証{$p_str['user']}「{$hd['form_login_id']}」を登録しました</p>";
             $body_ht .= "<p><a href=\"{$myname}?form_login_id={$hd['form_login_id']}{$_conf['k_at_a']}\">rep2 start</a></p>";
 
             $_login->setUser($_POST['form_login_id']);
@@ -300,14 +300,15 @@ EOP;
     } else {
 
         if (isset($_POST['form_login_id']) || isset($_POST['form_login_pass'])) {
-            $_info_msg_ht .= '<p class="infomsg">';
+            $info_msg_ht = '<p class="info-msg">';
             if (!$_POST['form_login_id']) {
-                $_info_msg_ht .= "rep2 error: 「{$p_str['user']}」が入力されていません。"."<br>";
+                $info_msg_ht .= "rep2 error: 「{$p_str['user']}」が入力されていません。<br>";
             }
             if (!$_POST['form_login_pass']) {
-                $_info_msg_ht .= "rep2 error: 「{$p_str['password']}」が入力されていません。";
+                $info_msg_ht .= "rep2 error: 「{$p_str['password']}」が入力されていません。";
             }
-            $_info_msg_ht .= '</p>';
+            $info_msg_ht .= '</p>';
+            P2Util::pushInfoHtml($info_msg_ht);
         }
 
         $show_login_form_flag = true;
@@ -348,10 +349,7 @@ EOP;
     echo "<h3>{$ptitle}</h3>\n";
 
     // 情報表示
-    if (!empty($_info_msg_ht)) {
-        echo $_info_msg_ht;
-        $_info_msg_ht = '';
-    }
+    P2Util::printInfoHtml();
 
     echo $body_ht;
 

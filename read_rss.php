@@ -20,7 +20,6 @@ if ($_conf['view_forced_by_query']) {
 // •Ï”‚Ì‰Šú‰»
 //============================================================
 
-$_info_msg_ht = '';
 $channel = array();
 $items = array();
 

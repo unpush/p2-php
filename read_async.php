@@ -15,8 +15,6 @@ $_login->authorize(); // ユーザ認証
 $newtime = date('gis'); // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
 //$_today = date('y/m/d');
 
-$_info_msg_ht = '';
-
 if (empty($_GET['host']) || empty($_GET['bbs']) || empty($_GET['key']) || empty($_GET['ls'])) {
     p2die('レスの指定が変です。');
 }

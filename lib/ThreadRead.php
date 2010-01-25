@@ -120,7 +120,7 @@ class ThreadRead extends Thread
      */
     protected function _downloadDat2ch($from_bytes)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
         global $debug;
 
         if (!($this->host && $this->bbs && $this->key)) {
@@ -189,24 +189,32 @@ class ThreadRead extends Thread
         $request .= "\r\n";
 
         // WEBサーバへ接続
-        $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
+        $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
         if (!$fp) {
-            $url_t = P2Util::throughIme($url);
-            $_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
+            $this->_pushInfoConnectionTimedOut($url, $errno, $errstr);
             $this->diedat = true;
             return false;
         }
+        stream_set_timeout($fp, $_conf['http_read_timeout'], 0);
+
         $wr = "";
         fputs($fp, $request);
         $start_here = false;
-        while (!feof($fp)) {
+        while (!p2_stream_eof($fp, $timed_out)) {
 
             if ($start_here) {
 
                 if ($code == "200" || $code == "206") {
 
-                    while (!feof($fp)) {
+                    while (!p2_stream_eof($fp, $timed_out)) {
                         $wr .= fread($fp, 4096);
+                    }
+
+                    if ($timed_out) {
+                        $this->_pushInfoReadTimedOut($url);
+                        $this->diedat = true;
+                        fclose($fp);
+                        return false;
                     }
 
                     // 末尾の改行であぼーんチェック
@@ -236,7 +244,7 @@ class ThreadRead extends Thread
                             fclose($fp);
                             unset($this->onbytes);
                             unset($this->modified);
-                            $_info_msg_ht .= "p2 info: $this->onbytes/$this->length ファイルサイズが変なので、datを再取得<br>";
+                            P2Util::pushInfoHtml("<p>rep2 info: {$this->onbytes}/{$this->length} ファイルサイズが変なので、datを再取得</p>");
                             //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection("dat_size_check");
                             return $this->_downloadDat2ch(0); //datサイズは不正。全部取り直し。
 
@@ -318,9 +326,16 @@ class ThreadRead extends Thread
                 }
             }
         }
+
         fclose($fp);
-        $this->isonline = true;
-        return true;
+        if ($timed_out) {
+            $this->_pushInfoReadTimedOut($url);
+            $this->diedat = true;
+            return false;
+        } else {
+            $this->isonline = true;
+            return true;
+        }
     }
 
     // }}}
@@ -357,8 +372,6 @@ class ThreadRead extends Thread
         if (!($this->host && $this->bbs && $this->key && $this->keydat)) {
             return false;
         }
-
-        //unset($datgz_attayo, $start_here, $isGzip, $done_gunzip, $marudatlines, $code);
 
         $method = 'GET';
 
@@ -404,86 +417,47 @@ class ThreadRead extends Thread
         $request .= "\r\n";
 
         // WEBサーバへ接続
-        $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
+        $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
         if (!$fp) {
-            $url_t = P2Util::throughIme($url);
-            P2Util::pushInfoHtml("<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>");
+            $this->_pushInfoConnectionTimedOut($url, $errno, $errstr);
             $this->diedat = true;
             return false;
         }
+        stream_set_timeout($fp, $_conf['http_read_timeout'], 0);
 
         fputs($fp, $request);
         $body = '';
         $start_here = false;
-        while (!feof($fp)) {
+        while (!p2_stream_eof($fp, $timed_out)) {
 
             if ($start_here) {
 
                 if ($code == "200") {
 
-                    while (!feof($fp)) {
+                    while (!p2_stream_eof($fp, $timed_out)) {
                         $body .= fread($fp, 4096);
+                    }
+
+                    if ($timed_out) {
+                        $this->_pushInfoReadTimedOut($url);
+                        //$this->diedat = true;
+                        fclose($fp);
+                        return false;
                     }
 
                     // gzip圧縮なら
                     if ($isGzip) {
-                        // gzip tempファイルに保存
-                        $gztempfile = $this->keydat.".gz";
-                        FileCtl::mkdir_for($gztempfile);
-                        if (FileCtl::file_write_contents($gztempfile, $body) === false) {
-                            p2die('cannot write file. downloadDat2chMaru()');
-                        }
-
-                        // PHPで解凍読み込み
-                        if (extension_loaded('zlib')) {
-                            $body = FileCtl::get_gzfile_contents($gztempfile);
-                        // コマンドラインで解凍
-                        } else {
-                            // 既に存在するなら一時バックアップ退避
-                            if (file_exists($this->keydat)) {
-                                if (file_exists($this->keydat . ".bak")) {
-                                    unlink($this->keydat . ".bak");
-                                }
-                                rename($this->keydat, $this->keydat . ".bak");
-                            }
-                            $rcode = 1;
-                            // 解凍する
-                            system("gzip -d $gztempfile", $rcode);
-                            // 解凍失敗ならバックアップを戻す
-                            if ($rcode != 0) {
-                                if (file_exists($this->keydat.".bak")) {
-                                    if (file_exists($this->keydat)) {
-                                        unlink($this->keydat);
-                                    }
-                                    rename($this->keydat.".bak", $this->keydat);
-                                }
-                                $this->getdat_error_msg_ht .= "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みは、PHPの<a href=\"http://www.php.net/manual/ja/ref.zlib.php\">zlib拡張モジュール</a>がないか、systemでgzipコマンドが使用可能でなければできません。</p>";
-                                // gztempファイルを捨てる
-                                if (file_exists($gztempfile)) {
-                                    unlink($gztempfile);
-                                }
-                                $this->diedat = true;
-                                return false;
-                            // 解凍成功なら
-                            } else {
-                                if (file_exists($this->keydat.".bak")) {
-                                    unlink($this->keydat.".bak");
-                                }
-                                $done_gunzip = true;
-                            }
-
-                        }
-                        // gzip tempファイルを捨てる
-                        if (file_exists($gztempfile)) {
-                            unlink($gztempfile);
+                        $body = $this->_decodeGzip($body, $url);
+                        if ($body === null) {
+                            //$this->diedat = true;
+                            fclose($fp);
+                            return false;
                         }
                     }
 
-                    if (!$done_gunzip) {
-                        FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-                        if (FileCtl::file_write_contents($this->keydat, $body) === false) {
-                            p2die('cannot write file. downloadDat2chMaru()');
-                        }
+                    FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
+                    if (FileCtl::file_write_contents($this->keydat, $body) === false) {
+                        p2die('cannot write file. downloadDat2chMaru()');
                     }
 
                     // クリーニング =====
@@ -553,7 +527,7 @@ class ThreadRead extends Thread
         fclose($fp);
         //$this->isonline = true;
         //$this->datochiok = 1;
-        return true;
+        return !$timed_out;
     }
 
     // }}}
@@ -573,7 +547,7 @@ class ThreadRead extends Thread
         } else {
             $remarutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true&amp;relogin2ch=true\">再取得を試みる</a>]";
             $moritori_ht = $this->_generateMoritapoDatLink();
-            $this->getdat_error_msg_ht .= "<p>p2 info - ●IDでのスレッド取得に失敗しました。{$remarutori_ht}{$moritori_ht}</p>";
+            $this->getdat_error_msg_ht .= "<p>rep2 info: ●IDでのスレッド取得に失敗しました。{$remarutori_ht}{$moritori_ht}</p>";
             $this->diedat = true;
             return false;
         }
@@ -587,7 +561,7 @@ class ThreadRead extends Thread
      */
     protected function _downloadDat2chKako($uri, $ext)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $url = $uri.$ext;
 
@@ -629,70 +603,45 @@ class ThreadRead extends Thread
         $request .= "\r\n";
 
         // WEBサーバへ接続
-        $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
+        $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
         if (!$fp) {
-            $url_t = P2Util::throughIme($url);
-            echo "<p>サーバ接続エラー: $errstr ($errno)<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>$url</a> に接続できませんでした。</p>";
-            $this->diedat = true;
+            $this->_pushInfoConnectionTimedOut($url, $errno, $errstr);
             return false;
         }
+        stream_set_timeout($fp, $_conf['http_read_timeout'], 0);
 
         fputs($fp, $request);
         $body = "";
         $start_here = false;
-        while (!feof($fp)) {
+        while (!p2_stream_eof($fp, $timed_out)) {
 
             if ($start_here) {
 
                 if ($code == "200") {
 
-                    while (!feof($fp)) {
+                    while (!p2_stream_eof($fp, $timed_out)) {
                         $body .= fread($fp, 4096);
                     }
 
-                    if ($isGzip) {
-                        $gztempfile = $this->keydat.".gz";
-                        FileCtl::mkdir_for($gztempfile);
-                        if (FileCtl::file_write_contents($gztempfile, $body) === false) {
-                            p2die('cannot write file. downloadDat2chKako()');
-                        }
-                        if (extension_loaded('zlib')) {
-                            $body = FileCtl::get_gzfile_contents($gztempfile);
-                        } else {
-                            // 既に存在するなら一時バックアップ退避
-                            if (file_exists($this->keydat)) {
-                                if (file_exists($this->keydat.".bak")) { unlink($this->keydat.".bak"); }
-                                rename($this->keydat, $this->keydat.".bak");
-                            }
-                            $rcode = 1;
-                            system("gzip -d $gztempfile", $rcode); // 解凍
-                            if ($rcode != 0) {
-                                if (file_exists($this->keydat.".bak")) {
-                                    if (file_exists($this->keydat)) {
-                                        unlink($this->keydat);
-                                    }
-                                    // 失敗ならバックアップ戻す
-                                    rename($this->keydat.".bak", $this->keydat);
-                                }
-                                $this->getdat_error_msg_ht = "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みは、PHPの<a href=\"http://www.php.net/manual/ja/ref.zlib.php\">zlib拡張モジュール</a>がないか、systemでgzipコマンドが使用可能でなければできません。</p>";
-                                // gztempファイルを捨てる
-                                if (file_exists($gztempfile)) { unlink($gztempfile); }
-                                $this->diedat = true;
-                                return false;
-                            } else {
-                                if (file_exists($this->keydat.".bak")) { unlink($this->keydat.".bak"); }
-                                $done_gunzip = true;
-                            }
-
-                        }
-                        if (file_exists($gztempfile)) { unlink($gztempfile); } // tempファイルを捨てる
+                    if ($timed_out) {
+                        $this->_pushInfoReadTimedOut($url);
+                        $this->diedat = true;
+                        fclose($fp);
+                        return false;
                     }
 
-                    if (!$done_gunzip) {
-                        FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-                        if (FileCtl::file_write_contents($this->keydat, $body) === false) {
-                            p2die('cannot write file. downloadDat2chKako()');
+                    if ($isGzip) {
+                        $body = $this->_decodeGzip($body, $url);
+                        if ($body === null) {
+                            $this->diedat = true;
+                            fclose($fp);
+                            return false;
                         }
+                    }
+
+                    FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
+                    if (FileCtl::file_write_contents($this->keydat, $body) === false) {
+                        p2die('cannot write file. downloadDat2chKako()');
                     }
 
                 // なかったと判断
@@ -732,7 +681,7 @@ class ThreadRead extends Thread
         }
         fclose($fp);
         //$this->isonline = true;
-        return true;
+        return !$timed_out;
     }
 
     // }}}
@@ -752,7 +701,7 @@ class ThreadRead extends Thread
         if ($_GET['kakolog']) {
             $kakolog_ht = "<p><a href=\"{$_GET['kakolog']}.html\"{$_conf['bbs_win_target_at']}>{$_GET['kakolog']}.html</a></p>";
         }
-        $this->getdat_error_msg_ht = "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みに失敗しました。</p>";
+        $this->getdat_error_msg_ht = "<p>rep2 info: 2ちゃんねる過去ログ倉庫からのスレッド取り込みに失敗しました。</p>";
         $this->getdat_error_msg_ht .= $kakolog_ht;
         $this->diedat = true;
         return false;
@@ -768,7 +717,7 @@ class ThreadRead extends Thread
      */
     public function get2chDatError()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         // ホスト移転検出で変更したホストを元に戻す
         if (!empty($this->old_host)) {
@@ -783,7 +732,7 @@ class ThreadRead extends Thread
         $read_response_html = '';
         $wap_ua = new WapUserAgent();
         $wap_ua->setAgent($_conf['p2ua']); // ここは、"Monazilla/" をつけるとNG
-        $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
+        $wap_ua->setTimeout($_conf['http_conn_timeout'], $_conf['http_read_timeout']);
         $wap_req = new WapRequest();
         $wap_req->setUrl($read_url);
         if ($_conf['proxy_use']) {
@@ -793,8 +742,9 @@ class ThreadRead extends Thread
 
         if ($wap_res->isError()) {
             $url_t = P2Util::throughIme($wap_req->url);
-            $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
+            $info_msg_ht = "<p class=\"info-msg\">Error: {$wap_res->code} {$wap_res->message}<br>";
+            $info_msg_ht .= "rep2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</p>";
+            P2Util::pushInfoHtml($info_msg_ht);
         } else {
             $read_response_html = $wap_res->content;
         }
@@ -823,7 +773,7 @@ class ThreadRead extends Thread
         if (preg_match($kakosoko_match, $read_response_html, $matches)) {
             $dat_response_status = "このスレッドは過去ログ倉庫に格納されています。";
             //if (file_exists($_conf['idpw2ch_php']) || file_exists($_conf['sid2ch_php'])) {
-                $marutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでp2に取り込む</a>]";
+                $marutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでrep2に取り込む</a>]";
             //} else {
             //    $marutori_ht = " [<a href=\"login2ch.php\" target=\"subject\">●IDログイン</a>]";
             //}
@@ -840,11 +790,11 @@ class ThreadRead extends Thread
                 $kakolog_uri = "http://{$this->host}/{$matches[1]}";
                 $kakolog_url_en = rawurlencode($kakolog_uri);
                 $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$kakolog_url_en}&amp;kakoget=1";
-                $dat_response_msg = "<p>2ch info - 隊長! 過去ログ倉庫で、<a href=\"{$kakolog_uri}.html\"{$_conf['bbs_win_target_at']}>スレッド {$matches[3]}.html</a> を発見しました。 [<a href=\"{$read_kako_url}\">p2に取り込んで読む</a>]</p>";
+                $dat_response_msg = "<p>2ch info - 隊長! 過去ログ倉庫で、<a href=\"{$kakolog_uri}.html\"{$_conf['bbs_win_target_at']}>スレッド {$matches[3]}.html</a> を発見しました。 [<a href=\"{$read_kako_url}\">rep2に取り込んで読む</a>]</p>";
 
             } elseif (preg_match($waithtml_match, $read_response_html, $matches)) {
                 $dat_response_status = "隊長! スレッドはhtml化されるのを待っているようです。";
-                $marutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでp2に取り込む</a>]";
+                $marutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでrep2に取り込む</a>]";
                 $moritori_ht = $this->_generateMoritapoDatLink();
                 $dat_response_msg = "<p>2ch info - 隊長! スレッドはhtml化されるのを待っているようです。{$marutori_ht}{$moritori_ht}</p>";
 
@@ -854,7 +804,7 @@ class ThreadRead extends Thread
                     $kako_html_url = urldecode($_GET['kakolog']) . ".html";
                     $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
                     $dat_response_msg = "<p>2ch info - そんな板orスレッドないです。</p>";
-                    $dat_response_msg .= "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
+                    $dat_response_msg .= "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">rep2にログを取り込んで読む</a>]</p>";
                 } else {
                     $dat_response_status = "そんな板orスレッドないです。";
                     $dat_response_msg = "<p>2ch info - そんな板orスレッドないです。</p>";
@@ -866,7 +816,7 @@ class ThreadRead extends Thread
             $dat_response_status = "";
             $kako_html_url = urldecode($_GET['kakolog']).".html";
             $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
-            $dat_response_msg = "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
+            $dat_response_msg = "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">rep2にログを取り込んで読む</a>]</p>";
 
         }
 
@@ -883,7 +833,7 @@ class ThreadRead extends Thread
      */
     public function previewOne()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         if (!($this->host && $this->bbs && $this->key)) { return false; }
 
@@ -949,17 +899,17 @@ class ThreadRead extends Thread
             $request .= "\r\n";
 
             // WEBサーバへ接続
-            $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
+            $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
             if (!$fp) {
-                $url_t = P2Util::throughIme($url);
-                $_info_msg_ht .= "<p>サーバ接続エラー: $errstr ($errno)<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
+                $this->_pushInfoConnectionTimedOut($url, $errno, $errstr);
                 $this->diedat = true;
                 return false;
             }
+            stream_set_timeout($fp, $_conf['http_read_timeout'], 0);
 
             fputs($fp, $request);
             $start_here = false;
-            while (!feof($fp)) {
+            while (!p2_stream_eof($fp, $timed_out)) {
 
                 if ($start_here) {
 
@@ -1319,7 +1269,7 @@ class ThreadRead extends Thread
     {
         global $_conf;
 
-        $diedat_msg = '<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b>';
+        $diedat_msg = '<p><b>rep2 info: 板サーバから最新のスレッド情報を取得できませんでした。</b>';
         if ($hosts = $this->scanOriginalHosts()) {
             $common_q = '&amp;bbs=' . rawurldecode($this->bbs)
                       . '&amp;key=' . rawurldecode($this->key)
@@ -1354,7 +1304,7 @@ class ThreadRead extends Thread
                                     . '&key=' . rawurldecode($this->key)
                                     . '&ls=' . rawurldecode($this->ls)
                                     . '&moritapodat=true&csrfid=' . $csrfid, ENT_QUOTES);
-            return " [<a href=\"{$_conf['read_php']}?{$query}\">モリタポでp2に取り込む</a>]";
+            return " [<a href=\"{$_conf['read_php']}?{$query}\">モリタポでrep2に取り込む</a>]";
         } else {
             return '';
         }
@@ -1444,29 +1394,40 @@ class ThreadRead extends Thread
 
         $csrfid = $this->_getCsrfIdForMoritapoDat();
 
-        $marutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでp2に取り込む</a>]";
+        $host_en = rawurlencode($this->host);
+        $bbs_en = rawurlencode($this->bbs);
+        $key_en = rawurlencode($this->key);
+        $ls_en = rawurlencode($this->ls);
+
+        $host_ht = htmlspecialchars($this->host, ENT_QUOTES);
+        $bbs_ht = htmlspecialchars($this->bbs, ENT_QUOTES);
+        $key_ht = htmlspecialchars($this->key, ENT_QUOTES);
+        $ls_ht = htmlspecialchars($this->ls, ENT_QUOTES);
+
+        $query_ht = htmlspecialchars("host={$host_en}&bbs={$bbs_en}&key={$key_en}&ls={$ls_en}&maru=true");
+        $marutori_ht = " [<a href=\"{$_conf['read_php']}?{$query_ht}\">●IDでrep2に取り込む</a>]";
 
         if ($hosts = $this->scanOriginalHosts()) {
-            $hosts_ht = '<br>datから他のホスト候補を検出しました。';
+            $hostlist_ht = '<br>datから他のホスト候補を検出しました。';
             foreach ($hosts as $host) {
-                $hosts_ht .= " [<a href=\"#\" onclick=\"this.parentNode.elements['host'].value='{$host}';return false;\">{$host}</a>]";
+                $hostlist_ht .= " [<a href=\"#\" onclick=\"this.parentNode.elements['host'].value='{$host}';return false;\">{$host}</a>]";
             }
         } else {
-            $hosts_ht = '';
+            $hostlist_ht = '';
         }
 
         $this->getdat_error_msg_ht .= <<<EOF
-<p>p2 info - モリタポでのスレッド取得に失敗しました。{$marutori_ht}</p>
+<p>rep2 info: モリタポでのスレッド取得に失敗しました。{$marutori_ht}</p>
 <form action="{$_conf['read_php']}" method="get">
     ホストを
-    <input type="text" name="host" value="{$this->host}" size="12">
-    <input type="hidden" name="bbs" value="{$this->bbs}">
-    <input type="hidden" name="key" value="{$this->key}">
-    <input type="hidden" name="ls" value="{$this->ls}">
+    <input type="text" name="host" value="{$host_ht}" size="12">
+    <input type="hidden" name="bbs" value="{$bbs_ht}">
+    <input type="hidden" name="key" value="{$key_ht}">
+    <input type="hidden" name="ls" value="{$ls_ht}">
     に変えて
-    <input type="submit" name="moritapodat" value="モリタポでp2に取り込んでみる">
+    <input type="submit" name="moritapodat" value="モリタポでrep2に取り込んでみる">
     <input type="hidden" name="csrfid" value="{$csrfid}">
-    {$hosts_ht}
+    {$hostlist_ht}
 </form>\n
 EOF;
         $this->diedat = true;
@@ -1486,6 +1447,114 @@ EOF;
     protected function _getCsrfIdForMoritapoDat()
     {
         return P2Util::getCsrfId('moritapodat' . $this->host . $this->bbs . $this->key);
+    }
+
+    // }}}
+    // {{{ _decodeGzip()
+
+    /**
+     * Gzip圧縮されたレスポンスボディをデコードする
+     *
+     * @param   string  $body
+     * @param   string  $caller
+     * @return  string
+     */
+    protected function _decodeGzip($body, $url)
+    {
+        global $_conf;
+
+        if (function_exists('http_inflate')) {
+            // pecl_http の http_inflate() で展開
+            $body = http_inflate($body);
+        } else {
+            // gzip tempファイルに保存・PHPで解凍読み込み
+            if (!is_dir($_conf['tmp_dir'])) {
+                FileCtl::mkdir_r($_conf['tmp_dir']);
+            }
+
+            $gztempfile = tempnam($_conf['tmp_dir'], 'gz_');
+            if (false === $gztempfile) {
+                p2die('一時ファイルを作成できませんでした。');
+            }
+
+            if (false === file_put_contents($gztempfile, $body)) {
+                unlink($gztempfile);
+                p2die('一時ファイルに書き込めませんでした。');
+            }
+
+            $body = file_get_contents('compress.zlib://' . $gztempfile);
+            if (false === $body) {
+                $body = null;
+            }
+
+            unlink($gztempfile);
+        }
+
+        if (is_null($body)) {
+            $msg = '<p class="info-msg"><strong>gzip展開エラー</strong><br>';
+            $msg .= sprintf('rep2 error: <a href="%s"%s>%s</a> をgzipデコードできませんでした。',
+                            P2Util::throughIme($url),
+                            $_conf['ext_win_target_at'],
+                            htmlspecialchars($url, ENT_QUOTES, 'Shift_JIS', false));
+            $msg .= '</p>';
+
+            P2Util::pushInfoHtml($msg);
+        }
+
+        return $body;
+    }
+
+    // }}}
+    // {{{ _pushInfoConnectionTimedOut()
+
+    /**
+     * 接続がタイムアウトした旨のメッセージをプッシュする
+     *
+     * @param   string  $url
+     * @param   int     $errno
+     * @param   string  $errstr
+     * @return  void
+     */
+    protected function _pushInfoConnectionTimedOut($url, $errno, $errstr)
+    {
+        global $_conf;
+
+        $msg = '<p class="info-msg"><strong>';
+        $msg .= sprintf('HTTP接続エラー (%d) %s',
+                        $errno,
+                        htmlspecialchars($errstr, ENT_QUOTES));
+        $msg .= '</strong><br>';
+        $msg .= sprintf('rep2 info: <a href="%s"%s>%s</a> に接続できませんでした。',
+                        P2Util::throughIme($url),
+                        $_conf['ext_win_target_at'],
+                        htmlspecialchars($url, ENT_QUOTES, 'Shift_JIS', false));
+        $msg .= '</p>';
+
+        P2Util::pushInfoHtml($msg);
+    }
+
+
+    // }}}
+    // {{{ _pushInfoReadTimedOut()
+
+    /**
+     * 読み込みがタイムアウトした旨のメッセージをプッシュする
+     *
+     * @param   string  $url
+     * @return  void
+     */
+    protected function _pushInfoReadTimedOut($url)
+    {
+        global $_conf;
+
+        $msg = '<p class="info-msg"><strong>HTTP接続タイムアウト</strong><br>';
+        $msg .= sprintf('rep2 info: <a href="%s"%s>%s</a> を読み込み完了できませんでした。',
+                        P2Util::throughIme($url),
+                        $_conf['ext_win_target_at'],
+                        htmlspecialchars($url, ENT_QUOTES, 'Shift_JIS', false));
+        $msg .= '</p>';
+
+        P2Util::pushInfoHtml($msg);
     }
 
     // }}}

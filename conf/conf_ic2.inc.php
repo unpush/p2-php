@@ -134,7 +134,7 @@ $_conf['expack.ic2.manager.rows'] = 5;
 $_conf['expack.ic2.getter.title'] = "ImageCache2::Getter";
 
 // サーバに接続する際にタイムアウトするまでの時間（秒）
-$_conf['expack.ic2.getter.conn_timeout'] = 60;
+$_conf['expack.ic2.getter.conn_timeout'] = 5;
 
 // ダウンロードがタイムアウトするまでの時間（秒）
 $_conf['expack.ic2.getter.read_timeout'] = 60;

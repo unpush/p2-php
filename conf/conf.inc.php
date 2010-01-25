@@ -29,7 +29,7 @@ if (!defined('P2_SESSION_CLOSE_AFTER_AUTHENTICATION')) {
 
 // {{{ グローバル変数を初期化
 
-$_info_msg_ht = ''; // ユーザ通知用 情報メッセージHTML
+$_info_msg_ht = null; // ユーザ通知用 情報メッセージHTML
 
 $MYSTYLE    = array();
 $STYLE      = array();
@@ -66,7 +66,7 @@ function p2_init()
 {
     global $MYSTYLE, $STYLE, $debug;
     global $skin, $skin_en, $skin_name, $skin_uniq;
-    global $_conf, $_info_msg_ht, $_login, $_p2session;
+    global $_conf, $_login, $_p2session;
 
     // エラー出力設定
     if (defined('E_DEPRECATED')) {

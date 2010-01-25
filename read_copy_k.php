@@ -78,10 +78,10 @@ if (file_exists($aThread->keydat)) {
             $msg_txt = preg_replace('/ *<br[^>]*> */i', "\n", $msg_txt);
         }
     } else {
-        $_info_msg_ht .= '<p>p2 error: ﾚｽ番号の指定が変です｡</p>';
+        P2Util::pushInfoHtml('<p>p2 error: ﾚｽ番号の指定が変です｡</p>');
     }
 } else {
-    $_info_msg_ht .= '<p>p2 error: ｽﾚｯﾄﾞの指定が変です。</p>';
+    P2Util::pushInfoHtml('<p>p2 error: ｽﾚｯﾄﾞの指定が変です。</p>');
 }
 
 $msg_len = mb_strlen($msg_txt);
@@ -154,7 +154,7 @@ EOS;
 <title><?php echo $ttitle_ht; ?>/<?php echo $resid; ?></title>
 </head>
 <body<?php echo $k_color_settings; ?>>
-<?php echo $_info_msg_ht; ?>
+<?php P2Util::printInfoHtml(); ?>
 <form action="<?php echo $action_ht; ?>" method="post">
 スレ:<br>
 <input type="text" name="ttitle_txt" value="<?php echo $ttitle_ht; ?>"><br>

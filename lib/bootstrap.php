@@ -19,7 +19,7 @@ if (file_exists($_conf['conf_user_file'])) {
     // 何らかの理由でユーザー設定ファイルが壊れていたら
     if (!is_array($conf_user)) {
         if (unlink($_conf['conf_user_file'])) {
-            $_info_msg_ht .= '<p>ユーザー設定ファイルが壊れていたので削除しました。</p>';
+            P2Util::pushInfoHtml('<p>ユーザー設定ファイルが壊れていたので削除しました。</p>');
             $conf_user = array();
         } else {
             $dispname = '$_conf[\'pref_dir\']/' . basename($_conf['conf_user_file']);

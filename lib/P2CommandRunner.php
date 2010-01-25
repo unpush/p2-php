@@ -65,7 +65,7 @@ class P2CommandRunner
 
         $command = implode(' ', $args);
 
-        //$GLOBALS['_info_msg_ht'] .= '<p>' . htmlspecialchars($command, ENT_QUOTES) . '</p>';
+        //P2Util::pushInfoHtml('<p>' . htmlspecialchars($command, ENT_QUOTES) . '</p>');
 
         // é¿çs
         $pipe = popen($command, 'r');
@@ -80,14 +80,14 @@ class P2CommandRunner
 
         $status = pclose($pipe);
         if ($status != 0) {
-            $GLOBALS['_info_msg_ht'] .= sprintf('<p>%s(): ERROR(%d)</p>', __METHOD__, $status);
+            P2Util::pushInfoHtml(sprintf('<p>%s(): ERROR(%d)</p>', __METHOD__, $status));
         }
 
         if ($output !== '') {
             if ($status == 2) {
-                $GLOBALS['_info_msg_ht'] .= $output;
+                P2Util::pushInfoHtml($output);
             } else {
-                $GLOBALS['_info_msg_ht'] .= '<p>' . nl2br(htmlspecialchars($output, ENT_QUOTES)) . '</p>';
+                P2Util::pushInfoHtml('<p>' . nl2br(htmlspecialchars($output, ENT_QUOTES)) . '</p>');
             }
         }
 

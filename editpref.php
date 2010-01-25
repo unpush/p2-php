@@ -158,9 +158,7 @@ if (!$_conf['ktai']) {
     echo "<p id=\"pan_menu\">{$ptitle}</p>\n";
 }
 
-
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
 // 設定プリント
 $aborn_thread_txt   = 'p2_aborn_thread.txt';
@@ -649,7 +647,7 @@ function getFavSetListFormHtK($set_name, $set_title)
  */
 function updateFavSetList()
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
 
     if (file_exists($_conf['expack.misc.favset_file'])) {
         $setlist_titles = FavSetManager::getFavSetTitles();
@@ -679,7 +677,7 @@ function updateFavSetList()
 
     $newdata = serialize($setlist_titles);
     if (FileCtl::file_write_contents($_conf['expack.misc.favset_file'], $newdata) === FALSE) {
-        $_info_msg_ht .= "<p>p2 error: {$_conf['expack.misc.favset_file']} にお気に入りセット設定を書き込めませんでした。";
+        P2Util::pushInfoHtml("<p>p2 error: {$_conf['expack.misc.favset_file']} にお気に入りセット設定を書き込めませんでした。");
         return FALSE;
     }
 

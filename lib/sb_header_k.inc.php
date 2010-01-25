@@ -170,8 +170,7 @@ echo <<<EOP
 <body{$_conf['k_colors']}>
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 

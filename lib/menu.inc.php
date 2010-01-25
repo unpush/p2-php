@@ -130,8 +130,7 @@ echo <<<EOP
 <body>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
 if (!empty($sidebar)) {
     echo <<<EOP
@@ -402,15 +401,14 @@ EOP;
     }
     $msg_ht .= '</p>';
 
-    $_info_msg_ht .= $msg_ht;
+    P2Util::pushInfoHtml($msg_ht);
 } else {
     $match_cates = null;
 }
 
 // }}}
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 if ($_conf['menu_hide_brds'] && !$GLOBALS['ita_mikke']['num']) {
     $brd_menus_style = ' style="display:none"';

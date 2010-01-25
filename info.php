@@ -330,8 +330,7 @@ echo <<<EOP
 <body{$body_at}>
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 echo "<p>\n";
 echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?{$common_q}{$_conf['k_at_a']}\"{$target_read_at}>{$hd['ttitle_name']}</a></b>\n";
@@ -400,7 +399,7 @@ if (!$_conf['ktai']) {
 
 if (!$_conf['ktai']) {
     if (!empty($info_msg)) {
-        echo "<span class=\"infomsg\">".$info_msg."</span>\n";
+        echo "<span class=\"info-msg\">{$info_msg}</span>\n";
     } else {
         echo "Å@\n";
     }

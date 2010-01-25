@@ -251,7 +251,7 @@ function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua
 
     $wap_ua = new WapUserAgent;
     $wap_ua->setAgent($dolib2ch);
-    $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
+    $wap_ua->setTimeout($_conf['http_conn_timeout'], $_conf['http_read_timeout']);
 
     $wap_req = new WapRequest;
     $wap_req->setMethod('POST');

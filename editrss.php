@@ -8,7 +8,6 @@ require_once './conf/conf.inc.php';
 $_login->authorize(); // ユーザ認証
 
 // 変数 =============
-$_info_msg_ht = '';
 $editrss_php_ht = htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES);
 
 //================================================================
@@ -86,8 +85,7 @@ echo <<<EOP
 <body>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
 //================================================================
 // メイン部分HTML表示

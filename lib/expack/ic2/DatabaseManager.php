@@ -18,8 +18,7 @@ class IC2_DatabaseManager
             return;
         }
         if (!is_array($updated)) {
-            global $_info_msg_ht;
-            $_info_msg_ht .= '<p>WARNING! IC2_DatabaseManager::update(): 不正な引数</p>';
+            P2Util::pushInfoHtml('<p>WARNING! IC2_DatabaseManager::update(): 不正な引数</p>');
             return;
         }
 
@@ -85,8 +84,7 @@ class IC2_DatabaseManager
                     return $removed_files;
                 }
             } else {
-                global $_info_msg_ht;
-                $_info_msg_ht .= '<p>WARNING! IC2_DatabaseManager::remove(): 不正な引数</p>';
+                P2Util::pushInfoHtml('<p>WARNING! IC2_DatabaseManager::remove(): 不正な引数</p>');
                 return $removed_files;
             }
         }
@@ -194,8 +192,7 @@ class IC2_DatabaseManager
                     return;
                 }
             } else {
-                global $_info_msg_ht;
-                $_info_msg_ht .= '<p>WARNING! IC2_DatabaseManager::setRank(): 不正な引数</p>';
+                P2Util::pushInfoHtml('<p>WARNING! IC2_DatabaseManager::setRank(): 不正な引数</p>');
                 return $removed_files;
             }
         }
@@ -228,8 +225,7 @@ class IC2_DatabaseManager
                     return;
                 }
             } else {
-                global $_info_msg_ht;
-                $_info_msg_ht .= '<p>WARNING! IC2_DatabaseManager::addMemo(): 不正な引数</p>';
+                P2Util::pushInfoHtml('<p>WARNING! IC2_DatabaseManager::addMemo(): 不正な引数</p>');
                 return $removed_files;
             }
         }

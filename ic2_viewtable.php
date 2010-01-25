@@ -82,7 +82,7 @@ $flexy->setData('skin', $skin_en);
 $flexy->setData('title', $title);
 $flexy->setData('mode', $mode);
 $flexy->setData('reload_js', $_SERVER['SCRIPT_NAME'] . '?nt=' . time() . '&table=' . $mode);
-$flexy->setData('info_msg', $_info_msg_ht);
+$flexy->setData('info_msg', P2Util::getInfoHtml());
 $flexy->setData('pc', !$_conf['ktai']);
 $flexy->setData('iphone', $_conf['iphone']);
 $flexy->setData('doctype', $_conf['doctype']);

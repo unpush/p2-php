@@ -141,7 +141,7 @@ EOP;
      */
     public function printItaSearch(array $categories)
     {
-        global $_conf, $_info_msg_ht, $word;
+        global $_conf, $word;
         global $list_navi_ht;
 
         if ($categories) {

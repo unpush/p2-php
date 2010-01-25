@@ -78,8 +78,7 @@ echo <<<EOP
 <body{$_conf['k_colors']}>
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 //==============================================================
 // お気に板をプリントする
@@ -140,7 +139,7 @@ if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
 
     }
     if (!$GLOBALS['ita_mikke']['num']) {
-        $_info_msg_ht .=  "<p>\"{$hd['word']}\"を含む板は見つかりませんでした。</p>\n";
+        P2Util::pushInfoHtml("<p>\"{$hd['word']}\"を含む板は見つかりませんでした。</p>\n");
         unset($word);
     }
     $modori_url_ht = <<<EOP
@@ -176,8 +175,7 @@ if (isset($_GET['cateid'])) {
 EOP;
 }
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 //==============================================================
 // セット切り替えフォームを表示

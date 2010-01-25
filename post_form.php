@@ -118,8 +118,7 @@ echo <<<EOP
 <body{$body_at}>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
 // $htm['post_form'] ‚ðŽæ“¾
 require_once P2_LIB_DIR . '/post_form.inc.php';

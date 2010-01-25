@@ -14,7 +14,7 @@ $shinchaku_st = '新着';
 $moto_thre_st = '元';
 $siml_thre_st = '似';
 $latest_st = '新';
-$dores_st = 'ﾚｽ';
+$dores_st = '書';
 $find_st = '索';
 
 $motothre_url = $aThread->getMotoThread(false, '1-10');
@@ -219,8 +219,7 @@ echo <<<EOP
 <body{$_conf['k_colors']}>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 // スレが板サーバになければ============================
 if ($aThread->diedat) {

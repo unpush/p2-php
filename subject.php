@@ -894,8 +894,6 @@ exit;
  */
 function autoTAbornOff($aThreadList, $ta_keys)
 {
-    global $_info_msg_ht;
-
     //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('abornoff');
 
     if (!$aThreadList->spmode && !empty($GLOBALS['word']) && !empty($GLOBALS['wakati_word']) && $aThreadList->threads && $ta_keys) {
@@ -903,13 +901,16 @@ function autoTAbornOff($aThreadList, $ta_keys)
         // echo sizeof($ta_keys)."*<br>";
         $ta_vkeys = array_keys($ta_keys);
         settaborn_off($aThreadList->host, $aThreadList->bbs, $ta_vkeys);
+        $ks = '';
         foreach ($ta_vkeys as $k) {
             $ta_num--;
             if ($k) {
-                $ks .= "key:$k ";
+                $ks .= "key:{$k} ";
             }
         }
-        $ks && $_info_msg_ht .= "<div class=\"info\">　p2 info: DAT落ちしたスレッドあぼーんを自動解除しました - $ks</div>";
+        if ($ks) {
+            P2Util::pushInfoHtml("<p>p2 info: DAT落ちしたスレッドあぼーんを自動解除しました - {$ks}</p>");
+        }
     }
 
     //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('abornoff');

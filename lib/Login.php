@@ -234,7 +234,7 @@ class Login
      */
     private function _authCheck()
     {
-        global $_info_msg_ht, $_conf;
+        global $_conf;
         global $_login_failed_flag;
         global $_p2session;
 
@@ -246,7 +246,7 @@ class Login
 
             // ユーザ名が違ったら、認証失敗で抜ける
             if ($this->user_u != $rec_login_user_u) {
-                $_info_msg_ht .= '<p class="infomsg">p2 error: ログインエラー</p>';
+                P2Util::pushInfoHtml('<p>p2 error: ログインエラー</p>');
 
                 // ログイン失敗ログを記録する
                 if (!empty($_conf['login_log_rec'])) {
@@ -268,7 +268,7 @@ class Login
 
             // 新規登録でなければエラー表示
             if (empty($_POST['submit_new'])) {
-                $_info_msg_ht .= '<p class="infomsg">p2 error: ログインエラー</p>';
+                P2Util::pushInfoHtml('<p>p2 error: ログインエラー</p>');
             }
 
             return false;
@@ -296,7 +296,7 @@ class Login
             // セッションが利用されているなら、セッションの妥当性チェック
             if (isset($_p2session)) {
                 if ($msg = $_p2session->checkSessionError()) {
-                    $GLOBALS['_info_msg_ht'] .= '<p>p2 error: ' . htmlspecialchars($msg) . '</p>';
+                    P2Util::pushInfoHtml('<p>p2 error: ' . htmlspecialchars($msg) . '</p>');
                     //Session::unSession();
                     // ログイン失敗
                     return false;
@@ -417,7 +417,7 @@ class Login
 
             // フォームログイン失敗なら
             } else {
-                $_info_msg_ht .= '<p class="infomsg">p2 info: ログインできませんでした。<br>ユーザ名かパスワードが違います。</p>';
+                P2Util::pushInfoHtml('<p>p2 info: ログインできませんでした。<br>ユーザ名かパスワードが違います。</p>');
                 $_login_failed_flag = true;
 
                 // ログイン失敗ログを記録する
@@ -505,7 +505,7 @@ class Login
      */
     public function registKtaiId()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $mobile = Net_UserAgent_Mobile::singleton();
 
@@ -523,7 +523,7 @@ class Login
                     if (($UID = $mobile->getUID()) !== null) {
                         $this->_registAuth('registed_imodeid', $UID, $_conf['auth_imodeid_file']);
                     } else {
-                        $_info_msg_ht .= '<p class="infomsg">×docomo iモードIDでの認証登録はできませんでした</p>'."\n";
+                        P2Util::pushInfoHtml('<p>×docomo iモードIDでの認証登録はできませんでした</p>');
                     }
                 } else {
                     $this->_registAuthOff($_conf['auth_imodeid_file']);
@@ -542,7 +542,7 @@ class Login
                     if (($SN = $mobile->getSerialNumber()) !== null) {
                         $this->_registAuth('registed_docomo', $SN, $_conf['auth_docomo_file']);
                     } else {
-                        $_info_msg_ht .= '<p class="infomsg">×docomo 端末製造番号での認証登録はできませんでした</p>'."\n";
+                        P2Util::pushInfoHtml('<p>×docomo 端末製造番号での認証登録はできませんでした</p>');
                     }
                 } else {
                     $this->_registAuthOff($_conf['auth_docomo_file']);
@@ -565,7 +565,7 @@ class Login
                 if (($UID = $mobile->getUID()) !== null) {
                     $this->_registAuth('registed_ez', $UID, $_conf['auth_ez_file']);
                 } else {
-                    $_info_msg_ht .= '<p class="infomsg">×EZweb サブスクライバIDでの認証登録はできませんでした</p>'."\n";
+                    P2Util::pushInfoHtml('<p>×EZweb サブスクライバIDでの認証登録はできませんでした</p>');
                 }
             } else {
                 $this->_registAuthOff($_conf['auth_ez_file']);
@@ -585,7 +585,7 @@ class Login
                 if (($SN = $mobile->getSerialNumber()) !== null) {
                     $this->_registAuth('registed_jp', $SN, $_conf['auth_jp_file']);
                 } else {
-                    $_info_msg_ht .= '<p class="infomsg">×SoftBank 端末シリアル番号での認証登録はできませんでした</p>'."\n";
+                    P2Util::pushInfoHtml('<p>×SoftBank 端末シリアル番号での認証登録はできませんでした</p>');
                 }
             } else {
                 $this->_registAuthOff($_conf['auth_jp_file']);
@@ -604,7 +604,7 @@ class Login
      */
     private function _registAuth($key, $sub_id, $auth_file)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $cont = <<<EOP
 <?php
@@ -614,7 +614,7 @@ EOP;
         FileCtl::make_datafile($auth_file, $_conf['pass_perm']);
         $fp = fopen($auth_file, 'wb');
         if (!$fp) {
-            $_info_msg_ht .= "<p>Error: データを保存できませんでした。認証登録失敗。</p>";
+            P2Util::pushInfoHtml('<p>Error: データを保存できませんでした。認証登録失敗。</p>');
             return false;
         }
         flock($fp, LOCK_EX);

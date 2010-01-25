@@ -688,6 +688,27 @@ function p2_escape_css_url($url)
 }
 
 // }}}
+// {{{ p2_stream_eof()
+
+/**
+ * タイムアウトチェックつきfeof()
+ *
+ * @param   stream  $fp
+ * @param   boolean &$timed_out
+ * @return  boolean
+ */
+function p2_stream_eof($fp, &$timed_out = false)
+{
+    $info = stream_get_meta_data($fp);
+    $timed_out = $info['timed_out'];
+    if (feof($fp) || $timed_out) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+// }}}
 
 /*
  * Local Variables:

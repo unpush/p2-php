@@ -27,7 +27,7 @@ function setFavIta()
  */
 function setFavItaByRequest()
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
 
     $setfavita = null;
     $host = null;
@@ -62,7 +62,7 @@ function setFavItaByRequest()
                 $bbs = $matches[2];
             } else {
                 $url_ht = htmlspecialchars($_POST['url'], ENT_QUOTES);
-                $_info_msg_ht .= "<p>p2 info: 「{$url_ht}」は板のURLとして無効です。</p>";
+                P2Util::pushInfoHtml("<p>p2 info: 「{$url_ht}」は板のURLとして無効です。</p>");
             }
         } elseif (!empty($_POST['submit_setfavita']) && $_POST['list']) {
             $list = $_POST['list'];
@@ -74,7 +74,7 @@ function setFavItaByRequest()
     } elseif ($list) {
         return setFavItaByList($list);
     } else {
-        $_info_msg_ht .= "<p>p2 info: 板の指定が変です</p>";
+        P2Util::pushInfoHtml("<p>p2 info: 板の指定が変です</p>");
         return false;
     }
 }
@@ -172,7 +172,7 @@ function setFavItaByHostBbs($host, $bbs, $setfavita, $itaj = null, $setnum = nul
  */
 function setFavItaByList($list, $setnum = null)
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
 
     // 記録データ設定
     $rec_lines = array();
@@ -181,7 +181,7 @@ function setFavItaByList($list, $setnum = null)
         $rec_lines[] = "\t{$host}\t{$bbs}\t" . UrlSafeBase64::decode($itaj_en);
     }
 
-    $_info_msg_ht .= <<<EOJS
+    $script = <<<EOJS
 <script type="text/javascript">
 //<![CDATA[
 if (parent.menu) {
@@ -190,6 +190,8 @@ if (parent.menu) {
 //]]>
 </script>\n
 EOJS;
+
+    P2Util::pushInfoHtml($script);
 
     $cont = '';
     if (!empty($rec_lines)) {

@@ -275,8 +275,7 @@ echo <<<EOP
 <body><div id="popUpContainer"></div>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
 // スレが板サーバになければ ============================
 if ($aThread->diedat) {

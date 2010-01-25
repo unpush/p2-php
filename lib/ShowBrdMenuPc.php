@@ -29,7 +29,7 @@ class ShowBrdMenuPc
      */
     public function printBrdMenu(array $categories)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         if ($categories) {
             $menu_php_ht = htmlspecialchars((isset($GLOBALS['menu_php_self'])) ? $GLOBALS['menu_php_self'] : $_SERVER['SCRIPT_NAME']);

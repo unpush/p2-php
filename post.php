@@ -339,9 +339,9 @@ if ($_conf['res_write_rec']) {
 
     // 書き込み処理
     if (FileCtl::file_write_contents($_conf['res_hist_dat'], $cont, FILE_APPEND) === false) {
-        trigger_error('p2 error: 書き込みログの保存に失敗しました', E_USER_WARNING);
+        trigger_error('rep2 error: 書き込みログの保存に失敗しました', E_USER_WARNING);
         // これは実際は表示されないけれども
-        //$_info_msg_ht .= "<p>p2 error: 書き込みログの保存に失敗しました</p>";
+        //P2Util::pushInfoHtml('<p>rep2 error: 書き込みログの保存に失敗しました</p>');
     }
 }
 
@@ -435,20 +435,22 @@ function postIt($host, $bbs, $key, $post)
     // }}}
 
     // WEBサーバへ接続
-    $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
+    $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
     if (!$fp) {
+        $errstr = htmlspecialchars($errstr, ENT_QUOTES);
         showPostMsg(false, "サーバ接続エラー: $errstr ($errno)<br>p2 Error: 板サーバへの接続に失敗しました", false);
         return false;
     }
+    stream_set_timeout($fp, $_conf['http_read_timeout'], 0);
 
     //echo '<h4>$request</h4><p>' . $request . "</p>"; //for debug
     fputs($fp, $request);
 
-    while (!feof($fp)) {
+    while (!p2_stream_eof($fp, $timed_out)) {
 
         if ($start_here) {
 
-            while (!feof($fp)) {
+            while (!p2_stream_eof($fp, $timed_out)) {
                 $wr .= fread($fp, 164000);
             }
             $response = $wr;
@@ -587,7 +589,6 @@ function showPostMsg($isDone, $result_msg, $reload)
 {
     global $_conf, $location_ht, $popup, $ttitle, $ptitle;
     global $STYLE, $skin_en;
-    global $_info_msg_ht;
 
     // プリント用変数 ===============
     if (!$_conf['ktai']) {
@@ -659,8 +660,7 @@ EOP;
     echo "</head>\n";
     echo "<body{$_conf['k_colors']}>\n";
 
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
+    P2Util::printInfoHtml();
 
     echo <<<EOP
 <p>{$ttitle_ht}</p>

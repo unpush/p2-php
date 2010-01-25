@@ -53,8 +53,6 @@ if (preg_match('/\\.txt$/i', $file)) {
  */
 function viewTxtFile($file, $encode)
 {
-    global $_info_msg_ht;
-
     if ($file == '') {
         p2die('file ‚ªŽw’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ');
     }
@@ -89,7 +87,7 @@ function viewTxtFile($file, $encode)
 <body onload="top.document.title=self.document.title;">\n
 EOHEADER;
 
-    echo $_info_msg_ht;
+    P2Util::printInfoHtml();
     echo "<pre>";
     echo $cont_area;
     echo "</pre>";

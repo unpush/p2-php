@@ -15,7 +15,7 @@ echo <<<EOSTYLE
 }
 {$thre_title_underline_css}
 
-.infomsg{
+.info-msg{
 	font-size:{$STYLE['infowin_fontsize']};
 }
 

@@ -146,8 +146,8 @@ if ($mode == 'merge_favita') {
 // {{{ 後処理
 
 // エラーメッセージの取得
-if ($_info_msg_ht !== '') {
-    $errmsg = str_replace("\n", PHP_EOL, $_info_msg_ht);
+if (P2Util::hasInfoHtml()) {
+    $errmsg = str_replace("\n", PHP_EOL, P2Util::getInfoHtml());
 } else {
     $errmsg = null;
 }

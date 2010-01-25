@@ -10,7 +10,9 @@
 */
 function index_print_k()
 {
-    global $_conf, $_login, $_info_msg_ht;
+    global $_conf, $_login;
+
+    $info_msg_ht = P2Util::getInfoHtml();
 
     $newtime = date('gis');
 
@@ -59,7 +61,7 @@ EOP;
 </head>
 <body{$_conf['k_colors']}>
 <h1>{$ptitle}</h1>
-{$_info_msg_ht}
+{$info_msg_ht}
 <div>
 <a href="subject.php?spmode=fav&amp;sb_view=shinchaku{$_conf['k_at_a']}"{$_conf['k_accesskey_at'][1]}>{$_conf['k_accesskey_st'][1]}お気にｽﾚの新着</a><br>
 <a href="subject.php?spmode=fav{$_conf['k_at_a']}"{$_conf['k_accesskey_at'][2]}>{$_conf['k_accesskey_st'][2]}お気にｽﾚの全て</a><br>

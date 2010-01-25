@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         flock($fp, LOCK_UN);
         fclose($fp);
 
-        $_info_msg_ht .= <<<EOJS
+        $script = <<<EOJS
 <script type="text/javascript">
 //<![CDATA[
 if (parent.menu) {
@@ -46,6 +46,7 @@ if (parent.menu) {
 //]]>
 </script>\n
 EOJS;
+        P2Util::pushInfoHtml($script);
 
         unset($site, $xml, $atom, $m, $matches, $fp);
         return;

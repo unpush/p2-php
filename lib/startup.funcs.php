@@ -12,8 +12,6 @@
  */
 function p2_check_environment($check_recommended)
 {
-    global $_info_msg_ht;
-
     include P2_CONF_DIR . '/setup_info.php';
 
     $php_version = phpversion();
@@ -68,7 +66,7 @@ EOP;
                 $check_recommended = htmlspecialchars($check_recommended, ENT_QUOTES);
             }
             if (basename($_SERVER['PHP_SELF'], '.php') == 'title') {
-                $_info_msg_ht .= <<<EOP
+                $info_msg_ht = <<<EOP
 <p><strong>推奨バージョンより古いPHPで動作しています。</strong>
 <em>(PHP {$php_version})</em><br>
 PHP {$recommended_version} 以降にアップデートすることをおすすめします。</p>
@@ -78,6 +76,7 @@ PHP {$recommended_version} 以降にアップデートすることをおすすめします。</p>
 <samp>p2_check_environment(<strong>false</strong>);</samp> に書き換えてください。</p>
 EOP;
             }
+            P2Util::pushInfoHtml($info_msg_ht);
             return false;
         }
     }

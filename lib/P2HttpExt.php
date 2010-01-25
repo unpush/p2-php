@@ -243,11 +243,11 @@ class P2HttpGet extends HttpRequest
         }
 
         if (!isset($options['connecttimeout'])) {
-            $options['connecttimeout'] = $_conf['fsockopen_time_limit'];
+            $options['connecttimeout'] = $_conf['http_conn_timeout'];
         }
 
         if (!isset($options['timeout'])) {
-            $options['timeout'] = $_conf['fsockopen_time_limit'] * 2;
+            $options['timeout'] = $_conf['http_read_timeout'];
         }
 
         if (!isset($options['compress'])) {
@@ -855,7 +855,7 @@ class P2HttpRequestPool
         }
 
         if ($err !== '') {
-            $GLOBALS['_info_msg_ht'] .= "<ul class=\"errors\">{$err}</ul>\n";
+            P2Util::pushInfoHtml("<ul class=\"errors\">{$err}</ul>\n");
         }
 
         if (P2HttpExt::DEBUG) {
@@ -863,9 +863,10 @@ class P2HttpRequestPool
                 $ph_dump = str_replace('  ', ' ', print_r($ph, true));
                 $ph_dump = preg_replace('/[\\r\\n]+/', "\n", $ph_dump);
                 $ph_dump = preg_replace('/(Array|Object)\\n *\(/', '$1(', $ph_dump);
-                $GLOBALS['_info_msg_ht'] .= "<pre>Persistent Handles:\n";
-                $GLOBALS['_info_msg_ht'] .= htmlspecialchars($ph_dump, ENT_QUOTES);
-                $GLOBALS['_info_msg_ht'] .= "</pre>\n";
+                $info_msg_ht = "<pre>Persistent Handles:\n";
+                $info_msg_ht .= htmlspecialchars($ph_dump, ENT_QUOTES);
+                $info_msg_ht .= "</pre>\n";
+                P2Util::pushInfoHtml($info_msg_ht);
             }
         }
     }

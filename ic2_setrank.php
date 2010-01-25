@@ -64,19 +64,16 @@ if ($finder->find(1)) {
     }
 
     if ($remove) {
-        global $_info_msg_ht;
-
-        $orig_info_msg_ht = $_info_msg_ht;
-        $_info_msg_ht = '';
+        $orig_info_msg_ht = P2Util::getInfoHtml();
 
         $removed_files = IC2_DatabaseManager::remove(array($finder->id), $rank < 0);
-        if ($code != 0 && $_info_msg_ht === '') {
+        if ($code != 0 && !P2Util::hasInfoHtml()) {
             $code = 1;
         } else {
             $code = 0;
         }
 
-        $_info_msg_ht = $orig_info_msg_ht;
+        P2Util::pushInfoHtml($orig_info_msg_ht);
     }
 }
 
