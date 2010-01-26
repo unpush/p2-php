@@ -212,9 +212,9 @@ class P2Ime
     protected function _throughP2Ime($url, $delay)
     {
         if ($delay < 0) {
-            return $this->_gateUrl . '?enc=1&url=' . rawurlencode($url);
-        } else {
             return $this->_gateUrl . '?enc=1&m=1&url=' . rawurlencode($url);
+        } else {
+            return $this->_gateUrl . '?enc=1&url=' . rawurlencode($url);
         }
     }
 
