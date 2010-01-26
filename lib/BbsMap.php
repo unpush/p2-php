@@ -159,7 +159,7 @@ class BbsMap
             self::_writeData($brd_path, $neolines);
             P2Util::pushInfoHtml(sprintf('<p class="info-msg">rep2 info: %s を同期しました。</p>', $brd_name));
         } else {
-            P2Util::pushInfoHtml(sprintf('<p class="info-msg">rep2 info: %s は変更されませんでした。</p>'), $brd_name);
+            P2Util::pushInfoHtml(sprintf('<p class="info-msg">rep2 info: %s は変更されませんでした。</p>', $brd_name));
         }
         $done[$brd_path] = true;
 
