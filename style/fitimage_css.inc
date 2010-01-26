@@ -5,9 +5,9 @@
  */
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false) {
-	$button_position = 'absolute';
+    $button_position = 'absolute';
 } else {
-	$button_position = 'fixed';
+    $button_position = 'fixed';
 }
 
 echo <<<EOSTYLE

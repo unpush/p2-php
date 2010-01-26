@@ -10,10 +10,8 @@
 /**
  * したらばJBBSの rawmode.cgi を読んで、datに保存する（2ch風に整形）
  */
-function shitarabaDownload()
+function shitarabaDownload(ThreadRead $aThread)
 {
-    global $aThread;
-
     $GLOBALS['machi_latest_num'] = '';
 
     // {{{ 既得datの取得レス数が適性かどうかを念のためチェック

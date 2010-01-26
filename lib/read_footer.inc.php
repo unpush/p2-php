@@ -58,22 +58,29 @@ EOP;
         }
 
         $res_form_ht_pb = $res_form_ht;
+    } else {
+        $htm['dores'] = '';
+        $res_form_ht_pb = '';
     }
 
     if ($res1['body']) {
         $q_ichi = $res1['body']." | ";
+    } else {
+        $q_ichi = '';
     }
 
     // レスのすばやさ
-    $htm['spd'] = '';
     if ($spd_st = $aThread->getTimePerRes() and $spd_st != '-') {
         $htm['spd'] = '<span class="spd" title="すばやさ＝時間/レス">' . $spd_st . '</span>';
+    } else {
+        $htm['spd'] = '';
     }
 
     // datサイズ
-    $htm['dsize'] = '';
     if (file_exists($aThread->keydat) && $dsize_ht = filesize($aThread->keydat)) {
         $htm['dsize'] = sprintf('<span class="spd" title="%s">%01.1fKB</span> |', 'datサイズ', $dsize_ht / 1024);
+    } else {
+        $htm['dsize'] = '';
     }
 
     // レス番指定移動

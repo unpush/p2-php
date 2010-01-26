@@ -268,6 +268,8 @@ abstract class ShowThread
         $to = $this->thread->resrange['to'];
         $nofirst = $this->thread->resrange['nofirst'];
 
+        $count = count($this->thread->datlines);
+
         $buf = $is_fragment ? '' : "<div class=\"thread\">\n";
 
         // まず 1 を表示
@@ -277,7 +279,8 @@ abstract class ShowThread
 
         // 連鎖のため、範囲外のNGあぼーんチェック
         if ($_conf['ngaborn_chain_all'] && empty($_GET['nong'])) {
-            for ($i = ($nofirst) ? 0 : 1; $i < $start; $i++) {
+            $pre = min($count, $start);
+            for ($i = ($nofirst) ? 0 : 1; $i < $pre; $i++) {
                 list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($this->thread->datlines[$i]);
                 if (($id = $this->thread->ids[$i]) !== null) {
                     $date_id = str_replace($this->thread->idp[$i] . $id, $idstr, $date_id);
@@ -287,13 +290,10 @@ abstract class ShowThread
         }
 
         // 指定範囲を表示
-        for ($i = $start - 1; $i < $to; $i++) {
+        $end = min($count, $to);
+        for ($i = $start - 1; $i < $end; $i++) {
             if (!$nofirst and $i == 0) {
                 continue;
-            }
-            if (!$this->thread->datlines[$i]) {
-                $this->thread->readnum = $i;
-                break;
             }
             $buf .= $this->transRes($this->thread->datlines[$i], $i + 1);
             if (!$capture && $i % 10 == 0) {
@@ -301,6 +301,9 @@ abstract class ShowThread
                 flush();
                 $buf = '';
             }
+        }
+        if ($this->thread->readnum < $end) {
+            $this->thread->readnum = $end;
         }
 
         if (!$is_fragment) {
@@ -1032,13 +1035,17 @@ EOP;
      * アンカーの正規表現を返す
      *
      * @param   string  $pattern  ex)'/%full%/'
+     * @param   boolean $unicode
      * @return  string
      */
-    static public function getAnchorRegex($pattern)
+    static public function getAnchorRegex($pattern, $unicode = false)
     {
         if (!array_key_exists($pattern, self::$_anchorRegexes)) {
             self::$_anchorRegexes[$pattern] = strtr($pattern, self::_getAnchorRegexParts());
             // 大差はないが compileMobile2chUriCallBack() のように preg_relplace_callback()してもいいかも。
+        }
+        if ($unicode) {
+            return StrSjis::toUnicodePattern($_anchorRegexes[$pattern]);
         }
         return self::$_anchorRegexes[$pattern];
     }

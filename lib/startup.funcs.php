@@ -155,6 +155,7 @@ function p2_load_class($name)
             BrdCtl |
             BrdMenu(?:Cate|Ita)? |
             DataPhp |
+            DownloadDat[0-9A-Z][0-9A-Za-z]* |
             FavSetManager |
             FileCtl |
             HostCheck |

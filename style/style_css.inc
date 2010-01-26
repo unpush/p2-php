@@ -4,9 +4,10 @@
  * 全般
  */
 
-$a_underline_none_css = '';
 if ($STYLE['a_underline_none'] == 1) {
-	$a_underline_none_css = "a{text-decoration:none;}";
+    $a_underline_none_css = "a{text-decoration:none;}";
+} else {
+    $a_underline_none_css = '';
 }
 
 // ブラウザが Camino なら

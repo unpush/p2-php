@@ -53,7 +53,7 @@ class FileCtl
 
         if (!file_exists($file)) {
             // 親ディレクトリが無ければ作る
-            self::mkdir_for($file) or p2die("cannot make parent dirs. ({$file})");
+            self::mkdirFor($file) or p2die("cannot make parent dirs. ({$file})");
             touch($file) or p2die("cannot touch. ({$file})");
             chmod($file, $perm);
         } else {
@@ -70,7 +70,7 @@ class FileCtl
     }
 
     // }}}
-    // {{{ mkdir_for()
+    // {{{ mkdirFor()
 
     /**
      * 親ディレクトリがなければ生成してパーミッションを調整する
@@ -79,7 +79,7 @@ class FileCtl
      * @param int $perm
      * @return bool
      */
-    static public function mkdir_for($apath, $perm = null)
+    static public function mkdirFor($apath, $perm = null)
     {
         global $_conf;
 
@@ -103,7 +103,7 @@ class FileCtl
             if ($i > $dir_limit) {
                 p2die("cannot mkdir. ({$parentdir})", '階層を上がり過ぎたので、ストップしました。');
             }
-            self::mkdir_for($parentdir);
+            self::mkdirFor($parentdir);
             mkdir($parentdir, $perm) or p2die("cannot mkdir. ({$parentdir})");
             chmod($parentdir, $perm);
             $i++;
@@ -112,7 +112,7 @@ class FileCtl
     }
 
     // }}}
-    // {{{ mkdir_r()
+    // {{{ mkdirRecursive()
 
     /**
      * ディレクトリがなければ生成してパーミッションを調整する
@@ -121,9 +121,39 @@ class FileCtl
      * @param int $perm
      * @return bool
      */
+    static public function mkdirRecursive($apath, $perm = null)
+    {
+        return self::mkdirFor($apath . DIRECTORY_SEPARATOR . '_', $perm);
+    }
+
+    // }}}
+    // {{{ mkdir_for()
+
+    /**
+     * mkdirFor() のエイリアス
+     *
+     * @param string $apath
+     * @param int $perm
+     * @return bool
+     */
+    static public function mkdir_for($apath, $perm = null)
+    {
+        return self::mkdirFor($apath, $perm);
+    }
+
+    // }}}
+    // {{{ mkdir_r()
+
+    /**
+     * mkdirRecursive() のエイリアス
+     *
+     * @param string $apath
+     * @param int $perm
+     * @return bool
+     */
     static public function mkdir_r($apath, $perm = null)
     {
-        return self::mkdir_for($apath . DIRECTORY_SEPARATOR . '_', $perm);
+        return self::mkdirRecursive($apath, $perm);
     }
 
     // }}}

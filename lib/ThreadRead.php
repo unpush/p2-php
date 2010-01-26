@@ -52,12 +52,13 @@ class ThreadRead extends Thread
 
         // まちBBS
         if (P2Util::isHostMachiBbs($this->host)) {
-            require_once P2_LIB_DIR . '/read_machibbs.inc.php';
-            machiDownload();
+            DownloadDatMachiBbs::invoke($this);
         // JBBS@したらば
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
-            require_once P2_LIB_DIR . '/read_shitaraba.inc.php';
-            shitarabaDownload();
+            if (!function_exists('shitarabaDownload')) {
+                include P2_LIB_DIR . '/read_shitaraba.inc.php';
+            }
+            shitarabaDownload($this);
 
         // 2ch系
         } else {
@@ -70,7 +71,9 @@ class ThreadRead extends Thread
                     !empty($_REQUEST['relogin2ch']) ||
                     (filemtime($_conf['sid2ch_php']) < time() - 60*60*24))
                 {
-                    require_once P2_LIB_DIR . '/login2ch.inc.php';
+                    if (!function_exists('login2ch')) {
+                        include P2_LIB_DIR . '/login2ch.inc.php';
+                    }
                     if (!login2ch()) {
                         $this->getdat_error_msg_ht .= $this->get2chDatError();
                         $this->diedat = true;
@@ -191,7 +194,7 @@ class ThreadRead extends Thread
         // WEBサーバへ接続
         $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
         if (!$fp) {
-            $this->_pushInfoConnectionTimedOut($url, $errno, $errstr);
+            self::_pushInfoConnectFailed($url, $errno, $errstr);
             $this->diedat = true;
             return false;
         }
@@ -211,7 +214,7 @@ class ThreadRead extends Thread
                     }
 
                     if ($timed_out) {
-                        $this->_pushInfoReadTimedOut($url);
+                        self::_pushInfoReadTimedOut($url);
                         $this->diedat = true;
                         fclose($fp);
                         return false;
@@ -329,7 +332,7 @@ class ThreadRead extends Thread
 
         fclose($fp);
         if ($timed_out) {
-            $this->_pushInfoReadTimedOut($url);
+            self::_pushInfoReadTimedOut($url);
             $this->diedat = true;
             return false;
         } else {
@@ -419,7 +422,7 @@ class ThreadRead extends Thread
         // WEBサーバへ接続
         $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
         if (!$fp) {
-            $this->_pushInfoConnectionTimedOut($url, $errno, $errstr);
+            self::_pushInfoConnectFailed($url, $errno, $errstr);
             $this->diedat = true;
             return false;
         }
@@ -439,7 +442,7 @@ class ThreadRead extends Thread
                     }
 
                     if ($timed_out) {
-                        $this->_pushInfoReadTimedOut($url);
+                        self::_pushInfoReadTimedOut($url);
                         //$this->diedat = true;
                         fclose($fp);
                         return false;
@@ -447,7 +450,7 @@ class ThreadRead extends Thread
 
                     // gzip圧縮なら
                     if ($isGzip) {
-                        $body = $this->_decodeGzip($body, $url);
+                        $body = self::_decodeGzip($body, $url);
                         if ($body === null) {
                             //$this->diedat = true;
                             fclose($fp);
@@ -605,7 +608,7 @@ class ThreadRead extends Thread
         // WEBサーバへ接続
         $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
         if (!$fp) {
-            $this->_pushInfoConnectionTimedOut($url, $errno, $errstr);
+            self::_pushInfoConnectFailed($url, $errno, $errstr);
             return false;
         }
         stream_set_timeout($fp, $_conf['http_read_timeout'], 0);
@@ -624,14 +627,14 @@ class ThreadRead extends Thread
                     }
 
                     if ($timed_out) {
-                        $this->_pushInfoReadTimedOut($url);
+                        self::_pushInfoReadTimedOut($url);
                         $this->diedat = true;
                         fclose($fp);
                         return false;
                     }
 
                     if ($isGzip) {
-                        $body = $this->_decodeGzip($body, $url);
+                        $body = self::_decodeGzip($body, $url);
                         if ($body === null) {
                             $this->diedat = true;
                             fclose($fp);
@@ -901,7 +904,7 @@ class ThreadRead extends Thread
             // WEBサーバへ接続
             $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $_conf['http_conn_timeout']);
             if (!$fp) {
-                $this->_pushInfoConnectionTimedOut($url, $errno, $errstr);
+                self::_pushInfoConnectFailed($url, $errno, $errstr);
                 $this->diedat = true;
                 return false;
             }
@@ -1459,7 +1462,7 @@ EOF;
      * @param   string  $caller
      * @return  string
      */
-    protected function _decodeGzip($body, $url)
+    static protected function _decodeGzip($body, $url)
     {
         global $_conf;
 
@@ -1491,46 +1494,47 @@ EOF;
         }
 
         if (is_null($body)) {
-            $msg = '<p class="info-msg">gzip展開エラー<br>';
-            $msg .= sprintf('rep2 error: <a href="%s"%s>%s</a> をgzipデコードできませんでした。',
-                            P2Util::throughIme($url),
-                            $_conf['ext_win_target_at'],
-                            htmlspecialchars($url, ENT_QUOTES, 'Shift_JIS', false));
-            $msg .= '</p>';
-
-            P2Util::pushInfoHtml($msg);
+            $summary = 'gzip展開エラー';
+            $description = self::_urlToAnchor($url) . ' をgzipデコードできませんでした。';
+            self::_pushInfoMessage($summary, $description);
         }
 
         return $body;
     }
 
     // }}}
-    // {{{ _pushInfoConnectionTimedOut()
+    // {{{ _pushInfoMessage()
 
     /**
-     * 接続がタイムアウトした旨のメッセージをプッシュする
+     * 情報メッセージをプッシュする
+     *
+     * @param   string  $summary
+     * @param   string  $description
+     * @return  void
+     */
+    static protected function _pushInfoMessage($summary, $description)
+    {
+        $message = '<p class="info-msg">' . $summary . '<br>rep2 info: ' . $description . '</p>';
+        P2Util::pushInfoHtml($message);
+    }
+
+
+    // }}}
+    // {{{ _pushInfoConnectFailed()
+
+    /**
+     * 接続に失敗した旨のメッセージをプッシュする
      *
      * @param   string  $url
      * @param   int     $errno
      * @param   string  $errstr
      * @return  void
      */
-    protected function _pushInfoConnectionTimedOut($url, $errno, $errstr)
+    static protected function _pushInfoConnectFailed($url, $errno, $errstr)
     {
-        global $_conf;
-
-        $msg = '<p class="info-msg">';
-        $msg .= sprintf('HTTP接続エラー (%d) %s',
-                        $errno,
-                        htmlspecialchars($errstr, ENT_QUOTES));
-        $msg .= '<br>';
-        $msg .= sprintf('rep2 info: <a href="%s"%s>%s</a> に接続できませんでした。',
-                        P2Util::throughIme($url),
-                        $_conf['ext_win_target_at'],
-                        htmlspecialchars($url, ENT_QUOTES, 'Shift_JIS', false));
-        $msg .= '</p>';
-
-        P2Util::pushInfoHtml($msg);
+        $summary = sprintf('HTTP接続エラー (%d) %s', $errno, $errstr);
+        $description = self::_urlToAnchor($url) . ' に接続できませんでした。';
+        self::_pushInfoMessage($summary, $description);
     }
 
 
@@ -1543,18 +1547,48 @@ EOF;
      * @param   string  $url
      * @return  void
      */
-    protected function _pushInfoReadTimedOut($url)
+    static protected function _pushInfoReadTimedOut($url)
+    {
+        $summary = 'HTTP接続タイムアウト';
+        $description = self::_urlToAnchor($url) . ' を読み込み完了できませんでした。';
+        self::_pushInfoMessage($summary, $description);
+    }
+
+    // }}}
+    // {{{ _pushInfoHttpError()
+
+    /**
+     * HTTPエラーのメッセージをプッシュする
+     *
+     * @param   string  $url
+     * @param   int     $errno
+     * @param   string  $errstr
+     * @return void
+     */
+    static protected function _pushInfoHttpError($url, $errno, $errstr)
+    {
+        $summary = sprintf('HTTP %d %s', $errno, $errstr);
+        $description = self::_urlToAnchor($url) . ' を読み込めませんでした。';
+        self::_pushInfoMessage($summary, $description);
+    }
+
+    // }}}
+    // {{{ _urlToAnchor()
+
+    /**
+     * _pushInfo系メソッド用にURLをアンカーに変換する
+     *
+     * @param   string  $url
+     * @return  string
+     */
+    static protected function _urlToAnchor($url)
     {
         global $_conf;
 
-        $msg = '<p class="info-msg">HTTP接続タイムアウト<br>';
-        $msg .= sprintf('rep2 info: <a href="%s"%s>%s</a> を読み込み完了できませんでした。',
-                        P2Util::throughIme($url),
-                        $_conf['ext_win_target_at'],
-                        htmlspecialchars($url, ENT_QUOTES, 'Shift_JIS', false));
-        $msg .= '</p>';
-
-        P2Util::pushInfoHtml($msg);
+        return sprintf('<a href="%s"%s>%s</a>',
+                       P2Util::throughIme($url),
+                       $_conf['ext_win_target_at'],
+                       htmlspecialchars($url, ENT_QUOTES));
     }
 
     // }}}

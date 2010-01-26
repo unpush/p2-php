@@ -5,13 +5,13 @@
  */
 
 if ($STYLE['a_underline_none'] == 2) {
-	$thre_title_underline_css = <<<EOSTYLE
+    $thre_title_underline_css = <<<EOSTYLE
 a.thre_title, a.thre_title_new, a.thre_title_fav {
 	text-decoration: none;
 }
 EOSTYLE;
 } else {
-	$thre_title_underline_css = '';
+    $thre_title_underline_css = '';
 }
 
 echo <<<EOSTYLE

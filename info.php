@@ -290,7 +290,7 @@ if (P2Util::isHost2chs($aThread->host)) {
 }
 
 
-if (!is_null($title_msg)) {
+if (isset($title_msg)) {
     $hc['title'] = $title_msg;
 } else {
     $hc['title'] = "info - {$hc['ttitle_name']}";

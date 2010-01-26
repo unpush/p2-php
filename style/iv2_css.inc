@@ -4,16 +4,16 @@
  * for ImageCache2:iv2.php
  */
 
-if ($STYLE['fontfamily_bold']) {
-	$boldstyle = "font-family: \"{$STYLE['fontfamily_bold']}\";";
-	if (!empty($STYLE['fontstyle_bold'])) {
-		$boldstyle .= "font-style: {$STYLE['fontstyle_bold']};";
-	}
-	if (!empty($STYLE['fontweight_bold'])) {
-		$boldstyle .= "font-weight: {$STYLE['fontweight_bold']};";
-	}
+if (!empty($STYLE['fontfamily_bold'])) {
+    $boldstyle = "font-family: \"{$STYLE['fontfamily_bold']}\";";
+    if (!empty($STYLE['fontstyle_bold'])) {
+        $boldstyle .= "font-style: {$STYLE['fontstyle_bold']};";
+    }
+    if (!empty($STYLE['fontweight_bold'])) {
+        $boldstyle .= "font-weight: {$STYLE['fontweight_bold']};";
+    }
 } else {
-	$boldstyle = 'font-weight: bold;';
+    $boldstyle = 'font-weight: bold;';
 }
 
 echo <<<EOSTYLE

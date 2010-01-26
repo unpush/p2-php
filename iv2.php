@@ -384,7 +384,7 @@ if ($_conf['ktai']) {
 $removed_files = array();
 
 // 閾値でフィルタリング
-if (!($threshold == -1 && $compate == '>=')) {
+if (!($threshold == -1 && $compare == '>=')) {
     $icdb->whereAddQuoted('rank', $compare, $threshold);
 }
 
