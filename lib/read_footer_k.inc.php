@@ -7,21 +7,7 @@
 // フッタ
 //=====================================================================
 // 表示範囲
-if (isset($GLOBALS['word']) && $aThread->rescount) {
-    $filter_range['end'] = min($filter_range['to'], $_filter_hits);
-    $read_range_on = "{$filter_range['start']}-{$filter_range['end']}/{$_filter_hits}hit";
-
-} elseif ($aThread->resrange_multi) {
-    $read_range_on = hs($aThread->ls);
-
-} elseif ($aThread->resrange['start'] == $aThread->resrange['to']) {
-    $read_range_on = $aThread->resrange['start'];
-
-} else {
-    $read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
-}
-
-$read_range_hs = $read_range_on . '/' . $aThread->rescount;
+$read_range_hs = _getReadRange($aThread) . '/' . $aThread->rescount;
 if (!empty($_GET['onlyone'])) {
     $read_range_hs = 'ﾌﾟﾚﾋﾞｭｰ>>1';
 }
@@ -78,6 +64,33 @@ echo $hr . P2View::getBackToIndexKATag() . "\n";
 //==================================================================================
 // 関数（このファイル内でのみ利用）
 //==================================================================================
+/**
+ * 表示位置を取得する
+ *
+ * @return  string
+ */
+function _getReadRange($aThread)
+{
+    global $_filter_range, $_filter_hits;
+    
+    $read_range = null;
+    
+    if (isset($GLOBALS['word']) && $aThread->rescount) {
+        $_filter_range['end'] = min($_filter_range['to'], $_filter_hits);
+        $read_range = "{$_filter_range['start']}-{$_filter_range['end']}/{$_filter_hits}hit";
+
+    } elseif ($aThread->resrange_multi) {
+        $read_range = hs($aThread->ls);
+
+    } elseif ($aThread->resrange['start'] == $aThread->resrange['to']) {
+        $read_range = $aThread->resrange['start'];
+
+    } else {
+        $read_range = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
+    }
+    return $read_range;
+}
+
 /**
  * レス番号を指定して 移動・コピー(+引用)・AAS するフォームを生成する
  *
@@ -157,7 +170,7 @@ function _getDoResATag($aThread, $dores_st, $motothre_url)
 
     } else {
         $dores_atag = P2View::tagA(
-            P2Util::buildQueryUri(
+            UriUtil::buildQueryUri(
                 'post_form.php',
                 array(
                     'host' => $aThread->host,

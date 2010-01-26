@@ -22,9 +22,9 @@ function resetReadNaviHeaderK()
 function getResetReadNaviFooterK($aThread, $params)
 {
     global $_conf;
-    global $_filter_hits;
+    global $_filter_hits, $_filter_range;
 
-    // $prev_st, $next_st, $filter_range, $filter_page, $res_filter
+    // $prev_st, $next_st, $filter_page, $res_filter
     extract($params);
     
     // {{{ ŒŸõƒNƒGƒŠ
@@ -51,7 +51,7 @@ function getResetReadNaviFooterK($aThread, $params)
             $filter_qs,
             array('filter_page' => $filter_page - 1)
         );
-        $read_navi_previous_url = P2Util::buildQueryUri($_conf['read_php'], $qs);
+        $read_navi_previous_url = UriUtil::buildQueryUri($_conf['read_php'], $qs);
         $read_navi_previous_btm_ht = sprintf(
             '<a %1$s="%2$s" href="%3$s">%2$s.%4$s</a>',
             hs($_conf['accesskey_for_k']),
@@ -61,12 +61,12 @@ function getResetReadNaviFooterK($aThread, $params)
         );
     }
 
-    if ($filter_range['to'] < $_filter_hits) {
+    if ($_filter_range['to'] < $_filter_hits) {
         $qs = array_merge(
             $filter_qs,
             array('filter_page' => $filter_page + 1)
         );
-        $read_navi_next_url = P2Util::buildQueryUri($_conf['read_php'], $qs);
+        $read_navi_next_url = UriUtil::buildQueryUri($_conf['read_php'], $qs);
         $read_navi_next_btm_ht = sprintf(
             '<a %1$s="%2$s" href="%3$s">%2$s.%4$s</a>',
             hs($_conf['accesskey_for_k']),

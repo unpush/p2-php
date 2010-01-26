@@ -45,7 +45,7 @@ $method[$res_filter['method']] = ' selected';
 
 // }}}
 
-$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+$index_uri = UriUtil::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
 
 $hr = P2View::getHrHtmlK();
 $body_at = P2View::getBodyAttrK();

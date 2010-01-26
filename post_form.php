@@ -65,7 +65,7 @@ if (!empty($_GET['newthread'])) {
 <b><span{$class_ttitle}>タイトル</span></b>：<input type="text" id="subject" name="subject"{$sub_size_at} value="{$hs['subject']}"><br>
 EOP;
     if ($_conf['ktai']) {
-        $uri = P2Util::buildQueryUri(
+        $uri = UriUtil::buildQueryUri(
             $_conf['subject_php'],
             array(
                 'host'   => $host,
@@ -92,7 +92,7 @@ EOP;
     }
     
     $ttitle_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['read_php'],
             array(
                 'host' => $host,

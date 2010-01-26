@@ -219,10 +219,10 @@ EOP;
                 if (defined('SID') && strlen(SID)) {
                     $dele_log_qs[session_name()] = session_id();
                 }
-                $dele_log_q = P2Util::buildQuery($dele_log_qs);
+                $dele_log_q = UriUtil::buildQuery($dele_log_qs);
 
                 $unum_ht_c = P2View::tagA(
-                    P2Util::buildQueryUri($_conf['subject_php'],
+                    UriUtil::buildQueryUri($_conf['subject_php'],
                         array_merge(
                             $thread_qs,
                             array(
@@ -263,7 +263,7 @@ EOP;
         if ($ita_name_bool) {
             $ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
             $ita_atag = P2View::tagA(
-                P2Util::buildQueryUri($_conf['subject_php'],
+                UriUtil::buildQueryUri($_conf['subject_php'],
                     array(
                         'host' => $aThread->host,
                         'bbs'  => $aThread->bbs
@@ -381,7 +381,7 @@ EOP;
                 $setkey = "setpal";
             }
             
-            $narabikae_a = P2Util::buildQueryUri(
+            $narabikae_a = UriUtil::buildQueryUri(
                 $_conf['subject_php'],
                 array(
                     'host'    => $aThread->host,

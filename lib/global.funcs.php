@@ -4,8 +4,8 @@
 /**
  * htmlspecialchars() の別名みたいなもの
  *
- * @param   string  $alt  値が空のときの代替文字列
- * @return  string|null
+ * @param   string  $alt  値が空('')のときの代替文字列
+ * @return  string
  */
 function hs($str, $alt = '', $quoteStyle = ENT_QUOTES)
 {
@@ -17,7 +17,7 @@ function hs($str, $alt = '', $quoteStyle = ENT_QUOTES)
  * 参照で値を受け取るのはイマイチだが、そうしなければnoticeの抑制ができない
  *
  * @param   &string  $str  文字列変数の参照
- * @return  string|null
+ * @return  string
  */
 function hsi(&$str, $alt = '', $quoteStyle = ENT_QUOTES)
 {

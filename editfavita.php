@@ -28,7 +28,11 @@ if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
 // }}}
 
 // ï¿Ç—ë÷Ç¶Ç…JavaScriptégÇ§Ç©Ç¢ÅH
-if ($_conf['ktai'] or UA::isNetFront() or !empty($_POST['sortNoJs']) || !empty($_GET['sortNoJs']) or isset($_GET['setfavita'])) {
+if (
+    UA::isK() || UA::isNetFront() 
+    or !empty($_POST['sortNoJs']) || !empty($_GET['sortNoJs']) 
+    or isset($_GET['setfavita'])
+) {
     $sortNoJs = true;
 } else {
     $sortNoJs = false;
@@ -49,7 +53,7 @@ P2View::printDoctypeTag();
 <head>
 <?php
 P2View::printExtraHeadersHtml();
-echo <<<EOP
+?>
 <title>p2 - Ç®ãCÇ…î¬ÇÃï¿Ç—ë÷Ç¶</title>
 <script type="text/javascript" src="js/yui/YAHOO.js" ></script>
 <script type="text/javascript" src="js/yui/log.js" ></script>
@@ -63,9 +67,9 @@ echo <<<EOP
 <script type="text/javascript" src="js/yui/ygDDMy2.js" ></script>
 <script type="text/javascript" src="js/yui/ygDDList.js" ></script>
 <script type="text/javascript" src="js/yui/ygDDPlayer.js" ></script>
-EOP;
+<?php
 
-if (!$_conf['ktai']) {
+if (UA::isPC()) {
     P2View::printIncludeCssHtml('style');
     P2View::printIncludeCssHtml('editfavita');
 }
@@ -351,7 +355,7 @@ function _printEditSortTrHtml($host, $bbs, $itaj)
     <td>
     <?php
     echo P2View::tagA(
-        P2Util::buildQueryUri($_conf['subject_php'],
+        UriUtil::buildQueryUri($_conf['subject_php'],
             array(
                 'host' => $host,
                 'bbs'  => $bbs,
@@ -366,7 +370,7 @@ function _printEditSortTrHtml($host, $bbs, $itaj)
     <td>[ 
     <?php
     echo P2View::tagA(
-        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+        UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
             array(
                 'host'      => $host,
                 'bbs'       => $bbs,
@@ -384,7 +388,7 @@ function _printEditSortTrHtml($host, $bbs, $itaj)
     <td>
     <?php
     echo P2View::tagA(
-        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+        UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
             array(
                 'host'      => $host,
                 'bbs'       => $bbs,
@@ -402,7 +406,7 @@ function _printEditSortTrHtml($host, $bbs, $itaj)
     <td>
     <?php
     echo P2View::tagA(
-        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+        UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
             array(
                 'host'      => $host,
                 'bbs'       => $bbs,
@@ -420,7 +424,7 @@ function _printEditSortTrHtml($host, $bbs, $itaj)
     <td>
     <?php
     echo P2View::tagA(
-        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+        UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
             array(
                 'host'      => $host,
                 'bbs'       => $bbs,
@@ -437,7 +441,7 @@ function _printEditSortTrHtml($host, $bbs, $itaj)
      ]</td>
     <td>[<?php
     echo P2View::tagA(
-        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+        UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
             array(
                 'host'      => $host,
                 'bbs'       => $bbs,

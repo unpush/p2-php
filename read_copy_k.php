@@ -136,7 +136,7 @@ for ($i = 0; $i < $msg_len; $i += $len) {
     $msg_txts[] = mb_substr($msg_txt, $i, $len);
 }
 
-$action_uri = P2Util::buildQueryUri(
+$action_uri = UriUtil::buildQueryUri(
     $_SERVER['SCRIPT_NAME'],
     array(
         'host' => $aThread->host,
@@ -209,7 +209,7 @@ P2View::printDoctypeTag();
 function _getPostLinkATag($aThread, $ttitle_en)
 {
     return $post_link_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             'post_form.php',
             array(
                 'host' => $aThread->host,

@@ -9,7 +9,7 @@ $newtime = date('gis');
 
 // {{{ ページタイトル部分URL設定
 
-$p2_subject_url = P2Util::buildQueryUri($_conf['subject_php'],
+$p2_subject_url = UriUtil::buildQueryUri($_conf['subject_php'],
     array(
         'host' => $aThreadList->host,
         'bbs'  => $aThreadList->bbs,
@@ -25,7 +25,7 @@ if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
     
 // 書き込み履歴
 } elseif ($aThreadList->spmode == 'res_hist') {
-    $ptitle_url = P2Util::buildQueryUri('read_res_hist.php',
+    $ptitle_url = UriUtil::buildQueryUri('read_res_hist.php',
         array(
             UA::getQueryKey() => UA::getQueryValue()
         )

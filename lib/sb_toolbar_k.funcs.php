@@ -45,7 +45,7 @@ function getShinchakuMatomeATag($aThreadList, $shinchaku_num)
     
     if ($shinchaku_num) {
         $shinchaku_matome_atag = P2View::tagA(
-            P2Util::buildQueryUri(
+            UriUtil::buildQueryUri(
                 $_conf['read_new_k_php'],
                 array_merge($qs, array('norefresh' => '1'))
             ),
@@ -55,7 +55,7 @@ function getShinchakuMatomeATag($aThreadList, $shinchaku_num)
     
     } else {
         $shinchaku_matome_atag = P2View::tagA(
-            P2Util::buildQueryUri(
+            UriUtil::buildQueryUri(
                 $_conf['read_new_k_php'],
                 $qs
             ),

@@ -91,7 +91,7 @@ if ($get['view'] != 'favita' && $get['view'] != 'rss' && empty($_GET['cateid']))
 // ŒŸõŒ‹‰Ê‚ðHTML•\Ž¦
 //===========================================================
 
-$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+$index_uri = UriUtil::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
 
 $modori_url_ht = '';
 
@@ -117,7 +117,7 @@ if (strlen($GLOBALS['word'])) {
         P2Util::pushInfoHtml(sprintf('"%s"‚ðŠÜ‚Þ”Â‚ÍŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B', hs($GLOBALS['word'])));
     }
     $atag = P2View::tagA(
-        P2Util::buildQueryUri($_conf['menu_k_php'],
+        UriUtil::buildQueryUri($_conf['menu_k_php'],
             array(
                 'view' => 'cate',
                 'nr'   => '1',
@@ -149,7 +149,7 @@ if (isset($_GET['cateid'])) {
         }
     }
     $modori_url_ht = P2View::tagA(
-        P2Util::buildQueryUri($_conf['menu_k_php'],
+        UriUtil::buildQueryUri($_conf['menu_k_php'],
             array('view' => 'cate', 'nr' => '1', UA::getQueryKey() => UA::getQueryValue())
         ),
         '”ÂØ½Ä'

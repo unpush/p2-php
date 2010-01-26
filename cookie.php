@@ -29,7 +29,7 @@ function _getCookieLocationUri()
     if (defined('SID') && strlen(SID)) {
         $qs[session_name()] = session_id();
     }
-    return $next_uri = P2Util::buildQueryUri('login.php', $qs);
+    return $next_uri = UriUtil::buildQueryUri('login.php', $qs);
 }
 
 

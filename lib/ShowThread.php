@@ -353,7 +353,7 @@ class ShowThread
     function filterMatch($target, $resnum)
     {
         global $_conf;
-        global $_filter_hits, $filter_range;
+        global $_filter_hits, $_filter_range;
 
         $failed = ($GLOBALS['res_filter']['match'] == 'off') ? true : false;
 
@@ -382,8 +382,8 @@ class ShowThread
         $GLOBALS['_filter_hits']++;
 
         // •\Ž¦”ÍˆÍŠO‚È‚ç‹U”»’è‚Æ‚·‚é
-        if (isset($GLOBALS['word']) && !empty($filter_range) &&
-            ($_filter_hits < $filter_range['start'] || $_filter_hits > $filter_range['to'])
+        if (isset($GLOBALS['word']) && !empty($_filter_range) &&
+            ($_filter_hits < $_filter_range['start'] || $_filter_hits > $_filter_range['to'])
         ) {
             return false;
         }

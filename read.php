@@ -112,9 +112,9 @@ if (strlen($GLOBALS['word'])) {
     
     if (UA::isK() || UA::isIPhoneGroup()) {
         $filter_page = isset($_REQUEST['filter_page']) ? max(1, intval($_REQUEST['filter_page'])) : 1;
-        $filter_range = array();
-        $filter_range['start'] = ($filter_page - 1) * $_conf['k_rnum_range'] + 1;
-        $filter_range['to'] = $filter_range['start'] + $_conf['k_rnum_range'] - 1;
+        $_filter_range = array();
+        $_filter_range['start'] = ($filter_page - 1) * $_conf['k_rnum_range'] + 1;
+        $_filter_range['to'] = $_filter_range['start'] + $_conf['k_rnum_range'] - 1;
     }
 }
 
@@ -306,7 +306,6 @@ if ($_conf['ktai']) {
         $params = array(
             'prev_st'      => $prev_st,
             'next_st'      => $next_st,
-            'filter_range' => $filter_range,
             'filter_page'  => $filter_page,
             'res_filter'   => $res_filter
         );

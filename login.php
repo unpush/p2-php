@@ -37,8 +37,8 @@ if ($_conf['ktai']) {
 }
 $qs[UA::getQueryKey()] = UA::getMobileQuery();
 $atag = P2View::tagA(
-    $uri = P2Util::buildQueryUri(
-        rtrim(dirname(P2Util::getMyUrl()), '/') . '/',
+    $uri = UriUtil::buildQueryUri(
+        rtrim(dirname(UriUtil::getMyUri()), '/') . '/',
         $qs
     ),
     $uri,
@@ -69,7 +69,7 @@ require_once P2_LIB_DIR . '/HostCheck.php';
 if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
     if ($_login->hasRegistedAuthCarrier('EZWEB')) {
         $atag = P2View::tagA(
-            P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+            UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
                 array(
                     'ctl_regist_ez' => '1',
                     UA::getQueryKey() => UA::getQueryValue()
@@ -82,7 +82,7 @@ if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
     } else {
         if ($_login->pass_x) {
             $atag = P2View::tagA(
-                P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+                UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
                     array(
                         'ctl_regist_ez' => '1',
                         'regist_ez' => '1',
@@ -99,7 +99,7 @@ if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
 } elseif (HostCheck::isAddrSoftBank() && P2Util::getSoftBankID()) {
     if ($_login->hasRegistedAuthCarrier('SOFTBANK')) {
         $atag = P2View::tagA(
-            P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+            UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
                 array(
                     'ctl_regist_jp' => '1',
                     UA::getQueryKey() => UA::getQueryValue()
@@ -112,7 +112,7 @@ if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
     } else {
         if ($_login->pass_x) {
             $atag = P2View::tagA(
-                P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+                UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
                     array(
                         'ctl_regist_jp' => '1',
                         'regist_jp' => '1',
@@ -129,7 +129,7 @@ if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
 } elseif ($mobile->isDoCoMo()) {
     if ($_login->hasRegistedAuthCarrier('DOCOMO')) {
         $atag = P2View::tagA(
-            P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+            UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
                 array(
                     'ctl_regist_docomo' => '1',
                     UA::getQueryKey() => UA::getQueryValue()
@@ -141,7 +141,7 @@ if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
 
     } else {
         if ($_login->pass_x) {
-            $uri = P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+            $uri = UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
                 array(
                     'ctl_regist_docomo' => '1',
                     'regist_docomo' => '1',
@@ -158,7 +158,7 @@ if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
 } else {
     if ($_login->checkUserPwWithCid($_COOKIE['cid'])) {
         $atag = P2View::tagA(
-            P2Util::buildQueryUri('cookie.php',
+            UriUtil::buildQueryUri('cookie.php',
                 array(
                     'ctl_regist_cookie' => '1',
                     UA::getQueryKey() => UA::getQueryValue()
@@ -171,7 +171,7 @@ if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
     } else {
         if ($_login->pass_x) {
             $atag = P2View::tagA(
-                P2Util::buildQueryUri('cookie.php',
+                UriUtil::buildQueryUri('cookie.php',
                     array(
                         'ctl_regist_cookie' => '1',
                         'regist_cookie' => '1',

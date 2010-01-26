@@ -28,8 +28,8 @@ if (UA::isK()) {
     $logout_st      = 'ログアウト';
 }
 
-$login_uri = P2Util::buildQueryUri('login.php', array(UA::getQueryKey() => UA::getQueryValue()));
-$login2ch_uri = P2Util::buildQueryUri('login2ch.php', array(UA::getQueryKey() => UA::getQueryValue()));
+$login_uri = UriUtil::buildQueryUri('login.php', array(UA::getQueryKey() => UA::getQueryValue()));
+$login2ch_uri = UriUtil::buildQueryUri('login2ch.php', array(UA::getQueryKey() => UA::getQueryValue()));
 
 $body_onload = '';
 if (UA::isPC()) {

@@ -104,7 +104,7 @@ class ResHist
             // checked_hists を引き継いでしまわないように。（'submit'はデフォルトで引き継がない仕様？）
             // appendをfalseにすると、extraVarsオプションが効かなくなるらしい。
             'append' => false, 
-            'fileName' => P2Util::buildQueryUri('read_res_hist.php',
+            'fileName' => UriUtil::buildQueryUri('read_res_hist.php',
                 array(
                     'pageID' => '%d',
                     UA::getQueryKey() => isset($qv) ? rawurlencode($qv) : null
@@ -147,7 +147,7 @@ class ResHist
                 'key'  => $ResArticle->key,
                 UA::getQueryKey() => UA::getQueryValue(),
             );
-            $info_uri = P2Util::buildQueryUri('info.php', $info_qs);
+            $info_uri = UriUtil::buildQueryUri('info.php', $info_qs);
             $info_uri_hs = hs($info_uri);
             
             $sid_qs = array();
@@ -155,7 +155,7 @@ class ResHist
                 $sid_qs[session_name()] = session_id();
             }
             $info_openwin_qs = array_merge($info_qs, array('popup' => '1'), $sid_qs);
-            $info_openwin_uri = P2Util::buildQueryUri('info.php', $info_openwin_qs);
+            $info_openwin_uri = UriUtil::buildQueryUri('info.php', $info_openwin_qs);
             $info_openwin_uri_as = str_replace("'", "\\'", $info_openwin_uri);
             
             $info_view_ht = P2View::tagA(
@@ -193,7 +193,7 @@ class ResHist
             
             // 板名
             $atag = P2View::tagA(
-                P2Util::buildQueryUri($_conf['subject_php'], array(
+                UriUtil::buildQueryUri($_conf['subject_php'], array(
                     'host' => $ResArticle->host,
                     'bbs'  => $ResArticle->bbs,
                     UA::getQueryKey() => UA::getQueryValue()
@@ -222,7 +222,7 @@ class ResHist
                         'nt'   => time()
                     ), $ls_qs
                 );
-                $ttitle_uri = P2Util::buildQueryUri($_conf['read_php'], $ttitle_qs) . $footer_anchor;
+                $ttitle_uri = UriUtil::buildQueryUri($_conf['read_php'], $ttitle_qs) . $footer_anchor;
                 
                 $atag = P2View::tagA(
                     $ttitle_uri,
@@ -294,7 +294,7 @@ class ResHist
                 $str = "前";
             }
             $atag = P2View::tagA(
-                P2Util::buildQueryUri('read_res_hist.php', array(
+                UriUtil::buildQueryUri('read_res_hist.php', array(
                     'from' => $disp_navi['mae_from'],
                     UA::getQueryKey() => UA::getQueryValue()
                 )),
@@ -315,7 +315,7 @@ class ResHist
                 $str = "次";
             }
             $atag = P2View::tagA(
-                P2Util::buildQueryUri('read_res_hist.php', array(
+                UriUtil::buildQueryUri('read_res_hist.php', array(
                     'from' => $disp_navi['tugi_from'],
                     UA::getQueryKey() => UA::getQueryValue()
                 )),
@@ -379,7 +379,7 @@ class ResHist
                     }
                     
                     $msg_ht .= ' ' . P2View::tagA(
-                        P2Util::buildQueryUri('read_res_hist.php', array(
+                        UriUtil::buildQueryUri('read_res_hist.php', array(
                             'from' => $ResArticle->order,
                             'end'  => $ResArticle->order,
                             'k_continue' => '1',
@@ -412,7 +412,7 @@ class ResHist
             
             // 板名
             $res_ht .= P2View::tagA(
-                P2Util::buildQueryUri($_conf['subject_php'], array(
+                UriUtil::buildQueryUri($_conf['subject_php'], array(
                     'host' => $ResArticle->host, 'bbs' => $ResArticle->bbs, UA::getQueryKey() => UA::getQueryValue()
                 )),
                 hs($ResArticle->itaj)
@@ -434,7 +434,7 @@ class ResHist
                     'nt' => time()
                 ), $ls_qs);
                 $res_ht .= P2View::tagA(
-                    P2Util::buildQueryUri($_conf['read_php'], $ttitle_qs) . $footer_anchor,
+                    UriUtil::buildQueryUri($_conf['read_php'], $ttitle_qs) . $footer_anchor,
                     "$ttitle_hs "
                 );
             } else {

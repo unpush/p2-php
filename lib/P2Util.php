@@ -9,18 +9,34 @@ require_once P2_LIB_DIR . '/DataPhp.php';
  */
 class P2Util
 {
-    /**
-     * ポート番号を削ったホスト名を取得する
-     *
-     * @return  string|null
-     */
+    // {{{ @deprecated 2010/01/26
+    
     function getMyHost()
     {
-        if (!isset($_SERVER['HTTP_HOST'])) {
-            return null;
-        }
-        return preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']);
+        return UriUtil::getMyHost();
     }
+    function getMyUrl($with_get = false, $add_get = null, $add_sid = false, $sepa = '&')
+    {
+        return UriUtil::getMyUri($with_get, $add_get, $add_sid, $sepa);
+    }
+    function buildQuery($array, $opts = array())
+    {
+        return UriUtil::buildQuery($array, $opts);
+    }
+    function buildQueryUri($uri, $qs, $opts = array())
+    {
+        return UriUtil::buildQueryUri($uri, $qs, $opts);
+    }
+    function addQueryToUri($uri, $add_get, $add_sid = false, $sepa = '&')
+    {
+        return UriUtil::addQueryToUri($uri, $add_get, $add_sid, $sepa);
+    }
+    function addSIDToUri($uri, $sepa = '&', $force = false)
+    {
+        return UriUtil::addSIDToUri($uri, $sepa, $force);
+    }
+    
+    // }}}
     
     /**
      * @access  public
@@ -232,6 +248,22 @@ class P2Util
     
     /**
      * @access  public
+     * @return  string|null
+     */
+    function getDocomoUtnId()
+    {
+        if (isset($_SESSION['docomo_utn_id'])) {
+            return $_SESSION['docomo_utn_id'];
+        }
+        $mobile = &Net_UserAgent_Mobile::singleton();
+        if ($mobile->isDoCoMo() && $sn = $mobile->getSerialNumber()) {
+            return $sn;
+        }
+        return null;
+    }
+    
+    /**
+     * @access  public
      * @see http://developer.emnet.ne.jp/useragent.html
      * @return  string|null
      */
@@ -409,46 +441,6 @@ class P2Util
             return (int)$m[1];
         }
         return 0;
-    }
-    
-    /**
-     * http_build_query() と異なり、rawurlencodeを指定できる
-     * @static
-     * @access  public
-     * @param   array   $opts  array('encode' => 'rawurlencode', 'separator' => '&')
-     * @return  string
-     */
-    function buildQuery($array, $opts = array())
-    {
-        $encode    = array_key_exists('encode', $opts)    ? $opts['encode']    : 'rawurlencode';
-        $separator = empty($opts['separator']) ? '&' : $opts['separator'];
-        
-        $newar = array();
-        foreach ($array as $k => $v) {
-            if (is_null($v)) {
-                continue;
-            }
-            $ve = $encode ? $encode($v) : $v;
-            $newar[] = $k . '=' . $ve;
-        }
-        return implode($separator, $newar);
-    }
-    
-    /**
-     * @static
-     * @access  public
-     * @param   string  $uri
-     * @param   array   $qs
-     * @return  string
-     */
-    function buildQueryUri($uri, $qs, $opts = array())
-    {
-        if ($q = P2Util::buildQuery($qs, $opts)) {
-            $separator = empty($opts['separator']) ? '&' : $opts['separator'];
-            $mark = (strpos($uri, '?') === false) ? '?': $separator;
-            $uri .= $mark . $q;
-        }
-        return $uri;
     }
     
     /**
@@ -1386,6 +1378,7 @@ class P2Util
      * @access  public
      * @return  boolean
      */
+    /*
     function transResHistLogDatToPhp()
     {
         global $_conf;
@@ -1404,7 +1397,6 @@ class P2Util
                 // <>をタブに変換して
                 $cont = str_replace('<>', "\t", $cont);
                 
-                // データPHP形式で保存
                 if (!DataPhp::writeDataPhp($_conf['p2_res_hist_dat_php'], $cont, $_conf['res_write_perm'])) {
                     return false;
                 }
@@ -1412,7 +1404,8 @@ class P2Util
         }
         return true;
     }
-
+    */
+    
     /**
      * 前回のアクセス（ログイン）情報を取得する
      *
@@ -1827,24 +1820,6 @@ EOP;
     }
     
     /**
-     * 現在のURLを取得する（GETクエリーはなし）
-     *
-     * @see  http://ns1.php.gr.jp/pipermail/php-users/2003-June/016472.html
-     *
-     * @static
-     * @access  public
-     * @return  string
-     */
-    function getMyUrl()
-    {
-        $s = empty($_SERVER['HTTPS']) ? '' : 's';
-        // ポート番号を指定した時は、$_SERVER['HTTP_HOST'] にポート番号まで含まれるようだ
-        $url = "http{$s}://" . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
-        
-        return $url;
-    }
-    
-    /**
      * シンプルにHTMLを表示する
      * （単にテキストだけを送るとauなどは、表示してくれないので）
      *
@@ -1917,7 +1892,7 @@ EOP;
     {
         global $_info_msg_ht, $_conf;
         
-        if (!isset($_info_msg_ht)) {
+        if (!isset($_info_msg_ht) || !strlen($_info_msg_ht)) {
             return;
         }
         

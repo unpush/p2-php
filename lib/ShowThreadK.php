@@ -244,7 +244,7 @@ class ShowThreadK extends ShowThread
         
         // NG•ÏŠ·
         $kakunin_msg_ht = P2View::tagA(
-            P2Util::buildQueryUri($_conf['read_php'],
+            UriUtil::buildQueryUri($_conf['read_php'],
                 array(
                     'host' => $this->thread->host,
                     'bbs'  => $this->thread->bbs,
@@ -513,7 +513,7 @@ class ShowThreadK extends ShowThread
                 array($this, 'quote_msg_callback'), $msg
             );
             $msg .= P2View::tagA(
-                P2Util::buildQueryUri($_conf['read_php'],
+                UriUtil::buildQueryUri($_conf['read_php'],
                     array(
                         'host' => $this->thread->host,
                         'bbs'  => $this->thread->bbs,
@@ -715,7 +715,7 @@ class ShowThreadK extends ShowThread
             return $s[0];
         }
 
-        $read_url = P2Util::buildQueryUri($_conf['read_php'],
+        $read_url = UriUtil::buildQueryUri($_conf['read_php'],
             array(
                 'host' => $this->thread->host,
                 'bbs'  => $this->thread->bbs,
@@ -759,7 +759,7 @@ class ShowThreadK extends ShowThread
             $to = min($to, $from + $_conf['k_rnum_range'] - 1, $this->thread->rescount);
         }
 
-        $read_url = P2Util::buildQueryUri($_conf['read_php'],
+        $read_url = UriUtil::buildQueryUri($_conf['read_php'],
             array(
                 'host' => $this->thread->host,
                 'bbs'  => $this->thread->bbs,
@@ -800,7 +800,7 @@ class ShowThreadK extends ShowThread
         */
         
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
-            $filter_url = P2Util::buildQueryUri($_conf['read_php'],
+            $filter_url = UriUtil::buildQueryUri($_conf['read_php'],
                 array(
                     'host' => $this->thread->host,
                     'bbs'  => $this->thread->bbs,

@@ -449,7 +449,7 @@ class HostCheck
 
         $regHost = '/^proxy[0-9a-f]\d\d\.docomo\.ne\.jp$/';
         
-        // @update 2009/04/24
+        // @update 2010/01/24
         $bands = array(
             '210.153.84.0/24',
             '210.136.161.0/24',
@@ -459,9 +459,6 @@ class HostCheck
             '202.229.176.0/24',
             '202.229.177.0/24',
             '202.229.178.0/24',
-            '203.138.180.0/24',
-            '203.138.181.0/24',
-            '203.138.203.0/24',
             '210.153.87.0/24', // WEBアクセス時（フルブラウザ）
         );
         return HostCheck::isAddrInBand($addr, $bands, $regHost);
@@ -484,9 +481,8 @@ class HostCheck
         //$regHost = '/^wb\d\dproxy\d\d\.ezweb\.ne\.jp$/';
         $regHost = '/\.ezweb\.ne\.jp$/';
         
-        // @updated 2009/05/11
+        // @updated 2010/01/21
         $bands = array(
-            // 2010年2月予定 '118.159.133.192/26',
             '210.230.128.224/28',
             '121.111.227.160/27',
             '61.117.1.0/28',

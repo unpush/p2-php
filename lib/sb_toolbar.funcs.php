@@ -37,7 +37,7 @@ function getSbToolbarShinchakuMatomeHtml($aThreadList, $shinchaku_num)
         }
     
         $shinchaku_matome_ht = P2View::tagA(
-            P2Util::buildQueryUri(
+            UriUtil::buildQueryUri(
                 $_conf['read_new_php'],
                 array(
                     'host'   => $aThreadList->host,

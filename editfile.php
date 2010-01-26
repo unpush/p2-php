@@ -12,7 +12,7 @@ if (!isset($_POST['path'])) {
     die('Error: path が指定されていません');
 }
 
-// 変数 ==================================
+// 変数
 $path       = geti($_POST['path']);
 $modori_url = geti($_POST['modori_url']);
 $encode     = geti($_POST['encode']);
@@ -22,22 +22,23 @@ $cols = isset($_POST['cols']) ? intval($_POST['cols']) : 128;
 
 isset($_POST['filecont']) and $filecont = $_POST['filecont'];
 
-//=========================================================
+
 // 前処理
-//=========================================================
+
 // 書き込めるファイルを限定する
 _checkWritableFiles($path); // void|exit
 
-//=========================================================
 // メイン 
-//=========================================================
 if (isset($filecont)) {
     if (_setFile($path, $filecont, $encode)) {
         P2Util::pushInfoHtml("saved, OK.");
     }
 }
 
+// 表示
 _printEditFileHtml($path, $encode);
+
+exit; // 処理はここまで
 
 
 //=========================================================
@@ -81,7 +82,7 @@ function _setFile($path, $cont, $encode)
     if ($encode == "EUC-JP") {
         $cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
     }
-    // 書き込む
+    
     if (false === file_put_contents($path, $cont, LOCK_EX)) {
         die("Error: cannot write. ( $path )");
         return false;

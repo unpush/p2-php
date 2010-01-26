@@ -58,7 +58,7 @@ $read_navi_prev_anchor = '';
 
 $read_navi_prev_header = '';
 if (!$read_navi_prev_isInvisible) {
-    $url = P2Util::buildQueryUri($_conf['read_php'],
+    $url = UriUtil::buildQueryUri($_conf['read_php'],
         array(
             'host'      => $aThread->host,
             'bbs'       => $aThread->bbs,
@@ -99,7 +99,7 @@ if ($after_rnum <= $aThread->gotnum) {
 
 //if (!$read_navi_next_isInvisible) {
 $read_navi_next_ht = P2View::tagA(
-    P2Util::buildQueryUri($_conf['read_php'],
+    UriUtil::buildQueryUri($_conf['read_php'],
         array_merge(
             array(
                 'host' => $aThread->host,
@@ -154,11 +154,11 @@ $similar_qs = array(
     // 'refresh' => 1
 );
 
-$ita_url = P2Util::buildQueryUri($_conf['subject_php'], array_merge($thread_qs, $b_qs));
+$ita_url = UriUtil::buildQueryUri($_conf['subject_php'], array_merge($thread_qs, $b_qs));
 $ita_url_hs = hs($ita_url);
 
 $similar_atag  = P2View::tagA(
-    P2Util::buildQueryUri($_conf['subject_php'],
+    UriUtil::buildQueryUri($_conf['subject_php'],
         array_merge($similar_qs, $thread_qs, $b_qs, array('refresh' => 1))
     ),
     hs($siml_thre_st),
@@ -172,10 +172,10 @@ $similar_atag  = P2View::tagA(
 $info_php = UA::isIPhoneGroup() ? 'info_i.php' : 'info.php';
 
 $info_qs = array_merge($thread_qs, $b_qs, array('ttitle_en' => $ttitle_en));
-$info_url = P2Util::buildQueryUri($info_php, $info_qs);
+$info_url = UriUtil::buildQueryUri($info_php, $info_qs);
 $info_url_hs = hs($info_url);
 
-$info_js_url = P2Util::buildQueryUri($info_php,
+$info_js_url = UriUtil::buildQueryUri($info_php,
     array_merge($info_qs, array('popup' => '1'), $sid_qs)
 );
 $info_js_url_es = str_replace("'", "\\'", $info_js_url);
@@ -194,9 +194,9 @@ $info_atag = P2View::tagA(
     )
 );
 
-$setfav_url = P2Util::buildQueryUri($info_php, array_merge($info_qs, array('setfav' => $favvalue)));
+$setfav_url = UriUtil::buildQueryUri($info_php, array_merge($info_qs, array('setfav' => $favvalue)));
 
-$setFavJs_query = P2Util::buildQuery(array_merge($info_qs, $sid_qs));
+$setFavJs_query = UriUtil::buildQuery(array_merge($info_qs, $sid_qs));
 $setFavJs_query_es = str_replace("'", "\\'", $setFavJs_query);
 
 $setFavATag = P2View::tagA(
@@ -210,9 +210,9 @@ $setFavATag = P2View::tagA(
     )
 );
 
-$dele_url = P2Util::buildQueryUri($info_php, array_merge($info_qs, array('dele' => 'true')));
+$dele_url = UriUtil::buildQueryUri($info_php, array_merge($info_qs, array('dele' => 'true')));
 
-$deleLogJs_query = P2Util::buildQuery(array_merge($info_qs, $sid_qs));
+$deleLogJs_query = UriUtil::buildQuery(array_merge($info_qs, $sid_qs));
 $deleLogJs_query_es = str_replace("'", "\\'", $deleLogJs_query);
 
 $deleLogATag = P2View::tagA(
@@ -231,9 +231,9 @@ $deleLogATag = P2View::tagA(
 
 $tabornATag = '';
 /*
-$taborn_url = P2Util::buildQueryUri($info_php, array_merge($info_qs, array('taborn' => '2')));
+$taborn_url = UriUtil::buildQueryUri($info_php, array_merge($info_qs, array('taborn' => '2')));
 
-$taborn_js_url = P2Util::buildQueryUri($info_php,
+$taborn_js_url = UriUtil::buildQueryUri($info_php,
     array_merge($info_qs, array('taborn' => '2'), array('popup' => '2'), $sid_qs)
 );
 $taborn_js_url_es = str_replace("'", "\\'", $taborn_js_url);
@@ -380,7 +380,7 @@ if ($aThread->diedat) {
     if ($aThread->getdat_error_msg_ht) {
         $diedat_msg_ht = $aThread->getdat_error_msg_ht;
     } else {
-        $diedat_msg_ht = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
+        $diedat_msg_ht = $aThread->getDefaultGetDatErrorMessageHTML();
     }
 
     $target_attrs = $_conf['bbs_win_target'] ? array('target' => $_conf['bbs_win_target']) : array();
@@ -478,7 +478,7 @@ function _getReadFooterNaviNewHtml($aThread, $shinchaku_st, $tuduki_st, $midoku_
     if ($aThread->resrange['to'] == $aThread->rescount) {
 
         $read_footer_navi_new_ht = P2View::tagA(
-            P2Util::buildQueryUri($_conf['read_php'],
+            UriUtil::buildQueryUri($_conf['read_php'],
                 array(
                     'host'      => $aThread->host,
                     'bbs'       => $aThread->bbs,
@@ -499,7 +499,7 @@ function _getReadFooterNaviNewHtml($aThread, $shinchaku_st, $tuduki_st, $midoku_
 
     } else {
         $read_footer_navi_new_ht = P2View::tagA(
-            P2Util::buildQueryUri($_conf['read_php'],
+            UriUtil::buildQueryUri($_conf['read_php'],
                 array(
                     'host'      => $aThread->host,
                     'bbs'       => $aThread->bbs,
@@ -598,7 +598,7 @@ EOP;
         $read_navi_range_ht = _getReadNaviRangeHtml($aThread, $rnum_range);
 
         $all_atag = P2View::tagA(
-            P2Util::buildQueryUri($_conf['read_php'],
+            UriUtil::buildQueryUri($_conf['read_php'],
                 array(
                     'host' => $aThread->host,
                     'bbs'  => $aThread->bbs,
@@ -614,7 +614,7 @@ EOP;
         );
         
         $latest_atag = P2View::tagA(
-            P2Util::buildQueryUri($_conf['read_php'],
+            UriUtil::buildQueryUri($_conf['read_php'],
                 array(
                     'host' => $aThread->host,
                     'bbs'  => $aThread->bbs,
@@ -659,7 +659,7 @@ EOP;
 function _getP2FrameHtml($motothre_url)
 {
     $atag = P2View::tagA(
-        P2Util::buildQueryUri('index.php', array('url' => $motothre_url, 'offline' => '1')),
+        UriUtil::buildQueryUri('index.php', array('url' => $motothre_url, 'offline' => '1')),
         hs('3ペインで開く'),
         array('title' => 'p2フレーム 3ペインで開く')
     );
@@ -711,7 +711,7 @@ function _getReadNaviRangeHtml($aThread, $rnum_range)
         if ($ito <= $aThread->gotnum) {
             $qs['offline'] = '1';
         }
-        $url = P2Util::buildQueryUri($_conf['read_php'], $qs);
+        $url = UriUtil::buildQueryUri($_conf['read_php'], $qs);
         $read_navi_range_ht .= P2View::tagA($url, "{$i}-") . "\n";
     }
     

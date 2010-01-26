@@ -171,7 +171,7 @@ if ($pallines = @file($palace_idx)) {
     }
 }
 
-$palUrl = P2Util::buildQueryUri('info_i.php',
+$palUrl = UriUtil::buildQueryUri('info_i.php',
     array(
         'host' => $aThread->host, 'bbs' => $aThread->bbs, 'key' => $aThread->key,
         'setpal' => (int)!$isPalace,
@@ -205,7 +205,7 @@ $taborn_ht = sprintf(
     '%s [%s]', 
     hs($isTaborn ? '‚ ‚Ú[‚ñ’†' : '’Êí'),
     P2View::tagA(
-        P2Util::buildQueryUri('info_i.php',
+        UriUtil::buildQueryUri('info_i.php',
             array(
                 'host' => $aThread->host,
                 'bbs'  => $aThread->bbs,
@@ -239,7 +239,7 @@ $aThread->ls = 'l50';
 $motothre_url = $aThread->getMotoThread();
 $motothre_org_url = $aThread->getMotoThread(true);
 
-$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+$index_uri = UriUtil::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
 
 if ($title_msg) {
     $hc['title'] = $title_msg;
@@ -330,7 +330,7 @@ if (UA::isPC()) {
 }
 
 // ”Â
-$ita_uri = P2Util::buildQueryUri(
+$ita_uri = UriUtil::buildQueryUri(
     $_conf['subject_php'],
     array(
         'host' => $aThread->host,
@@ -355,7 +355,7 @@ $similar_qs = array(
     // 'refresh' => 1
 );
 $similar_atag  = P2View::tagA(
-    P2Util::buildQueryUri($_conf['subject_php'],
+    UriUtil::buildQueryUri($_conf['subject_php'],
         array_merge($similar_qs,
             array(
                 'host' => $aThread->host,
@@ -374,7 +374,7 @@ _printInfoTrHtml('”Â', "$ita_atag ($similar_atag)");
 
 if ($existLog) {
     $atag = P2View::tagA(
-        P2Util::buildQueryUri('info_i.php',
+        UriUtil::buildQueryUri('info_i.php',
             array(
                 'host' => $aThread->host,
                 'bbs'  => $aThread->bbs,
@@ -469,7 +469,7 @@ function _getCopypaFormHtml($url, $ttitle_name_hs)
     
     $url_hs = htmlspecialchars($url, ENT_QUOTES);
     
-    $me_url = P2Util::getMyUrl();
+    $me_url = UriUtil::getMyUri();
     // $_SERVER['REQUEST_URI']
     
     $htm = <<<EOP
@@ -496,7 +496,7 @@ function _getFavATag($aThread, $favmark_accesskey, $ttitle_en)
         $preKey = $favmark_accesskey . '.';
     }
     return P2View::tagA(
-        P2Util::buildQueryUri('info_i.php',
+        UriUtil::buildQueryUri('info_i.php',
             array(
                 'host' => $aThread->host,
                 'bbs'  => $aThread->bbs,
@@ -529,7 +529,7 @@ function _getTtitleNameATag($aThread, $ttitle_name)
     }
     
     return P2View::tagA(
-        P2Util::buildQueryUri($_conf['read_php'],
+        UriUtil::buildQueryUri($_conf['read_php'],
             array(
                 'host' => $aThread->host,
                 'bbs'  => $aThread->bbs,
@@ -554,7 +554,7 @@ function _getOffRecentATag($aThread, $offrecent_accesskey, $ttitle_en)
         $preKey = $offrecent_accesskey . '.';
     }
     return P2View::tagA(
-        P2Util::buildQueryUri('info_i.php',
+        UriUtil::buildQueryUri('info_i.php',
             array(
                 'host' => $aThread->host,
                 'bbs'  => $aThread->bbs,

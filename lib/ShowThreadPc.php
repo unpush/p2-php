@@ -542,7 +542,7 @@ EOMSG;
         // 数字をリンク化
         if ($_conf['quote_res_view']) {
             /*
-            $uri = P2Util::buildQueryUri($_conf['read_php'], array(
+            $uri = UriUtil::buildQueryUri($_conf['read_php'], array(
                 'host' => $this->thread->host,
                 'bbs'  => $this->thread->bbs,
                 'key'  => $this->thread->key,
@@ -748,7 +748,7 @@ EOMSG;
         // 自分自身の番号も変換せずに戻したいところだが
         
         
-        $read_url = P2Util::buildQueryUri($_conf['read_php'],
+        $read_url = UriUtil::buildQueryUri($_conf['read_php'],
             array(
                 'host' => $this->thread->host,
                 'bbs'  => $this->thread->bbs,
@@ -785,7 +785,7 @@ EOMSG;
             return $s[0];
         }
 
-        $read_url = P2Util::buildQueryUri($_conf['read_php'],
+        $read_url = UriUtil::buildQueryUri($_conf['read_php'],
             array(
                 'host' => $this->thread->host,
                 'bbs' => $this->thread->bbs,
@@ -857,7 +857,9 @@ EOMSG;
             $link_str = $str;
             $pop_str  = NULL;
         }
-
+        
+        $pop_url_sid = UriUtil::addSIDToUri($pop_url);
+        
         // リンクの属性
         if (is_array($attr)) {
             $attrFor = $attr;
@@ -871,7 +873,7 @@ EOMSG;
 
         // リンクの属性にHTMLポップアップ用のイベントハンドラを加える
         $pop_attr = $attr;
-        $pop_attr .= " onmouseover=\"showHtmlPopUp('" . hs($pop_url) . "', event, " . hs($_conf['iframe_popup_delay']) . ")\"";
+        $pop_attr .= " onmouseover=\"showHtmlPopUp('" . hs($pop_url_sid) . "', event, " . hs($_conf['iframe_popup_delay']) . ")\"";
         $pop_attr .= " onmouseout=\"offHtmlPopUp()\"";
 
         // 最終調整
@@ -904,7 +906,7 @@ EOMSG;
         
         // (p)IDポップアップで同じURLの連続呼び出しなら(p)にしない
         if (!empty($_GET['idpopup']) and isset($_SERVER['QUERY_STRING'])) {
-            if ((basename(P2Util::getMyUrl()) . '?' . $_SERVER['QUERY_STRING']) == $link_url) {
+            if ((basename(UriUtil::getMyUri()) . '?' . $_SERVER['QUERY_STRING']) == $link_url) {
                 $mode = 0;
             }
         }
@@ -952,7 +954,7 @@ EOMSG;
             return $idstr;
         }
 
-        $filter_url = P2Util::buildQueryUri(
+        $filter_url = UriUtil::buildQueryUri(
             $_conf['read_php'],
             array(
                 'bbs'     => $this->thread->bbs,
@@ -1129,7 +1131,7 @@ EOMSG;
                     $url, $html, array('target' => 'subject')
                 ),
                 P2View::tagA(
-                    P2Util::buildQueryUri($_conf['subject_php'], array('host' => $m[1], 'bbs' => $m[2])),
+                    UriUtil::buildQueryUri($_conf['subject_php'], array('host' => $m[1], 'bbs' => $m[2])),
                     hs('板をp2で開く'),
                     array('target' => 'subject')
                 )

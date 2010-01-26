@@ -334,7 +334,7 @@ if (!$_conf['ktai']) {
 if (UA::isK()) {
     echo P2View::getHrHtmlK();
     echo P2View::tagA(
-        P2Util::buildQueryUri($_conf['editpref_php'], array(UA::getQueryKey() => UA::getQueryValue())),
+        UriUtil::buildQueryUri($_conf['editpref_php'], array(UA::getQueryKey() => UA::getQueryValue())),
         hs(sprintf('%s.Ý’è•ÒW', $_conf['k_accesskey']['up'])),
         array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['up'])
     );

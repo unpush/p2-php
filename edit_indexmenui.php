@@ -32,7 +32,7 @@ $menuKLinkHtmls = getIndexMenuKLinkHtmls(getIndexMenuKIni(), $noLink = true);
 $body_at    = P2View::getBodyAttrK();
 $hr         = P2View::getHrHtmlK();
 
-$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+$index_uri = UriUtil::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
 
 //================================================================
 // ƒwƒbƒ_HTML•\Ž¦

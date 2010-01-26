@@ -107,7 +107,7 @@ function _locationReadPhpIfGetUrl()
 
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
         header(sprintf('Location: %s/%s?%s',
-            dirname(P2Util::getMyUrl()), $_conf['read_php'], $_SERVER['QUERY_STRING'])
+            dirname(UriUtil::getMyUri()), $_conf['read_php'], $_SERVER['QUERY_STRING'])
         );
         exit;
     }

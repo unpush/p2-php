@@ -234,7 +234,7 @@ EOP;
                         }
                         $t = true;
                         
-                        $uri = P2Util::buildQueryUri($_conf['subject_php'], array(
+                        $uri = UriUtil::buildQueryUri($_conf['subject_php'], array(
                             'host' => $mita->host,
                             'bbs'  => $mita->bbs,
                             'itaj_en' => $mita->itaj_en,
@@ -292,7 +292,7 @@ EOP;
                     }
 
                     $atag = P2View::tagA(
-                        P2Util::buildQueryUri($_conf['subject_php'],
+                        UriUtil::buildQueryUri($_conf['subject_php'],
                             array(
                                 'host' => $matches[1],
                                 'bbs'  => $matches[2],

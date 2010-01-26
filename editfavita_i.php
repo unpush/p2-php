@@ -354,7 +354,7 @@ function _printEditSortTrHtml($host, $bbs, $itaj)
     <td>
     <?php
     echo P2View::tagA(
-        P2Util::buildQueryUri($_conf['subject_php'],
+        UriUtil::buildQueryUri($_conf['subject_php'],
             array(
                 'host' => $host,
                 'bbs'  => $bbs,
@@ -369,7 +369,7 @@ function _printEditSortTrHtml($host, $bbs, $itaj)
     <td>[ 
     <?php
     echo P2View::tagA(
-        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+        UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
             array(
                 'host'      => $host,
                 'bbs'       => $bbs,
@@ -387,7 +387,7 @@ function _printEditSortTrHtml($host, $bbs, $itaj)
     <td>
     <?php
     echo P2View::tagA(
-        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+        UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
             array(
                 'host'      => $host,
                 'bbs'       => $bbs,
@@ -405,7 +405,7 @@ function _printEditSortTrHtml($host, $bbs, $itaj)
     <td>
     <?php
     echo P2View::tagA(
-        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+        UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
             array(
                 'host'      => $host,
                 'bbs'       => $bbs,
@@ -423,7 +423,7 @@ function _printEditSortTrHtml($host, $bbs, $itaj)
     <td>
     <?php
     echo P2View::tagA(
-        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+        UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
             array(
                 'host'      => $host,
                 'bbs'       => $bbs,
@@ -440,7 +440,7 @@ function _printEditSortTrHtml($host, $bbs, $itaj)
      ]</td>
     <td>[<?php
     echo P2View::tagA(
-        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+        UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'],
             array(
                 'host'      => $host,
                 'bbs'       => $bbs,

@@ -106,7 +106,7 @@ $read_navi_prev_anchor = '';
 //}
 
 if (!$read_navi_prev_isInvisible) {
-    $q = P2Util::buildQuery(array_merge(
+    $q = UriUtil::buildQuery(array_merge(
         $thread_qs,
         array(
             //'ls'        => "{$before_rnum}-{$aThread->resrange['start']}n",
@@ -153,7 +153,7 @@ if ($aThread->resrange['to'] == $aThread->rescount) {
 $after_rnum = $aThread->resrange['to'] + $rnum_range;
 
 if (!$read_navi_next_isInvisible) {
-    $url = P2Util::buildQueryUri($_conf['read_php'],
+    $url = UriUtil::buildQueryUri($_conf['read_php'],
         array_merge(
             $thread_qs,
             array(
@@ -231,7 +231,7 @@ EOP;
 // {{{ 検索
 
 $read_navi_filter_ht = $read_navi_filter_btm_ht = P2View::tagA(
-    P2Util::buildQueryUri('read_filter_i.php',
+    UriUtil::buildQueryUri('read_filter_i.php',
         array(
             'host' => $aThread->host,
             'bbs'  => $aThread->bbs,
@@ -271,7 +271,7 @@ $b_qs = array(
     UA::getQueryKey() => UA::getQueryValue()
 );
 $atag = P2View::tagA(
-    P2Util::buildQueryUri($_conf['subject_php'],
+    UriUtil::buildQueryUri($_conf['subject_php'],
         array_merge($thread_qs, $b_qs)
     ),
     hs($aThread->itaj),
@@ -539,7 +539,7 @@ function _getReadFooterNaviNewHtmls($aThread, $shinchaku_st)
     if ($aThread->resrange['to'] == $aThread->rescount) {
     
         // 新着レスの表示 <a>
-        $read_footer_navi_new_uri = P2Util::buildQueryUri(
+        $read_footer_navi_new_uri = UriUtil::buildQueryUri(
             $_conf['read_php'],
             array(
                 'host' => $aThread->host,
@@ -589,7 +589,7 @@ function _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $dele_st, $moto_th
     );
 
     $info_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['subject_php'],
             array_merge($thread_qs, $b_qs, $similar_qs, array('refresh' => '1'))
         ),
@@ -597,7 +597,7 @@ function _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $dele_st, $moto_th
     );
     
     $dele_atag     = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             'info_i.php',
             array_merge($thread_qs, $b_qs,
                 array(
@@ -621,8 +621,9 @@ EOTOOLBAR;
  */
 function _getGetDatErrorMsgHtml($aThread)
 {
-    $diedat_msg_ini_ht = '<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>';
-    return strlen($aThread->getdat_error_msg_ht) ? $aThread->getdat_error_msg_ht : $diedat_msg_ini_ht;
+    return strlen($aThread->getdat_error_msg_ht)
+        ? $aThread->getdat_error_msg_ht 
+        : $aThread->getDefaultGetDatErrorMessageHTML();
 }
 
 

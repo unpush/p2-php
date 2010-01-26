@@ -374,6 +374,22 @@ class UA
     }
     
     /**
+     * UAがDoCoMoならtrueを返す
+     *
+     * @static
+     * @access  public
+     * @param   string   $ua  UAを指定するなら
+     * @return  boolean
+     */
+    public static function isDoCoMo($ua = null)
+    {
+        if ($nuam = &UA::getNet_UserAgent_Mobile($ua)) {
+            return $nuam->isDoCoMo();
+        }
+        return false;
+    }
+    
+    /**
      * UAがNetFront（携帯、PDA、PSP）ならtrueを返す
      *
      * @static

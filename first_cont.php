@@ -32,7 +32,7 @@ EOP;
 
 // }}}
 
-$bookmarkletUrl = "javascript:location='" . dirname(P2Util::getMyUrl()) . "/" . $_conf['read_php'] . "?url='+escape(location);";
+$bookmarkletUrl = "javascript:location='" . dirname(UriUtil::getMyUri()) . "/" . $_conf['read_php'] . "?url='+escape(location);";
 
 //=============================================================
 // HTMLƒvƒŠƒ“ƒg

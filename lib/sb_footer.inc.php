@@ -102,7 +102,7 @@ function _getDatSokoATag($aThreadList)
     // スペシャルモードでなければ、またはあぼーんリストなら
     if (!$aThreadList->spmode or $aThreadList->spmode == 'taborn') {
         $datSokoATag = P2View::tagA(
-            P2Util::buildQueryUri(
+            UriUtil::buildQueryUri(
                 $_conf['subject_php'],
                 array(
                     'host'   => $aThreadList->host,
@@ -134,7 +134,7 @@ function _getTabornATag($aThreadList)
     $taborn_link_atag = '';
     if (!empty($ta_num)) {
         $taborn_link_atag = P2View::tagA(
-            P2Util::buildQueryUri(
+            UriUtil::buildQueryUri(
                 $_conf['subject_php'],
                 array(
                     'host'   => $aThreadList->host,
@@ -173,9 +173,9 @@ function _getBuildnewthreadATag($aThreadList)
         if (defined('SID') && strlen(SID)) {
             $qs[session_name()] = session_id();
         }
-        $onClickUri = P2Util::buildQueryUri('post_form.php', array_merge($qs, array('popup' => '1')));
+        $onClickUri = UriUtil::buildQueryUri('post_form.php', array_merge($qs, array('popup' => '1')));
         $buildnewthreadATag = P2View::tagA(
-            P2Util::buildQueryUri('post_form.php', $qs),
+            UriUtil::buildQueryUri('post_form.php', $qs),
             '新規スレッド作成',
             array(
                 'onClick' => sprintf(

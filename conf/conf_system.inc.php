@@ -15,25 +15,6 @@ $_conf['p2uaname'] = 'r e p 2';  // UA用のrep2の名前
 // エラー出力設定
 _setErrorReporting(); // error_reporting()
 
-// {{{ 基本変数
-
-$_conf['p2web_url']             = 'http://akid.s17.xrea.com/';
-$_conf['p2ime_url']             = 'http://akid.s17.xrea.com/p2ime.phtml';
-$_conf['favrank_url']           = 'http://akid.s17.xrea.com/favrank/favrank.php';
-$_conf['menu_php']              = 'menu.php';
-$_conf['subject_php']           = 'subject.php'; // subject_i.php
-$_conf['read_php']              = 'read.php';
-$_conf['read_new_php']          = 'read_new.php';
-$_conf['read_new_k_php']        = 'read_new_k.php';
-$_conf['post_php']              = 'post.php';
-$_conf['cookie_file_name']      = 'p2_cookie.txt';
-$_conf['menu_k_php']            = 'menu_k.php'; // menu_i.php
-$_conf['editpref_php']          = 'editpref.php'; // editpref_i.php
-
-// info.php はJavaScriptファイル中に書かれているのが難
-
-// }}}
-
 // デバッグ用変数を設定
 _setDebug(); // void  $GLOBALS['debug'], $GLOBALS['profiler']
 
@@ -57,6 +38,7 @@ _includePears(); // void|die
 // PEAR::PHP_CompatでPHP5互換の関数を読み込む
 _loadPHPCompat();
 
+require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'UriUtil.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'P2Util.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'DataPhp.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'Session.php';
@@ -70,9 +52,29 @@ require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'FileCtl.php';
 // フォームからの入力（POST, GET）を一括で文字コード変換＆サニタイズ
 _convertEncodingAndSanitizePostGet();
 
+// {{{ 基本変数
+
+$_conf['p2web_url']             = 'http://akid.s17.xrea.com/';
+$_conf['p2ime_url']             = 'http://akid.s17.xrea.com/p2ime.phtml';
+$_conf['favrank_url']           = 'http://akid.s17.xrea.com/favrank/favrank.php';
+$_conf['menu_php']              = 'menu.php';
+$_conf['subject_php']           = 'subject.php'; // subject_i.php
+$_conf['read_php']              = 'read.php';
+$_conf['read_new_php']          = 'read_new.php';
+$_conf['read_new_k_php']        = 'read_new_k.php';
+$_conf['post_php']              = 'post.php';
+$_conf['cookie_file_name']      = 'p2_cookie.txt';
+$_conf['menu_k_php']            = 'menu_k.php'; // menu_i.php
+$_conf['editpref_php']          = 'editpref.php'; // editpref_i.php
+
+// info.php はJavaScriptファイル中に書かれているのが難
+
+// }}}
+
 // 管理者用設定を読み込み
-if (!include_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'conf_admin.inc.php') {
+if (!require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'conf_admin.inc.php') {
     P2Util::printSimpleHtml("p2 error: 管理者用設定ファイルを読み込めませんでした。");
+    trigger_error('!include_once conf_admin.inc.php', E_USER_ERROR);
     die;
 }
 

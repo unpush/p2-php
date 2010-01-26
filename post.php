@@ -155,8 +155,8 @@ if (!empty($_POST['newthread'])) {
         $qs_sid[session_name()] = session_id();
     }
     
-    $location_url     = P2Util::buildQueryUri($_conf['subject_php'], $qs);
-    $location_sid_url = P2Util::buildQueryUri($_conf['subject_php'], $qs_sid);
+    $location_url     = UriUtil::buildQueryUri($_conf['subject_php'], $qs);
+    $location_sid_url = UriUtil::buildQueryUri($_conf['subject_php'], $qs_sid);
     
 } else {
     $post = array(
@@ -182,8 +182,8 @@ if (!empty($_POST['newthread'])) {
         $qs_sid[session_name()] = session_id();
     }
     
-    $location_url     = P2Util::buildQueryUri($_conf['read_php'], $qs) . "#r{$rescount}";
-    $location_sid_url = P2Util::buildQueryUri($_conf['read_php'], $qs_sid) . "#r{$rescount}";
+    $location_url     = UriUtil::buildQueryUri($_conf['read_php'], $qs) . "#r{$rescount}";
+    $location_sid_url = UriUtil::buildQueryUri($_conf['read_php'], $qs_sid) . "#r{$rescount}";
 }
 
 // {{{ 2chÇ≈ÅúÉçÉOÉCÉìíÜÇ»ÇÁsidí«â¡

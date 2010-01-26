@@ -104,7 +104,7 @@ if ($aThreadList->spmode) {
     $qs['spmode'] = $aThreadList->spmode;
 }
 $sb_ht = P2View::tagA(
-    P2Util::buildQueryUri($_conf['subject_php'], $qs),
+    UriUtil::buildQueryUri($_conf['subject_php'], $qs),
     hs($aThreadList->ptitle),
     array('target' => 'subject')
 );
@@ -409,7 +409,7 @@ EOP;
     
     /*
     $read_footer_navi_new_ht = P2View::tagA(
-        P2Util::buildQueryUri($_conf['read_php'],
+        UriUtil::buildQueryUri($_conf['read_php'],
             array_merge($thread_qs, array(
                 'ls'   => "$aThread->rescount-",
                 'nt'   => $newtime
@@ -422,7 +422,7 @@ EOP;
     if ($_conf['disable_res']) {
         $dores_ht = P2View::tagA($motothre_url, '書込', array('target' => '_blank'));
     } else {
-        $post_form_uri = P2Util::buildQueryUri('post_form.php',
+        $post_form_uri = UriUtil::buildQueryUri('post_form.php',
             array_merge($thread_qs, array(
                 'rescount' => $aThread->rescount,
                 'ttitle_en' => $ttitle_en,
@@ -430,7 +430,7 @@ EOP;
         );
         $post_form_uri_hs = hs($post_form_uri);
         
-        $post_from_openwin_uri = P2Util::buildQueryUri('post_form.php',
+        $post_from_openwin_uri = UriUtil::buildQueryUri('post_form.php',
             array_merge($thread_qs, array(
                 'rescount' => $aThread->rescount,
                 'ttitle_en' => $ttitle_en,
@@ -471,13 +471,13 @@ EOP;
     $info_qs = array_merge($thread_qs, $b_qs, array('ttitle_en' => $ttitle_en));
     
     $ita_atag = P2View::tagA(
-        P2Util::buildQueryUri($_conf['subject_php'], array_merge($thread_qs, $b_qs)),
+        UriUtil::buildQueryUri($_conf['subject_php'], array_merge($thread_qs, $b_qs)),
         hs($aThread->itaj),
         array('style' => 'white-space: nowrap;', 'target' => 'subject', 'title' => '板を開く')
     );
     
     $similar_atag =  P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['subject_php'],
             array_merge($similar_qs, $thread_qs, $b_qs, array('refresh' => 1))
         ),
@@ -485,12 +485,12 @@ EOP;
         array('style' => 'white-space: nowrap;', 'target' => 'subject', 'title' => '同じ板からタイトルが似ているスレッドを検索する')
     );
 
-    $info_url = P2Util::buildQueryUri('info.php', $info_qs);
+    $info_url = UriUtil::buildQueryUri('info.php', $info_qs);
     $info_url_hs = hs($info_url);
     
     $info_hs = hs($info_st);
     
-    $js_q_hs = hs(P2Util::buildQuery(array_merge($info_qs, $sid_qs)));
+    $js_q_hs = hs(UriUtil::buildQuery(array_merge($info_qs, $sid_qs)));
     
     $motothre_atag = P2View::tagA(
         $motothre_url,
@@ -521,7 +521,7 @@ EOTOOLBAR;
 
     // フッタ部分HTML
     $read_atag = P2View::tagA(
-        P2Util::buildQueryUri($_conf['read_php'],
+        UriUtil::buildQueryUri($_conf['read_php'],
             array_merge($thread_qs, array(
                 'offline' => '1',
                 'rescount' => $aThread->rescount
@@ -603,7 +603,7 @@ if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !emp
         $str = '新着まとめ読みを更新';
     }
     $atag = P2View::tagA(
-        P2Util::buildQueryUri($_conf['read_new_php'], $shinmatome_qs),
+        UriUtil::buildQueryUri($_conf['read_new_php'], $shinmatome_qs),
         hs($str),
         $shinmatome_accesskey_attrs
     );
@@ -611,7 +611,7 @@ if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !emp
 } else {
     $str = '新着まとめ読みの続き';
     $atag = P2View::tagA(
-        P2Util::buildQueryUri($_conf['read_new_php'], array_merge($shinmatome_qs, array('norefresh' => '1'))),
+        UriUtil::buildQueryUri($_conf['read_new_php'], array_merge($shinmatome_qs, array('norefresh' => '1'))),
         hs($str),
         $shinmatome_accesskey_attrs
     );

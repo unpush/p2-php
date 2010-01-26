@@ -43,7 +43,7 @@ class ShowBrdMenuPc
                 
                 foreach ($cate->menuitas as $mita) {
                     
-                    $add_uri = P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'], array(
+                    $add_uri = UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'], array(
                         'host'      => $mita->host,
                         'bbs'       => $mita->bbs,
                         'itaj_en'   => $mita->itaj_en,
@@ -54,7 +54,7 @@ class ShowBrdMenuPc
                         'target' => '_self', 'class' => 'fav', 'title' => '‚¨‹C‚É”Â‚É’Ç‰Á'
                     ));
                     
-                    $subject_uri = P2Util::buildQueryUri($_conf['subject_php'], array(
+                    $subject_uri = UriUtil::buildQueryUri($_conf['subject_php'], array(
                         'host'    => $mita->host,
                         'bbs'     => $mita->bbs,
                         'itaj_en' => $mita->itaj_en
@@ -126,7 +126,7 @@ EOP;
 
             $itaj_en = base64_encode($itaj);
             
-            $uri = P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'], array(
+            $uri = UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'], array(
                 'host'    => $host,
                 'bbs'     => $bbs,
                 'setfavita' => '0',
@@ -154,7 +154,7 @@ EOP;
                     $newthre_ht = "{$_newthre_num}";
                 }
                 
-                $subject_uri = P2Util::buildQueryUri($_conf['subject_php'], array(
+                $subject_uri = UriUtil::buildQueryUri($_conf['subject_php'], array(
                     'host'    => $host,
                     'bbs'     => $bbs,
                     'itaj_en' => $itaj_en
@@ -163,7 +163,7 @@ EOP;
                     'onClick' => "chMenuColor('{$matome_i}');"
                 ));
                 
-                $read_new_uri = P2Util::buildQueryUri($_conf['read_new_php'], array(
+                $read_new_uri = UriUtil::buildQueryUri($_conf['read_new_php'], array(
                     'host'    => $host,
                     'bbs'     => $bbs
                 ));
@@ -186,7 +186,7 @@ EOP;
             // V’…”‚ğ•\¦‚µ‚È‚¢ê‡
             } else {
 
-                $subject_uri = P2Util::buildQueryUri($_conf['subject_php'], array(
+                $subject_uri = UriUtil::buildQueryUri($_conf['subject_php'], array(
                     'host'    => $host,
                     'bbs'     => $bbs,
                     'itaj_en' => $itaj_en

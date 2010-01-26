@@ -74,7 +74,7 @@ function sb_print_k(&$aThreadList)
     }
 
     $midoku_sort_ht = P2View::tagA(
-        P2Util::buildQueryUri($_conf['subject_php'], $qs),
+        UriUtil::buildQueryUri($_conf['subject_php'], $qs),
         'V’…'
     );
 
@@ -165,7 +165,7 @@ function sb_print_k(&$aThreadList)
             /*
             $ita_name_ht = sprintf('(%s)',
                 P2View::tagA(
-                    P2Util::buildQueryUri($_conf['subject_php'],
+                    UriUtil::buildQueryUri($_conf['subject_php'],
                         array(
                             'host' => $aThread->host,
                             'bbs'  => $aThread->bbs,
@@ -242,7 +242,7 @@ function sb_print_k(&$aThreadList)
             $classtitle_q = ' class="thre_title"';
         }
 
-        $thre_url = P2Util::buildQueryUri($_conf['read_php'],
+        $thre_url = UriUtil::buildQueryUri($_conf['read_php'],
             array_merge(array(
                 'host' => $aThread->host,
                 'bbs'  => $aThread->bbs,
@@ -252,7 +252,7 @@ function sb_print_k(&$aThreadList)
         ) . $anum_ht;
         
         // ƒIƒ“ƒŠ[>>1
-        $onlyone_url = P2Util::buildQueryUri($_conf['read_php'],
+        $onlyone_url = UriUtil::buildQueryUri($_conf['read_php'],
             array_merge(array(
                 'host' => $aThread->host,
                 'bbs'  => $aThread->bbs,
@@ -303,7 +303,7 @@ function sb_print_k(&$aThreadList)
                 $sid_q = hs('&' . session_name() . '=' . session_id());
             }
             
-            $setFavUri = P2Util::buildQueryUri('info_i.php',
+            $setFavUri = UriUtil::buildQueryUri('info_i.php',
                 array_merge(array(
                     'host' => $aThread->host,
                     'bbs'  => $aThread->bbs,

@@ -22,13 +22,13 @@ function index_print_k()
     );
     
     // p2ログイン用URL
-    $login_url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
-    $login_url_pc = P2Util::buildQueryUri($login_url,
+    $login_url = rtrim(dirname(UriUtil::getMyUri()), '/') . '/';
+    $login_url_pc = UriUtil::buildQueryUri($login_url,
         array(
             UA::getQueryKey() => 'pc'
         )
     );
-    $login_url_k = P2Util::buildQueryUri($login_url,
+    $login_url_k = UriUtil::buildQueryUri($login_url,
         array(
             UA::getQueryKey() => 'k',
             'user' => $_login->user_u
@@ -54,7 +54,7 @@ EOP;
     
     // 古いセッションIDがキャッシュされていることを考慮して、ユーザ情報を付加しておく
     // （リファラを考慮して、つけないほうがいい場合もあるので注意）
-    $narabikae_uri = P2Util::buildQueryUri('edit_indexmenui.php',
+    $narabikae_uri = UriUtil::buildQueryUri('edit_indexmenui.php',
         array(
             'user' => $_login->user_u,
             UA::getQueryKey() => UA::getQueryValue()
@@ -175,7 +175,7 @@ function _getMenuKLinkHtml($code, $menuKIni, $noLink = false)
         } else {
             $newtime = date('gis');
             $logHt = P2View::tagA(
-                P2Util::buildQueryUri('read_res_hist.php',
+                UriUtil::buildQueryUri('read_res_hist.php',
                     array(
                         'nt' => $newtime,
                         UA::getQueryKey() => UA::getQueryValue()

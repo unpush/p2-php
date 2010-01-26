@@ -20,13 +20,13 @@ function index_print_k()
     );
     
     // p2ログイン用URL
-    $login_url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
-    $login_url_pc = P2Util::buildQueryUri($login_url,
+    $login_url = rtrim(dirname(UriUtil::getMyUri()), '/') . '/';
+    $login_url_pc = UriUtil::buildQueryUri($login_url,
         array(
             UA::getQueryKey() => 'pc'
         )
     );
-    $login_url_k = P2Util::buildQueryUri($login_url,
+    $login_url_k = UriUtil::buildQueryUri($login_url,
         array(
             UA::getQueryKey() => 'k',
             'user' => $_login->user_u
@@ -54,7 +54,7 @@ EOP;
     // （リファラを考慮して、つけないほうがいい場合もあるので注意）
 
     $edit_indexmenuk_atag = P2View::tagA(
-        P2Util::buildQueryUri('edit_indexmenuk.php',
+        UriUtil::buildQueryUri('edit_indexmenuk.php',
             array(
                 'user' => $_login->user_u,
                 UA::getQueryKey() => UA::getQueryValue()
@@ -67,7 +67,7 @@ EOP;
     $rss_k_atag = '';
     if ($_conf['enable_rss']) {
         $rss_k_atag = P2View::tagA(
-            P2Util::buildQueryUri($_conf['menu_k_php'],
+            UriUtil::buildQueryUri($_conf['menu_k_php'],
                 array(
                     'view' => 'rss',
                     'user' => $_login->user_u,
@@ -198,7 +198,7 @@ function _getMenuKLinkHtml($code, $menuKIni, $noLink = false)
         } else {
             $newtime = date('gis');
             $logHt = P2View::tagA(
-                P2Util::buildQueryUri('read_res_hist.php',
+                UriUtil::buildQueryUri('read_res_hist.php',
                     array(
                         'nt' => $newtime,
                         UA::getQueryKey() => UA::getQueryValue()

@@ -15,7 +15,7 @@ $_login->authorize(); // ユーザ認証
 // {{{ 変数設定
 
 // menu_side.php の URL。（相対パス指定はできないようだ）
-$menu_side_url = dirname(P2Util::getMyUrl()) . '/menu_side.php';
+$menu_side_url = dirname(UriUtil::getMyUri()) . '/menu_side.php';
 
 BrdCtl::parseWord(); // set $GLOBALS['word']
 
@@ -75,7 +75,7 @@ if (!empty($sidebar)) {
 
 if ($_conf['enable_menu_new']) {
     $shownew_atag = P2View::tagA(
-        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'], array('shownew' => '1')),
+        UriUtil::buildQueryUri($_SERVER['SCRIPT_NAME'], array('shownew' => '1')),
         '更新',
         array('target' => '_self')
     );
@@ -182,7 +182,7 @@ if (strlen($GLOBALS['word'])) {
         if ($GLOBALS['ita_mikke']['num'] == 1) {
             $msg_ht .= '（自動オープンするよ）';
             
-            $location_uri = P2Util::buildQueryUri(
+            $location_uri = UriUtil::buildQueryUri(
                 $_conf['subject_php'],
                 array(
                     'host' => $GLOBALS['ita_mikke']['host'],
@@ -293,7 +293,7 @@ function _getRecentNewLinkHtml()
     $id = "sp{$matome_i}";
     
     $recent_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['subject_php'],
             array(
                 'spmode' => 'recent',
@@ -320,7 +320,7 @@ function _getRecentNewLinkHtml()
     }
     
     $recent_new_atag = P2View::tagA(
-        P2Util::buildQueryUri($_conf['read_new_php'], array('spmode' => 'recent')),
+        UriUtil::buildQueryUri($_conf['read_new_php'], array('spmode' => 'recent')),
         hs($shinchaku_num),
         $recent_new_attrs
     );
@@ -346,7 +346,7 @@ function _printMetaRereshHtml()
         if (defined('SID') && strlen(SID)) {
             $qs[session_name()] = session_id();
         }
-        $refresh_url = P2Util::buildQueryUri(P2Util::getMyUrl(), $qs);
+        $refresh_url = UriUtil::buildQueryUri(UriUtil::getMyUri(), $qs);
         ?><meta http-equiv="refresh" content="<?php eh($refresh_time_s) ?>;URL=<?php eh($refresh_url); ?>">
         <?php
     }

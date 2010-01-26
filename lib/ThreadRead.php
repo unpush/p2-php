@@ -740,7 +740,7 @@ class ThreadRead extends Thread
         }
         
         $remarutori_atag = P2View::tagA(
-            P2Util::buildQueryUri($_conf['read_php'],
+            UriUtil::buildQueryUri($_conf['read_php'],
                 array(
                     'host' => $this->host,
                     'bbs'  => $this->bbs,
@@ -1054,7 +1054,7 @@ class ThreadRead extends Thread
                 
                 $marutori_ht = sprintf(' [%s]',
                     P2View::tagA(
-                        P2Util::buildQueryUri($_conf['read_php'],
+                        UriUtil::buildQueryUri($_conf['read_php'],
                             array(
                                 'host' => $this->host,
                                 'bbs'  => $this->bbs,
@@ -1085,7 +1085,7 @@ class ThreadRead extends Thread
                 $dat_response_status = "隊長! 過去ログ倉庫で、html化されたスレッドを発見しました。";
                 $kakolog_uri = "http://{$this->host}/{$matches[1]}";
 
-                $read_kako_url = P2Util::buildQueryUri($_conf['read_php'],
+                $read_kako_url = UriUtil::buildQueryUri($_conf['read_php'],
                     array(
                         'host' => $this->host,
                         'bbs'  => $this->bbs,
@@ -1112,7 +1112,7 @@ class ThreadRead extends Thread
                 $dat_response_status = "隊長! スレッドはhtml化されるのを待っているようです。";
 
                 $marutori_atag = P2View::tagA(
-                    P2Util::buildQueryUri($_conf['read_php'],
+                    UriUtil::buildQueryUri($_conf['read_php'],
                         array(
                             'host' => $this->host,
                             'bbs'  => $this->bbs,
@@ -1133,7 +1133,7 @@ class ThreadRead extends Thread
                     $dat_response_status = "そんな板orスレッドないです。";
                     
                     $kako_html_url = $_GET['kakolog'] . ".html";
-                    $read_kako_url = P2Util::buildQueryUri($_conf['read_php'],
+                    $read_kako_url = UriUtil::buildQueryUri($_conf['read_php'],
                         array(
                             'host' => $this->host,
                             'bbs'  => $this->bbs,
@@ -1166,7 +1166,7 @@ class ThreadRead extends Thread
             $dat_response_status = '';
             
             $kako_html_url = $_GET['kakolog'] . '.html';
-            $read_kako_url = P2Util::buildQueryUri($_conf['read_php'],
+            $read_kako_url = UriUtil::buildQueryUri($_conf['read_php'],
                 array(
                     'host' => $this->host,
                     'bbs'  => $this->bbs,
@@ -1607,7 +1607,7 @@ class ThreadRead extends Thread
                     }
                 }
                 
-                // フィルタリング時は、全レス適用となる（$filter_range で別途処理される）
+                // フィルタリング時は、全レス適用となる（$_filter_range で別途処理される）
                 if (isset($GLOBALS['word'])) {
                     $start = 1;
                     $to = $this->rescount;
@@ -1699,6 +1699,22 @@ class ThreadRead extends Thread
         }
         
         return $parts;
+    }
+    
+    /**
+     * デフォルトのdat取得失敗エラーメッセージHTMLを取得する
+     *
+     * @param void
+     * @return string
+     */
+    public function getDefaultGetDatErrorMessageHTML()
+    {
+        global $_conf;
+
+        $diedat_msg = '<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b>';
+        $diedat_msg .= '</p>';
+
+        return $diedat_msg;
     }
 }
 

@@ -93,7 +93,7 @@ $autho_user_ht = '';
 $hr = P2View::getHrHtmlK();
 
 $edit_conf_user_atag = P2View::tagA(
-    P2Util::buildQueryUri(
+    UriUtil::buildQueryUri(
         'edit_conf_user.php',
         array(UA::getQueryKey() => UA::getQueryValue())
     ),
@@ -320,7 +320,7 @@ EOP;
 
 if (!$_conf['ktai']) {
     $dl_res_hist_log_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             basename($_SERVER['SCRIPT_NAME']),
             array(
                 'dl_res_hist_log' => 1,
@@ -339,7 +339,7 @@ if ($_conf['ktai']) {
 }
 
 $clear_res_hist_log_atag = P2View::tagA(
-    P2Util::buildQueryUri(
+    UriUtil::buildQueryUri(
         basename($_SERVER['SCRIPT_NAME']),
         array(
             'clear_res_hist_log' => 1,
@@ -354,7 +354,7 @@ $clear_res_hist_log_atag = P2View::tagA(
 
 if (!$_conf['ktai']) {
     $dl_recent_file_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             basename($_SERVER['SCRIPT_NAME']),
             array(
                 'dl_recent_file' => 1,
@@ -370,7 +370,7 @@ if (!$_conf['ktai']) {
 
 if (!$_conf['ktai']) {
     $dl_favlist_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             basename($_SERVER['SCRIPT_NAME']),
             array(
                 'dl_favlist_file' => 1,
@@ -386,7 +386,7 @@ if (!$_conf['ktai']) {
 
 if (!$_conf['ktai']) {
     $dl_palace_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             basename($_SERVER['SCRIPT_NAME']),
             array(
                 'dl_palace_file' => 1,
@@ -438,7 +438,7 @@ function _clearResHistLogByQuery()
     if (!empty($_GET['clear_res_hist_log'])) {
         /*
         $atag = P2View::tagA(
-            P2Util::buildQueryUri(
+            UriUtil::buildQueryUri(
                 basename($_SERVER['SCRIPT_NAME']),
                 array(
                     'do_clear_res_hist_log' => 1,
@@ -514,7 +514,7 @@ function _printEditFileHtml($path_value, $submit_value)
             'path'      => $path_value,
             UA::getQueryKey() => UA::getQueryValue()
         );
-        $url = $edit_php . '?' . P2Util::buildQuery($q_ar);
+        $url = $edit_php . '?' . UriUtil::buildQuery($q_ar);
         $html = P2View::tagA($url, $submit_value) . "\n";
     
     // editfile.php
@@ -667,7 +667,7 @@ function _printMatomeCacheLinksHtml()
             $b = filesize($file) / 1024;
             $kb = round($b, 0);
             $atag = P2View::tagA(
-                P2Util::buildQueryUri('read_new.php', array('cview' => '1', 'cnum' => "$i", 'filemtime' => $filemtime)),
+                UriUtil::buildQueryUri('read_new.php', array('cview' => '1', 'cnum' => "$i", 'filemtime' => $filemtime)),
                 hs($date),
                 array('target' => 'read')
             );

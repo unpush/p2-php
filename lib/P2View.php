@@ -18,7 +18,7 @@ class P2View
         $accessKeyValue = '0';
         
         return P2View::tagA(
-            P2Util::buildQueryUri('index.php',
+            UriUtil::buildQueryUri('index.php',
                 array(UA::getQueryKey() => UA::getQueryValue())
             ),
             hs($accessKeyValue . '.TOP'),
@@ -147,7 +147,7 @@ class P2View
     {
         global $_conf, $_login;
 
-        $href = P2Util::buildQueryUri('css.php',
+        $href = UriUtil::buildQueryUri('css.php',
             array(
                 'css'  => $css,
                 'user' => $_login->user_u,

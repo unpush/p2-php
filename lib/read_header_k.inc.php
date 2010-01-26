@@ -100,7 +100,7 @@ $read_navi_prev_anchor = '';
 //}
 
 if (!$read_navi_prev_isInvisible) {
-    $q = P2Util::buildQuery(array_merge(
+    $q = UriUtil::buildQuery(array_merge(
         $thread_qs,
         array(
             //'ls'        => "{$before_rnum}-{$aThread->resrange['start']}n",
@@ -147,7 +147,7 @@ if ($aThread->resrange['to'] == $aThread->rescount) {
 $after_rnum = $aThread->resrange['to'] + $rnum_range;
 
 if (!$read_navi_next_isInvisible) {
-    $url = P2Util::buildQueryUri($_conf['read_php'],
+    $url = UriUtil::buildQueryUri($_conf['read_php'],
         array_merge(
             $thread_qs,
             array(
@@ -309,7 +309,7 @@ function _getReadFooterNaviNewHtmls($aThread, $shinchaku_st)
     if ($aThread->resrange['to'] == $aThread->rescount) {
     
         // 新着レスの表示 <a>
-        $read_footer_navi_new_uri = P2Util::buildQueryUri($_conf['read_php'],
+        $read_footer_navi_new_uri = UriUtil::buildQueryUri($_conf['read_php'],
             array(
                 'host' => $aThread->host,
                 'bbs'  => $aThread->bbs,
@@ -353,7 +353,7 @@ function _getToolbarRightHtml($aThread, $ttitle_en, $siml_thre_st, $info_st, $de
     );
 
     $ita_atag      = P2View::tagA(
-        P2Util::buildQueryUri($_conf['subject_php'],
+        UriUtil::buildQueryUri($_conf['subject_php'],
             array_merge($thread_qs, $b_qs)
         ),
         "{$_conf['k_accesskey']['up']}." . hs($aThread->itaj),
@@ -368,7 +368,7 @@ function _getToolbarRightHtml($aThread, $ttitle_en, $siml_thre_st, $info_st, $de
         // 'refresh' => 1
     );
     $similar_atag  = P2View::tagA(
-        P2Util::buildQueryUri($_conf['subject_php'],
+        UriUtil::buildQueryUri($_conf['subject_php'],
             array_merge($similar_qs, $thread_qs, $b_qs, array('refresh' => '1'))
         ),
         $siml_thre_st
@@ -377,7 +377,7 @@ function _getToolbarRightHtml($aThread, $ttitle_en, $siml_thre_st, $info_st, $de
     $info_php = UA::isIPhoneGroup() ? 'info_i.php' : 'info.php';
 
     $info_atag     = P2View::tagA(
-        P2Util::buildQueryUri($info_php,
+        UriUtil::buildQueryUri($info_php,
             array_merge($thread_qs, $b_qs, array('ttitle_en' => $ttitle_en))
         ),
         "{$_conf['k_accesskey']['info']}." . hs($info_st),
@@ -385,7 +385,7 @@ function _getToolbarRightHtml($aThread, $ttitle_en, $siml_thre_st, $info_st, $de
     );
 
     $dele_atag     = P2View::tagA(
-        P2Util::buildQueryUri($info_php,
+        UriUtil::buildQueryUri($info_php,
             array_merge($thread_qs, $b_qs,
                 array(
                     'ttitle_en' => $ttitle_en,
@@ -411,7 +411,7 @@ function _getGetDatErrorMsgHtml($aThread)
     if ($aThread->getdat_error_msg_ht) {
         $diedat_msg_ht = $aThread->getdat_error_msg_ht;
     } else {
-        $diedat_msg_ht = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
+        $diedat_msg_ht = $aThread->getDefaultGetDatErrorMessageHTML();
     }
     return $diedat_msg_ht;
 }

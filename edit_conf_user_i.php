@@ -87,7 +87,7 @@ $ptitle = 'ユーザ設定編集';
 
 $csrfid = P2Util::getCsrfId();
 
-$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+$index_uri = UriUtil::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
 
 //=====================================================================
 // プリント

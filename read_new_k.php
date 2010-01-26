@@ -85,7 +85,7 @@ $lines = $aThreadList->readList();
 // ページヘッダ表示 ===================================
 $ptitle_ht = sprintf('%s の 新着まとめ読み', hs($aThreadList->ptitle));
 
-$ptitle_uri = P2Util::buildQueryUri($_conf['subject_php'],
+$ptitle_uri = UriUtil::buildQueryUri($_conf['subject_php'],
     array(
         'host'   => $aThreadList->host,
         'bbs'    => $aThreadList->bbs,
@@ -369,7 +369,7 @@ EOP;
 
     /*
     $read_footer_navi_new_ht = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['read_php'],
             array(
                 'host' => $aThread->host,
@@ -473,14 +473,14 @@ if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !emp
         $str = '新まとめを更新';
     }
     $read_new_atag = P2View::tagA(
-        P2Util::buildQueryUri($_conf['read_new_k_php'], $read_new_qs),
+        UriUtil::buildQueryUri($_conf['read_new_k_php'], $read_new_qs),
         "{$_conf['k_accesskey']['next']}.{$str}",
         $read_new_attrs
     );
     
 } else {
     $read_new_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['read_new_k_php'],
             array_merge(array('norefresh' => '1'), $read_new_qs)
         ),
@@ -518,7 +518,7 @@ function _getItaATag($aThread)
     global $_conf;
     
     return $ita_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['subject_php'],
             array(
                 'host' => $aThread->host,
@@ -544,7 +544,7 @@ function _getReadATag($aThread)
     }
     
     return $read_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['read_php'],
             array(
                 'host' => $aThread->host,
@@ -566,7 +566,7 @@ function _getReadATag($aThread)
 function _getInfoATag($aThread, $info_st)
 {
     return $info_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             'info.php',
             array(
                 'host' => $aThread->host,
@@ -588,7 +588,7 @@ function _getInfoATag($aThread, $info_st)
 function _getDeleATag($aThread, $dele_st)
 {
     return $dele_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             'info.php',
             array(
                 'host' => $aThread->host,
@@ -616,7 +616,7 @@ function _getDoResATag($aThread, $motothre_url)
         $dores_atag = P2View::tagA($motothre_url, '書', array('target' => '_blank'));
     } else {
         $dores_atag = P2View::tagA(
-            P2Util::buildQueryUri(
+            UriUtil::buildQueryUri(
                 'post_form.php',
                 array(
                     'host' => $aThread->host,

@@ -41,14 +41,14 @@ if ($aThreadList->spmode) {
         $attrs = array('class' => 'narabi', 'target' => '_self');
         if ($sb_view == 'edit') {
             $edit_atag = P2View::tagA(
-                P2Util::buildQueryUri($_conf['subject_php'], $qs),
+                UriUtil::buildQueryUri($_conf['subject_php'], $qs),
                 hs('•À‘Ö'),
                 $attrs
             );
             $edit_ht = $edit_atag;
         } else {
             $edit_atag = P2View::tagA(
-                P2Util::buildQueryUri($_conf['subject_php'], array_merge(array('sb_view' => 'edit'), $qs)),
+                UriUtil::buildQueryUri($_conf['subject_php'], array_merge(array('sb_view' => 'edit'), $qs)),
                 hs('•À‘Ö'),
                 $attrs
             );
@@ -159,7 +159,7 @@ if ($_conf['refresh_time']) {
     if (defined('SID') && strlen(SID)) {
         $qs[session_name()] = session_id();
     }
-    $refresh_url = $_conf['subject_php'] . '?' . P2Util::buildQuery($qs);
+    $refresh_url = $_conf['subject_php'] . '?' . UriUtil::buildQuery($qs);
     ?>
     <meta http-equiv="refresh" content="<?php eh($refresh_time_s) ?>;URL=<?php eh($refresh_url); ?>">
     <?php
@@ -344,7 +344,7 @@ function _getPageTitleUrl($aThreadList)
     $ptitle_url = '';
 
     if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
-        $ptitle_url = P2Util::buildQueryUri($_conf['subject_php'], array(
+        $ptitle_url = UriUtil::buildQueryUri($_conf['subject_php'], array(
             'host' => $aThreadList->host,
             'bbs'  => $aThreadList->bbs,
             UA::getQueryKey() => UA::getQueryValue()

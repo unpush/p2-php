@@ -328,6 +328,9 @@ class FileCtl
      */
     function garbageCollection($targetDir, $lifeTime, $prefix = '', $suffix = '', $recursive = FALSE)
     {
+        if (!strlen($targetDir)) {
+            return false;
+        }
         $result = array('successed' => array(), 'failed' => array(), 'skipped' => array());
         $expire = time() - $lifeTime;
         //ファイルリスト取得

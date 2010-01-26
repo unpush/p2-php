@@ -267,13 +267,9 @@ function _startSession()
     // 名前は、セッションクッキーを破棄するときのために、セッション利用の有無に関わらず設定する
     session_name('PS');
 
-    // セッションデータ保存ディレクトリを規定
-    if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
-        // $_conf['data_dir'] を絶対パスに変換する
-        define('P2_DATA_DIR_REAL_PATH', File_Util::realPath($_conf['data_dir']));
-        $_conf['session_dir'] = P2_DATA_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'session';
-    }
-
+    $cookie = session_get_cookie_params();
+    session_set_cookie_params($cookie['lifetime'], '/', P2Util::getCookieDomain(), $secure = false);
+    
     // css.php は特別にセッションから外す。
     //if (basename($_SERVER['SCRIPT_NAME']) == 'css.php') {
     //    return null;
@@ -281,33 +277,45 @@ function _startSession()
     
     if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && empty($_COOKIE['cid']))) { 
 
-        // {{{ セッションデータ保存ディレクトリを設定
-    
         if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
-
-            if (!is_dir($_conf['session_dir'])) {
-                require_once P2_LIB_DIR . '/FileCtl.php';
-                FileCtl::mkdirFor($_conf['session_dir'] . '/dummy_filename');
-            }
-            if (!is_writable($_conf['session_dir'])) {
-                die(sprintf(
-                    'p2 error: セッションデータ保存ディレクトリ (%s) に書き込み権限がありません。',
-                    hs($_conf['session_dir'])
-                ));
-            }
-
-            session_save_path($_conf['session_dir']);
-
-            // session.save_path のパスの深さが2より大きいとガーベッジコレクションが行われないので
-            // 自前でガーベッジコレクションする
-            P2Util::session_gc();
+            _prepareFileSession();
         }
-    
-        // }}}
 
         return new Session;
     }
     return null;
+}
+
+/**
+ * @return  void
+ */
+function _prepareFileSession()
+{
+    global $_conf;
+    
+    // セッションデータ保存ディレクトリを設定
+    if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
+        // $_conf['data_dir'] を絶対パスに変換する
+        define('P2_DATA_DIR_REAL_PATH', File_Util::realPath($_conf['data_dir']));
+        $_conf['session_dir'] = P2_DATA_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'session';
+    }
+    
+    if (!is_dir($_conf['session_dir'])) {
+        require_once P2_LIB_DIR . '/FileCtl.php';
+        FileCtl::mkdirFor($_conf['session_dir'] . '/dummy_filename');
+    }
+    if (!is_writable($_conf['session_dir'])) {
+        die(sprintf(
+            'p2 error: セッションデータ保存ディレクトリ (%s) に書き込み権限がありません。',
+            hs($_conf['session_dir'])
+        ));
+    }
+
+    session_save_path($_conf['session_dir']);
+
+    // session.save_path のパスの深さが2より大きいとガーベッジコレクションが行われないので
+    // 自前でガーベッジコレクションする
+    P2Util::session_gc();
 }
 
 /*

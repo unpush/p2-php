@@ -147,9 +147,8 @@ function printLoginFirst(&$_login)
     // {{{ ログイン用フォームを生成
     
     $ruri = $_SERVER['REQUEST_URI'];
-    if (!preg_match('/(\\?|&)guid=ON/i', $ruri)) {
-        $mark = (strpos($_SERVER['REQUEST_URI'], '?') === false) ? '?': '&';
-        $ruri = $_SERVER['REQUEST_URI'] . $mark . 'guid=ON';
+    if (UA::isDoCoMo()) {
+        $ruri = UriUtil::addQueryToUri($ruri, array('guid' => 'ON'));
     }
     $REQUEST_URI_hs = hs($ruri);
     

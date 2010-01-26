@@ -70,7 +70,7 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
                 'rescount' => $aThread->rescount,
                 'ttitle_en' => base64_encode($aThread->ttitle)
             );
-            $dores_uri = P2Util::buildQueryUri('post_form.php', $dores_qs);
+            $dores_uri = UriUtil::buildQueryUri('post_form.php', $dores_qs);
             
             $dores_onclick_qs = array_merge($dores_qs, array(
                 'popup' => '1',
@@ -78,7 +78,7 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
             if (defined('SID') && strlen(SID)) {
                 $dores_onclick_qs[session_name()] = session_id();
             }
-            $dores_onclick_uri = P2Util::buildQueryUri('post_form.php', $dores_onclick_qs);
+            $dores_onclick_uri = UriUtil::buildQueryUri('post_form.php', $dores_onclick_qs);
             
             $dores_atag = P2View::tagA(
                 $dores_uri,
@@ -128,7 +128,7 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
         }
         $after_rnum = $GLOBALS['last_hit_resnum'] + $rnum_range;
         $read_navi_next_ht = P2View::tagA(
-            P2Util::buildQueryUri($_conf['read_php'],
+            UriUtil::buildQueryUri($_conf['read_php'],
                 array_merge(array(
                     'host' => $aThread->host,
                     'bbs'  => $aThread->bbs,
@@ -210,7 +210,7 @@ function _getAllATag($aThread, $all_st)
     global $_conf;
     
     return $all_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['read_php'],
             array(
                 'host' => $aThread->host,
@@ -234,7 +234,7 @@ function _getLatestATag($aThread, $latest_st, $latest_show_res_num)
     global $_conf;
     
     return $latest_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['read_php'],
             array(
                 'host' => $aThread->host,
@@ -257,7 +257,7 @@ function _getTudukiATag($aThread, $tuduki_st)
     global $_conf;
     
     return P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['read_php'],
             array(
                 'host' => $aThread->host,

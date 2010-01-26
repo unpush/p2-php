@@ -86,7 +86,7 @@ $lines = $aThreadList->readList();
 // ページヘッダ表示 ===================================
 $ptitle_ht = sprintf('%s の 新着まとめ読み', hs($aThreadList->ptitle));
 
-$ptitle_uri = P2Util::buildQueryUri($_conf['subject_php'],
+$ptitle_uri = UriUtil::buildQueryUri($_conf['subject_php'],
     array(
         'host'   => $aThreadList->host,
         'bbs'    => $aThreadList->bbs,
@@ -474,7 +474,7 @@ EOP;
 
     /*
     $read_footer_navi_new_ht = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['read_php'],
             array(
                 'host' => $aThread->host,
@@ -558,7 +558,7 @@ if (!$aThreadList->num) {
     ?>新着レスはないぽ<?php
 }
 
-$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+$index_uri = UriUtil::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
 
 ?>
 <div id="footbar01">
@@ -624,7 +624,7 @@ function _getItaATag($aThread)
     global $_conf;
     
     return $ita_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['subject_php'],
             array(
                 'host' => $aThread->host,
@@ -650,7 +650,7 @@ function _getReadATag($aThread)
     }
     
     return $read_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             $_conf['read_php'],
             array(
                 'host' => $aThread->host,
@@ -672,7 +672,7 @@ function _getReadATag($aThread)
 function _getInfoATag($aThread, $info_st)
 {
     return $info_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             'info.php',
             array(
                 'host' => $aThread->host,
@@ -694,7 +694,7 @@ function _getInfoATag($aThread, $info_st)
 function _getDeleATag($aThread, $dele_st)
 {
     return $dele_atag = P2View::tagA(
-        P2Util::buildQueryUri(
+        UriUtil::buildQueryUri(
             'info.php',
             array(
                 'host' => $aThread->host,
@@ -722,7 +722,7 @@ function _getDoResATag($aThread, $motothre_url)
         $dores_atag = P2View::tagA($motothre_url, '書', array('target' => '_blank'));
     } else {
         $dores_atag = P2View::tagA(
-            P2Util::buildQueryUri(
+            UriUtil::buildQueryUri(
                 'post_form.php',
                 array(
                     'host' => $aThread->host,

@@ -83,7 +83,7 @@ EOP;
     $ptitle = "ƒŒƒX‘‚«ž‚Ý";
     $submit_value = "‘‚«ž‚Þ";
 
-    $uri = P2Util::buildQueryUri($_conf['read_php'],
+    $uri = UriUtil::buildQueryUri($_conf['read_php'],
         array(
             'host' => $host,
             'bbs'  => $bbs,

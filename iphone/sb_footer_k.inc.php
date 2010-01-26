@@ -26,7 +26,7 @@ if ($disp_navi['tugi_from'] <= $sb_disp_all_num) {
     );
     $qs = array_merge($word_qs, $qs);
     $tugi_ht = P2View::tagA(
-        P2Util::buildQueryUri($_conf['subject_php'], $qs),
+        UriUtil::buildQueryUri($_conf['subject_php'], $qs),
         hs("ŽŸ") // {$_conf['k_accesskey']['next']}.ŽŸ
         //,array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['next'])
     );
@@ -121,7 +121,7 @@ echo '<p>'. $htm['change_sort'] . '</p>';
 //echo "<hr>";
 printf('<p>%s</p>',
     P2View::tagA(
-        P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue())),
+        UriUtil::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue())),
         hs('TOP'),
         array($_conf['accesskey_for_k'] => '0')
     )
@@ -140,7 +140,7 @@ if ($taborn_link_atag) $foot_sure_ht .= "<span class=\"abon\">{$taborn_link_atag
 if ($mae_ht) $foot_sure_ht .= "<span class=\"mae\">{$mae_ht}</span>";
 if ($tugi_ht) $foot_sure_ht .= "<span class=\"tugi\">{$tugi_ht}</span>";
 
-$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+$index_uri = UriUtil::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
 ?>
 <?php echo $htm['change_sort']; ?> 
 <div id="foot">
@@ -191,7 +191,7 @@ function _getAllFavATag($aThreadList, $sb_view)
     
     $allfav_atag = '';
     if ($aThreadList->spmode == 'fav' && $sb_view == 'shinchaku') {
-        $uri = P2Util::buildQueryUri($_conf['subject_php'],
+        $uri = UriUtil::buildQueryUri($_conf['subject_php'],
             array(
                 'spmode' => 'fav',
                 'norefresh' => '1',
@@ -251,7 +251,7 @@ function _getTabornLinkATag($aThreadList, $ta_num)
     
     $taborn_link_atag = '';
     if (!empty($ta_num)) {
-        $uri = P2Util::buildQueryUri($_conf['subject_php'], array(
+        $uri = UriUtil::buildQueryUri($_conf['subject_php'], array(
             'host'   => $aThreadList->host,
             'bbs'    => $aThreadList->bbs,
             'norefresh' => '1',
@@ -270,7 +270,7 @@ function _getBuildNewThreadATag($aThreadList)
 {
     $buildnewthread_atag = '';
     if (!$aThreadList->spmode and !P2Util::isHostKossoriEnq($aThreadList->host)) {
-        $uri = P2Util::buildQueryUri('post_form_i.php', array(
+        $uri = UriUtil::buildQueryUri('post_form_i.php', array(
             'host'   => $aThreadList->host,
             'bbs'    => $aThreadList->bbs,
             'newthread' => '1',
@@ -304,7 +304,7 @@ function _getMaeATag($aThreadList, $disp_navi, $word_qs)
         );
         $qs = array_merge($word_qs, $qs);
         $mae_atag = P2View::tagA(
-            P2Util::buildQueryUri($_conf['subject_php'], $qs),
+            UriUtil::buildQueryUri($_conf['subject_php'], $qs),
             hs('‘O') // {$_conf['k_accesskey']['prev']}.‘O
             //,array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['prev'])
         );
@@ -321,7 +321,7 @@ function _getDatSokoATag($aThreadList)
     
     $dat_soko_atag = '';
     if (!$aThreadList->spmode or $aThreadList->spmode == 'taborn') {
-        $uri = P2Util::buildQueryUri($_conf['subject_php'], array(
+        $uri = UriUtil::buildQueryUri($_conf['subject_php'], array(
             'host'   => $aThreadList->host,
             'bbs'    => $aThreadList->bbs,
             'norefresh' => '1',

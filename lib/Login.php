@@ -188,7 +188,7 @@ class Login
             // $user_u_q = empty($_conf['ktai']) ? '' : '?user=' . $this->user_u;
 
             // indexページに転送
-            $url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/'; // . $user_u_q;
+            $url = rtrim(dirname(UriUtil::getMyUri()), '/') . '/'; // . $user_u_q;
             
             header('Location: ' . $url);
             exit;
@@ -340,7 +340,7 @@ class Login
             // ログインフォーム入力からは利用せず、専用認証リンクからのみ利用
             if (empty($_POST['form_login_id'])) {
 
-                if ($mobile->isDoCoMo() && $sn = $mobile->getSerialNumber() and HostCheck::isAddrDocomo()) {
+                if (P2Util::getDocomoUtnId() and HostCheck::isAddrDocomo()) {
                     if ($registed_docomo = $this->getRegistedAuthCarrier('DOCOMO')) {
                         if ($sn == $registed_docomo) {
                             if (isset($_p2session)) {
@@ -524,9 +524,8 @@ class Login
         
         } elseif (!empty($_REQUEST['ctl_regist_docomo'])) {
             if ($_REQUEST['regist_docomo'] == '1') {
-                // UAに含まれるシリアルIDを取得
-                $mobile = &Net_UserAgent_Mobile::singleton();
-                if ($mobile->isDoCoMo() && $sn = $mobile->getSerialNumber()) {
+                // UAに含まれるシリアルIDを取得(utn)
+                if ($sn = P2Util::getDocomoUtnId()) {
                     $this->registAuthCarrier('DOCOMO', $sn);
                 } else {
                     P2Util::pushInfoHtml('<p class="infomsg">×docomo用固有IDでの認証登録はできませんでした</p>');

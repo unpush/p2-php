@@ -44,7 +44,7 @@ if (!$_conf['res_write_rec']) {
     $karappoMsgHtml .= sprintf(
         '<p>現在、書き込み内容ログは記録しない設定になっています。<br>設定は、%sのページで変更可能です。</p>',
         P2View::tagA(
-            P2Util::buildQueryUri('edit_conf_user.php',
+            UriUtil::buildQueryUri('edit_conf_user.php',
                 array(UA::getQueryKey() => UA::getQueryValue())
             ),
             hs('設定編集'),
