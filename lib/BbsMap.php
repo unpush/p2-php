@@ -287,7 +287,7 @@ class BbsMap
                 return self::$_map;
             }
         } else {
-            FileCtl::mkdir_for($map_cache_path);
+            FileCtl::mkdirFor($map_cache_path);
         }
         touch($map_cache_path);
         clearstatcache();

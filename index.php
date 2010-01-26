@@ -159,7 +159,7 @@ function makeDenyHtaccess($dir)
     $hta = $dir . '/.htaccess';
     if (!file_exists($hta)) {
         if (!is_dir($dir)) {
-            FileCtl::mkdir_for($hta);
+            FileCtl::mkdirFor($hta);
         }
         $data = 'Order allow,deny'."\n".'Deny from all'."\n";
         FileCtl::file_write_contents($hta, $data);

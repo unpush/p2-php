@@ -86,7 +86,7 @@ switch ($type) {
 // }}}
 
 if (!is_dir($_conf['compile_dir'])) {
-    FileCtl::mkdir_r($_conf['compile_dir']);
+    FileCtl::mkdirRecursive($_conf['compile_dir']);
 }
 
 // テンプレートをコンパイル

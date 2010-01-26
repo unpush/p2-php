@@ -1472,7 +1472,7 @@ EOF;
         } else {
             // gzip tempファイルに保存・PHPで解凍読み込み
             if (!is_dir($_conf['tmp_dir'])) {
-                FileCtl::mkdir_r($_conf['tmp_dir']);
+                FileCtl::mkdirRecursive($_conf['tmp_dir']);
             }
 
             $gztempfile = tempnam($_conf['tmp_dir'], 'gz_');

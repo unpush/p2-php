@@ -342,7 +342,7 @@ function readNew($aThread)
     //hostを分解してidxファイルのパスを求める
     $aThread->setThreadPathInfo($aThread->host, $aThread->bbs, $aThread->key);
 
-    //FileCtl::mkdir_for($aThread->keyidx); // 板ディレクトリが無ければ作る //この操作はおそらく不要
+    //FileCtl::mkdirFor($aThread->keyidx); // 板ディレクトリが無ければ作る //この操作はおそらく不要
 
     $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
     if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }

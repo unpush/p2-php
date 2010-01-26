@@ -80,7 +80,7 @@ class SettingTxt
 
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 
-        FileCtl::mkdir_for($this->_setting_txt); // 板ディレクトリが無ければ作る
+        FileCtl::mkdirFor($this->_setting_txt); // 板ディレクトリが無ければ作る
 
         if (file_exists($this->_setting_srd) && file_exists($this->_setting_txt)) {
             // 更新しない場合は、その場で抜けてしまう

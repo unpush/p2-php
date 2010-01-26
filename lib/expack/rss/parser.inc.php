@@ -47,7 +47,7 @@ function p2GetRSS($remotefile, $atom = 0)
 
     // 保存用ディレクトリがなければつくる
     if (!is_dir(dirname($localpath))) {
-        FileCtl::mkdir_for($localpath);
+        FileCtl::mkdirFor($localpath);
     }
 
     // If-Modified-Sinceつきでダウンロード（ファイルが無いか、古いか、強制リロードのとき）
@@ -167,7 +167,7 @@ function atom_to_rss($input, $stylesheet, $output)
 
     // 保存用ディレクトリがなければつくる
     if (!is_dir(dirname($output))) {
-        FileCtl::mkdir_for($output);
+        FileCtl::mkdirFor($output);
     }
 
     // 変換

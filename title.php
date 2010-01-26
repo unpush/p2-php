@@ -184,7 +184,7 @@ function checkUpdatan()
 
     $ver_txt_url = $_conf['expack.web_url'] . 'version.txt';
     $cachefile = P2Util::cacheFileForDL($ver_txt_url);
-    FileCtl::mkdir_for($cachefile);
+    FileCtl::mkdirFor($cachefile);
 
     if (file_exists($cachefile)) {
         // キャッシュの更新が指定時間以内なら

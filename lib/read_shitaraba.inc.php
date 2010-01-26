@@ -45,7 +45,7 @@ function shitarabaDownload(ThreadRead $aThread)
 
     $tempfile = $aThread->keydat.'.dat.temp';
 
-    FileCtl::mkdir_for($tempfile);
+    FileCtl::mkdirFor($tempfile);
     $machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
 
     if ($machiurl_res->isError()) {

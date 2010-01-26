@@ -44,7 +44,7 @@ abstract class AbstractDataStore
         }
 
         if (!file_exists($databasePath) && !is_dir(dirname($databasePath))) {
-            FileCtl::mkdir_for($databasePath);
+            FileCtl::mkdirFor($databasePath);
         }
 
         try {

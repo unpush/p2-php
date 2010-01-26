@@ -92,7 +92,7 @@ class SubjectTxt
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 
         if ($this->storage == 'file') {
-            FileCtl::mkdir_for($this->subject_file); // 板ディレクトリが無ければ作る
+            FileCtl::mkdirFor($this->subject_file); // 板ディレクトリが無ければ作る
 
             if (file_exists($this->subject_file)) {
                 if (!empty($_REQUEST['norefresh']) || (empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {

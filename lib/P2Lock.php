@@ -48,7 +48,7 @@ class P2Lock
         $this->_filename = p2_realpath($name . $suffix);
         $this->_remove = $remove;
 
-        FileCtl::mkdir_for($this->_filename);
+        FileCtl::mkdirFor($this->_filename);
 
         $this->_fh = fopen($this->_filename, 'wb');
         if (!$this->_fh) {

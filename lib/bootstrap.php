@@ -633,7 +633,7 @@ session_name('PS');
 
 if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
     if (!is_dir($_conf['session_dir'])) {
-        FileCtl::mkdir_r($_conf['session_dir']);
+        FileCtl::mkdirRecursive($_conf['session_dir']);
     } elseif (!is_writable($_conf['session_dir'])) {
         p2die("セッションデータ保存ディレクトリ ({$_conf['session_dir']}) に書き込み権限がありません。");
     }

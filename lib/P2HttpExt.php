@@ -302,7 +302,7 @@ class P2HttpGet extends HttpRequest
         if (!isset($options['lastmodified']) && file_exists($destination)) {
             $options['lastmodified'] = filemtime($destination);
         } else {
-            FileCtl::mkdir_for($destination);
+            FileCtl::mkdirFor($destination);
         }
 
         $this->_destination = $destination;

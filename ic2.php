@@ -50,7 +50,7 @@ if (empty($id) && empty($uri) && empty($file)) {
 }
 
 if (!is_dir($_conf['tmp_dir'])) {
-    FileCtl::mkdir_r($_conf['tmp_dir']);
+    FileCtl::mkdirRecursive($_conf['tmp_dir']);
 }
 
 if (!empty($uri)) {

@@ -70,7 +70,7 @@ EOF;
         }
 
         if (!file_exists($_conf['hostcheck_db_path'])) {
-            FileCtl::mkdir_for($_conf['hostcheck_db_path']);
+            FileCtl::mkdirFor($_conf['hostcheck_db_path']);
         }
         $kvs = P2KeyValueStore::getStore($_conf['hostcheck_db_path']);
 

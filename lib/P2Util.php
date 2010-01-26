@@ -357,7 +357,7 @@ class P2Util
 
         $cachefile = $_conf['cache_dir'] . '/' . $save_uri;
 
-        FileCtl::mkdir_for($cachefile);
+        FileCtl::mkdirFor($cachefile);
 
         return $cachefile;
     }
@@ -1972,7 +1972,7 @@ ERR;
         global $_conf;
 
         if (!is_dir($_conf['db_dir'])) {
-            FileCtl::mkdir_r($_conf['db_dir']);
+            FileCtl::mkdirRecursive($_conf['db_dir']);
         }
 
         try {
