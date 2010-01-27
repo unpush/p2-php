@@ -90,7 +90,7 @@ class DownloadDatMachiBbs implements DownloadDatInterface
         foreach ($lines as $i => $line) {
             if (substr_count($line, '<>') >= 4) { // Œµ–§‚É‚Í "=== 5"
                 // s“ª‚Ì "ƒŒƒX”Ô†<>" ‚Í•Û‘¶‚µ‚È‚¢
-                fwrite($fp, substr($line, strpos($line, '<>' + 2)));
+                fwrite($fp, substr($line, strpos($line, '<>') + 2));
                 $thread->gotnum++;
             } else {
                 $lineno = $i + 1;
