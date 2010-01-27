@@ -595,6 +595,8 @@ function showPostMsg($isDone, $result_msg, $reload)
     // プリント用変数 ===============
     if (!$_conf['ktai']) {
         $class_ttitle = ' class="thre_title"';
+    } else {
+        $class_ttitle = '';
     }
     $ttitle_ht = "<b{$class_ttitle}>{$ttitle}</b>";
     // 2005/03/01 aki: jigブラウザに対応するため、&amp; ではなく & で

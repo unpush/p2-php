@@ -12,7 +12,9 @@ $_login->authorize(); // ƒ†[ƒU”FØ
 //==============================================================
 $_conf['ktai'] = 1;
 $brd_menus = array();
-$GLOBALS['menu_show_ita_num'] = 0;
+$menu_show_ita_num = 0;
+$list_navi_ht = '';
+$modori_url_ht = '';
 
 // {{{ ”ÂŒŸõ‚Ì‚½‚ß‚Ìİ’è
 

@@ -135,6 +135,10 @@ if ($hd['mail'] === 'P2NULL') {
 // 参考 クラシック COLS='60' ROWS='8'
 $mobile = Net_UserAgent_Mobile::singleton();
 $wrap_at = ''; // wrap属性はW3C HTML 4.01仕様に存在しない
+$name_size_at = '';
+$mail_size_at = '';
+$msg_cols_at = '';
+
 // PC
 if (!$_conf['ktai']) {
     $name_size_at = ' size="19"';
@@ -146,7 +150,6 @@ if (!$_conf['ktai']) {
 // 携帯
 } else {
     $STYLE['post_msg_rows'] = 5;
-    $msg_cols_at = '';
     $wrap_at = ' wrap="soft"';
 }
 

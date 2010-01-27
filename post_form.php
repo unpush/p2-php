@@ -43,6 +43,10 @@ if (!$_conf['ktai']) {
     $class_ttitle = ' class="thre_title"';
     $target_read = ' target="read"';
     $sub_size_at = ' size="40"';
+} else {
+    $class_ttitle = '';
+    $target_read = '';
+    $sub_size_at = '';
 }
 
 // {{{ ƒXƒŒ—§‚Ä‚È‚ç

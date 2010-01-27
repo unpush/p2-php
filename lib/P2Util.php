@@ -1071,6 +1071,13 @@ class P2Util
         // 変数設定
         $date = date('Y/m/d (D) G:i:s');
 
+        // IPアドレスを取得
+        if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
+            $remote_addr = $_SERVER['REMOTE_ADDR'];
+        } else {
+            $remote_addr = '';
+        }
+
         // HOSTを取得
         if (array_key_exists('REMOTE_HOST', $_SERVER)) {
             $remote_host = $_SERVER['REMOTE_HOST'];
@@ -1084,12 +1091,24 @@ class P2Util
             $remote_host = '';
         }
 
+        // UAを取得
+        if (array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
+            $user_agent = $_SERVER['HTTP_USER_AGENT'];
+        } else {
+            $user_agent = '';
+        }
+
+        // リファラを取得
+        if (array_key_exists('HTTP_REFERER', $_SERVER)) {
+            $referrer = $_SERVER['HTTP_REFERER'];
+        } else {
+            $referrer = '';
+        }
+
         $user = (isset($_login->user_u)) ? $_login->user_u : '';
 
         // 新しいログ行を設定
-        $newdata = implode('<>', array($date, $_SERVER['REMOTE_ADDR'], $remote_host,
-                                       $_SERVER['HTTP_USER_AGENT'], $_SERVER['HTTP_REFERER'],
-                                       '', $user));
+        $newdata = implode('<>', array($date, $remote_addr, $remote_host, $user_agent, $referrer, '', $user));
         //$newdata = htmlspecialchars($newdata, ENT_QUOTES);
 
         // まずタブを全て外して
