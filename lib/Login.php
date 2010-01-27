@@ -129,7 +129,8 @@ class Login
 
         // {{{ 認証チェック
 
-        if (!$this->_authCheck()) {
+        $auth_result = $this->_authCheck();
+        if (!$auth_result) {
             // ログイン失敗
             if (!function_exists('printLoginFirst')) {
                 include P2_LIB_DIR . '/login_first.inc.php';
@@ -199,6 +200,12 @@ class Login
         // セッションを認証以外に使わない場合は閉じる
         if (P2_SESSION_CLOSE_AFTER_AUTHENTICATION) {
             session_write_close();
+        }
+
+        // _authCheck() が文字列を返したときは、URLと見なしてリダイレクト
+        if (is_string($auth_result)) {
+            header('Location: ' . $auth_result);
+            exit;
         }
 
         return true;
@@ -413,7 +420,9 @@ class Login
                 // ログインログを記録する
                 $this->logLoginSuccess();
 
-                return true;
+                // リダイレクト
+                return $_SERVER['REQUEST_URI'];
+                //return true;
 
             // フォームログイン失敗なら
             } else {
@@ -761,7 +770,7 @@ EOP;
         $user_time  = $user_u . ':' . time() . ':';
         $md5_utpx = md5($user_time . $pass_x);
         $cid_src  = $user_time . $md5_utpx;
-        return $cid = MD5Crypt::encrypt($cid_src, self::getMd5CryptPassForCid());
+        return MD5Crypt::encrypt($cid_src, self::getMd5CryptPassForCid());
     }
 
     // }}}
@@ -778,8 +787,12 @@ EOP;
 
         $dec = MD5Crypt::decrypt($cid, self::getMd5CryptPassForCid());
 
-        $user = $time = $md5_utpx = null;
-        list($user, $time, $md5_utpx) = explode(':', $dec, 3);
+        $cid_info = explode(':', $dec);
+        if (count($cid_info) != 3) {
+            return false;
+        }
+
+        list($user, $time, $md5_utpx) = $cid_info;
         if (!strlen($user) || !$time || !$md5_utpx) {
             return false;
         }
@@ -788,7 +801,8 @@ EOP;
         if (time() > $time + (60*60*24 * $_conf['cid_expire_day'])) {
             return false; // 期限切れ
         }
-        return array($user, $time, $md5_utpx);
+
+        return $cid_info;
     }
 
     // }}}

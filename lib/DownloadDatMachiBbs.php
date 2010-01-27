@@ -6,7 +6,7 @@
 // {{{ DownloadDatMachiBbs
 
 /**
- * まちBBSのoffraw.cgiから生datを取得する
+ * まちBBSのofflaw.cgiから生datを取得する
  *
  * @link http://www.machi.to/offlaw.txt
  */
@@ -38,7 +38,7 @@ class DownloadDatMachiBbs implements DownloadDatInterface
         }
 
         // }}}
-        // {{{ offraw.cgiからdatをダウンロード
+        // {{{ offlaw.cgiからdatをダウンロード
 
         $host = $thread->host;
         $bbs = $thread->bbs;

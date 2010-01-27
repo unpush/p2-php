@@ -83,10 +83,10 @@ EOP;
 //====================================================
 $mobile = Net_UserAgent_Mobile::singleton();
 
+$p_htm['auth_ctl'] = '';
+
 // docomo認証
 if ($mobile->isDoCoMo()) {
-    $p_htm['auth_ctl'] = '';
-
     if (file_exists($_conf['auth_imodeid_file'])) {
         $p_htm['auth_ctl'] .= <<<EOP
 iモードID認証登録済[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_imodeid=1{$_conf['k_at_a']}">解除</a>]<br>
