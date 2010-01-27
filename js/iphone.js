@@ -405,7 +405,7 @@ iutil.setAccessKeys = function(contextNode) {
 		iutil.accessKeys[hashKey].dispatchEvent(clickEvent);
 
 		return false;
-	}, false);
+	}, true);
 };
 
 // ]}}
