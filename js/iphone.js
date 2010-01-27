@@ -43,7 +43,12 @@ var iutil = {
 	 * ラベルクリックのコールバック関数コンテナ
 	 * @type {Object}
 	 */
-	'labelActions': {}
+	'labelActions': {},
+	/**
+	 * accesskey属性持ちのアンカー要素コンテナ
+	 * @type {Object}
+	 */
+	'accessKeys': {}
 };
 
 // }}}
@@ -315,6 +320,95 @@ iutil.setHashScrool = function(contextNode) {
 	}
 };
 
+// }}}
+// {{{ setAccessKeys()
+
+/**
+ * 指定キー + [0-9*#] の組み合わせのキーバインドを登録する
+ *
+ * 作り込みが甘いので封印。
+ *
+ * @param {Node|String} contextNode
+ * @return void
+ */
+iutil.setAccessKeys = function(contextNode) {
+	var anchors, anchor, accessKey, hashKey, i, l;
+
+	switch (typeof contextNode) {
+		case 'string':
+			contextNode = document.getElementById(contextNode);
+			break;
+		case 'undefined':
+			contextNode = document.body;
+			break;
+	}
+	if (!contextNode) {
+		return;
+	}
+
+	anchors = document.evaluate('.//a[@accesskey]',
+	                            contextNode, null,
+	                            XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	l = anchors.snapshotLength;
+
+	for (i = 0; i < l; i++) {
+		anchor = anchors.snapshotItem(i);
+		accessKey = anchor.getAttribute('accesskey');
+		hashKey = 'a' + accessKey.charCodeAt(0).toString();
+		iutil.accessKeys[hashKey] = anchor;
+	}
+
+	window.addEventListener('keypress', function (event) {
+		var accessKey, hashKey, keyCode, clickEvent;
+
+		event = event || window.event;
+		if (!(event.ctrlKey || event.metaKey)) {
+			return true;
+		}
+
+		keyCode = event.keyCode;
+		if (48 <= keyCode && keyCode <= 57) { // [0-9]
+			accessKey = (keyCode - 48).toString();
+		} else if (keyCode === 45) { // '-' を '*' にマップ
+			accessKey = '*';
+		} else if (keyCode === 126) { // '~' を '#' にマップ
+			accessKey = '#';
+		} else {
+			return true;
+		}
+
+		hashKey = 'a' + accessKey.charCodeAt(0).toString();
+		if (typeof iutil.accessKeys[hashKey] === 'undefined') {
+			return true;
+		}
+
+		iutil.stopEvent(event);
+
+		clickEvent = document.createEvent('MouseEvents');
+		clickEvent.initMouseEvent(
+			'click', // type 
+			true, // bubbles 
+			true, // cancelable 
+			window, // view 
+			1, // detail 
+			0, // screenX 
+			0, // screenY 
+			0, // clientX 
+			0, // clientY 
+			false, // ctrlKey 
+			false, // altKey 
+			false, // shiftKey 
+			false, // metaKey 
+			0, // button 
+			null // relatedTarget
+		);
+		iutil.accessKeys[hashKey].dispatchEvent(clickEvent);
+
+		return false;
+	}, false);
+};
+
+// ]}}
 // {{{ adjustTextareaSize()
 
 /**
@@ -1064,6 +1158,11 @@ window.addEventListener('DOMContentLoaded', function(event) {
 			iutil.setLabelAction(document.body);
 			//iutil.setHashScrool(document.body);
 		}
+
+		// accesskeyをバインドする
+		//if (!iutil.iphone && typeof window.iui === 'undefined') {
+		//	iutil.setAccessKeys(document.body);
+		//}
 
 		// textareaの幅を調整
 		iutil.adjustTextareaSize();

@@ -256,6 +256,7 @@ class P2Util
         // DL
         $wap_ua = new WapUserAgent();
         $wap_ua->setTimeout($_conf['http_conn_timeout'], $_conf['http_read_timeout']);
+        $wap_ua->setAtFsockopen(true);
         $wap_req = new WapRequest();
         $wap_req->setUrl($url);
         $wap_req->setModified($modified);

@@ -469,57 +469,34 @@ EOS;
 }
 
 // 携帯用「トップに戻る」リンクとaccesskey
+
+// デフォルト値
+$accesskeys = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '#');
+$_conf['k_accesskey_at'] = array();
+foreach ($accesskeys as $key) {
+    $_conf['k_accesskey_at'][$key] = " accesskey=\"{$key}\"";
+}
+$_conf['k_accesskey_st'] = array_combine($accesskeys, array_fill(0, count($accesskeys), ''));
+
 if ($_conf['ktai']) {
     // iPhone
     if ($_conf['iphone']) {
-        $_conf['k_accesskey_at'] = array_fill(0, 10, '');
-        $_conf['k_accesskey_at']['*'] = '';
-        $_conf['k_accesskey_at']['#'] = '';
-        foreach ($_conf['k_accesskey'] as $name => $key) {
-            $_conf['k_accesskey_at'][$name] = '';
+        // 強制iPhoneビュー以外はaccesskeyを使わない
+        if ($_conf['client_type'] == 'i') {
+            $_conf['k_accesskey_at'] = $_conf['k_accesskey_st'];
         }
-
-        $_conf['k_accesskey_st'] = $_conf['k_accesskey_at'];
-
         $_conf['k_to_index_ht'] = <<<EOP
-<a href="index.php{$_conf['k_at_q']}" class="button">TOP</a>
+<a href="index.php{$_conf['k_at_q']}" class="button"{$_conf['k_accesskey_at'][0]}>TOP</a>
 EOP;
 
     // その他
     } else {
-        // SoftBank Mobile
+        // SoftBank Mobile 旧型端末
         if ($_conf['accesskey'] == 'DIRECTKEY') {
-            $_conf['k_accesskey_at'] = array(
-                '0' => ' directkey="0" nonumber',
-                '1' => ' directkey="1" nonumber',
-                '2' => ' directkey="2" nonumber',
-                '3' => ' directkey="3" nonumber',
-                '4' => ' directkey="4" nonumber',
-                '5' => ' directkey="5" nonumber',
-                '6' => ' directkey="6" nonumber',
-                '7' => ' directkey="7" nonumber',
-                '8' => ' directkey="8" nonumber',
-                '9' => ' directkey="9" nonumber',
-                '*' => ' directkey="*" nonumber',
-                '#' => ' directkey="#" nonumber',
-            );
-
-        // その他
-        } else {
-            $_conf['k_accesskey_at'] = array(
-                '0' => ' accesskey="0"',
-                '1' => ' accesskey="1"',
-                '2' => ' accesskey="2"',
-                '3' => ' accesskey="3"',
-                '4' => ' accesskey="4"',
-                '5' => ' accesskey="5"',
-                '6' => ' accesskey="6"',
-                '7' => ' accesskey="7"',
-                '8' => ' accesskey="8"',
-                '9' => ' accesskey="9"',
-                '*' => ' accesskey="*"',
-                '#' => ' accesskey="#"',
-            );
+            $_conf['k_accesskey_at'] = array();
+            foreach ($accesskeys as $key) {
+                $_conf['k_accesskey_at'][$key] = " directkey=\"{$key}\" nonumber";
+            }
         }
 
         switch ($_conf['mobile.display_accesskey']) {
@@ -529,43 +506,29 @@ EOP;
             }
             $emoji = p2_get_emoji($mobile);
             //$emoji = p2_get_emoji(Net_UserAgent_Mobile::factory('KDDI-SA31 UP.Browser/6.2.0.7.3.129 (GUI) MMP/2.0'));
-            $_conf['k_accesskey_st'] = array(
-                '0' => $emoji[0],
-                '1' => $emoji[1],
-                '2' => $emoji[2],
-                '3' => $emoji[3],
-                '4' => $emoji[4],
-                '5' => $emoji[5],
-                '6' => $emoji[6],
-                '7' => $emoji[7],
-                '8' => $emoji[8],
-                '9' => $emoji[9],
-                '*' => $emoji['*'],
-                '#' => $emoji['#'],
-            );
+            $_conf['k_accesskey_st'] = array();
+            foreach ($accesskeys as $key) {
+                $_conf['k_accesskey_st'][$key] = $emoji[$key];
+            }
             break;
         case 0:
-            $_conf['k_accesskey_st'] = array_fill(0, 10, '');
-            $_conf['k_accesskey_st']['*'] = '';
-            $_conf['k_accesskey_st']['#'] = '';
             break;
         case 1:
         default:
-            $_conf['k_accesskey_st'] = array(
-                0 => '0.', 1 => '1.', 2 => '2.', 3 => '3.', 4 => '4.',
-                5 => '5.', 6 => '6.', 7 => '7.', 8 => '8.', 9 => '9.',
-                '*' => '*.', '#' => '#.'
-            );
-        }
-
-        foreach ($_conf['k_accesskey'] as $name => $key) {
-            $_conf['k_accesskey_at'][$name] = $_conf['k_accesskey_at'][$key];
-            $_conf['k_accesskey_st'][$name] = $_conf['k_accesskey_st'][$key];
+            $_conf['k_accesskey_st'] = array();
+            foreach ($accesskeys as $key) {
+                $_conf['k_accesskey_st'][$key] = $key . '.';
+            }
         }
 
         $_conf['k_to_index_ht'] = <<<EOP
 <a href="index.php{$_conf['k_at_q']}"{$_conf['k_accesskey_at'][0]}>{$_conf['k_accesskey_st'][0]}TOP</a>
 EOP;
+    }
+
+    foreach ($_conf['k_accesskey'] as $name => $key) {
+        $_conf['k_accesskey_at'][$name] = $_conf['k_accesskey_at'][$key];
+        $_conf['k_accesskey_st'][$name] = $_conf['k_accesskey_st'][$key];
     }
 }
 
