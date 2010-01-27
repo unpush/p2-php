@@ -1052,21 +1052,7 @@ class ThreadRead extends Thread
             $marutori_ht = '';
             //if (file_exists($_conf['idpw2ch_php']) || file_exists($_conf['sid2ch_php'])) {
                 
-                $marutori_ht = sprintf(' [%s]',
-                    P2View::tagA(
-                        UriUtil::buildQueryUri($_conf['read_php'],
-                            array(
-                                'host' => $this->host,
-                                'bbs'  => $this->bbs,
-                                'key'  => $this->key,
-                                'ls'   => $this->ls,
-                                'maru' => 'true',
-                                UA::getQueryKey() => UA::getQueryValue()
-                            )
-                        ),
-                        hs('●IDでp2に取り込む')
-                    )
-                );
+                $marutori_ht = ' ' . $this->getMarutoriHtml();
                 
             //} else {
             //    $marutori_ht = "<a href=\"login2ch.php?b={$_conf['b']}\" target=\"subject\">●IDログイン</a>";
@@ -1085,17 +1071,7 @@ class ThreadRead extends Thread
                 $dat_response_status = "隊長! 過去ログ倉庫で、html化されたスレッドを発見しました。";
                 $kakolog_uri = "http://{$this->host}/{$matches[1]}";
 
-                $read_kako_url = UriUtil::buildQueryUri($_conf['read_php'],
-                    array(
-                        'host' => $this->host,
-                        'bbs'  => $this->bbs,
-                        'key'  => $this->key,
-                        'ls'   => $this->ls,
-                        'kakolog' => $kakolog_uri,
-                        'kakoget' => '1',
-                        UA::getQueryKey() => UA::getQueryValue()
-                    )
-                );
+                $read_kako_url = $this->getReadKakologUri($kakolog_uri);
 
                 $soko_atag = P2View::tagA($kakolog_uri . '.html',
                     'スレッド ' . $matches[3] . '.html',
@@ -1110,22 +1086,7 @@ class ThreadRead extends Thread
                 
             } elseif (preg_match($waithtml_match, $read_response_html, $matches)) {
                 $dat_response_status = "隊長! スレッドはhtml化されるのを待っているようです。";
-
-                $marutori_atag = P2View::tagA(
-                    UriUtil::buildQueryUri($_conf['read_php'],
-                        array(
-                            'host' => $this->host,
-                            'bbs'  => $this->bbs,
-                            'key'  => $this->key,
-                            'ls'   => $this->ls,
-                            'maru' => 'true',
-                            UA::getQueryKey() => UA::getQueryValue()
-                        )
-                    ),
-                    hs('●IDでp2に取り込む')
-                );
-                $marutori_ht = " [$marutori_atag]";
-                
+                $marutori_ht = ' ' . $this->getMarutoriHtml();
                 $dat_response_msg_ht = "<p>2ch info - 隊長! スレッドはhtml化されるのを待っているようです。 {$marutori_ht}</p>";
                 
             } else {
@@ -1133,17 +1094,7 @@ class ThreadRead extends Thread
                     $dat_response_status = "そんな板orスレッドないです。";
                     
                     $kako_html_url = $_GET['kakolog'] . ".html";
-                    $read_kako_url = UriUtil::buildQueryUri($_conf['read_php'],
-                        array(
-                            'host' => $this->host,
-                            'bbs'  => $this->bbs,
-                            'key'  => $this->key,
-                            'ls'   => $this->ls,
-                            'kakolog' => $_GET['kakolog'],
-                            'kakoget' => '1',
-                            UA::getQueryKey() => UA::getQueryValue()
-                        )
-                    );
+                    $read_kako_url = $this->getReadKakologUri($_GET['kakolog']);
 
                     $attrs = array();
                     if ($_conf['bbs_win_target']) {
@@ -1166,17 +1117,7 @@ class ThreadRead extends Thread
             $dat_response_status = '';
             
             $kako_html_url = $_GET['kakolog'] . '.html';
-            $read_kako_url = UriUtil::buildQueryUri($_conf['read_php'],
-                array(
-                    'host' => $this->host,
-                    'bbs'  => $this->bbs,
-                    'key'  => $this->key,
-                    'ls'   => $this->ls,
-                    'kakolog' => $_GET['kakolog'],
-                    'kakoget' => '1',
-                    UA::getQueryKey() => UA::getQueryValue()
-                )
-            );
+            $read_kako_url = $this->getReadKakologUri($_GET['kakolog']);
             $attrs = array();
             if ($_conf['bbs_win_target']) {
                 $attrs['target'] = $_conf['bbs_win_target'];
@@ -1190,6 +1131,50 @@ class ThreadRead extends Thread
         // }}}
         
         return $dat_response_msg_ht;
+    }
+    
+    /**
+     * @param   string  $kakolog  過去ログURIから.htmlを外した文字列 @see $kakohtml_match
+     * @return  string
+     */
+    private function getReadKakologUri($kakolog)
+    {
+        global $_conf;
+        
+        return UriUtil::buildQueryUri($_conf['read_php'],
+            array(
+                'host' => $this->host,
+                'bbs'  => $this->bbs,
+                'key'  => $this->key,
+                'ls'   => $this->ls,
+                'kakolog' => $kakolog,
+                'kakoget' => '1',
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        );
+    }
+    
+    /**
+     * @return  string  HTML
+     */
+    private function getMarutoriHtml()
+    {
+        global $_conf;
+        
+        $marutori_atag = P2View::tagA(
+            UriUtil::buildQueryUri($_conf['read_php'],
+                array(
+                    'host' => $this->host,
+                    'bbs'  => $this->bbs,
+                    'key'  => $this->key,
+                    'ls'   => $this->ls,
+                    'maru' => 'true',
+                    UA::getQueryKey() => UA::getQueryValue()
+                )
+            ),
+            hs('●IDでp2に取り込む')
+        );
+        return "[$marutori_atag]";
     }
     
     /**
