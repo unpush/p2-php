@@ -148,10 +148,10 @@ echo <<<EOHEADER
 EOHEADER;
 
 /*
-    <script type="text/javascript" src="js/basic.js?v=20090429"></script>
+    <script type="text/javascript" src="js/basic.js?v=20100127"></script>
     <script type="text/javascript" src="js/respopup.js?v=20061206"></script>
     <script type="text/javascript" src="js/setfavjs.js?v=20090428"></script>
-    <script type="text/javascript" src="js/delelog.js?v=20061206"></script>
+    <script type="text/javascript" src="js/delelog.js?v=20100127"></script>
 */
 
 $onload_script = '';

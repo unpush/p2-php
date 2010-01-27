@@ -197,7 +197,7 @@ EOP;
         if ($aThread->isKitoku()) {
             
             // $ttitle_en_q は節減省略
-            $onclick_at = " onClick=\"return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$sid_q}', {$STYLE['info_pop_size']}, 'subject', this);\"";
+            $onclick_at = " onClick=\"return !deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$sid_q}', {$STYLE['info_pop_size']}, 'subject', this);\"";
             $title_at = ' title="クリックするとログ削除"';
             
             $unum_ht_c = "<a class=\"un\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=1\" target=\"_self\"{$onclick_at}{$title_at}>{$aThread->unum}</a>";
@@ -235,7 +235,7 @@ EOP;
                     array(
                         'id' => "un{$i}", 'class' => 'un_a', 'target' => '_self', 'title' => 'クリックするとログ削除',
                         'onClick' => sprintf(
-                            "return deleLog('%s', %s, 'subject', this);",
+                            "return !deleLog('%s', %s, 'subject', this);",
                             str_replace("'", "\\'", $dele_log_q), $STYLE['info_pop_size']
                         )
                     )
@@ -247,7 +247,7 @@ EOP;
             // subject.txtにない時
             if (!$aThread->isonline) {
                 // JavaScriptでの確認ダイアログあり
-                $unum_ht_c = "<a class=\"un_n\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\" onClick=\"if (!window.confirm('ログを削除しますか？')) {return false;} return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$sid_q}', {$STYLE['info_pop_size']}, 'subject', this)\"{$title_at}>-</a>";
+                $unum_ht_c = "<a class=\"un_n\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\" onClick=\"if (!window.confirm('ログを削除しますか？')) {return false;} return !deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$sid_q}', {$STYLE['info_pop_size']}, 'subject', this)\"{$title_at}>-</a>";
             }
 
         }

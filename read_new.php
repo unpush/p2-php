@@ -123,11 +123,11 @@ P2View::printExtraHeadersHtml();
 P2View::printIncludeCssHtml('style');
 P2View::printIncludeCssHtml('read');
 ?>
-	<script type="text/javascript" src="js/basic.js?v=20090429"></script>
+	<script type="text/javascript" src="js/basic.js?v=20100127"></script>
 	<script type="text/javascript" src="js/respopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/htmlpopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/setfavjs.js?v=20090428"></script>
-	<script type="text/javascript" src="js/delelog.js?v=20061206"></script>
+	<script type="text/javascript" src="js/delelog.js?v=20100127"></script>
 	<script type="text/javascript" src="js/showhide.js?v=20090416"></script>
 	
 	<script type="text/javascript" src="./js/yui-ext/yui.js"></script>
@@ -506,7 +506,7 @@ EOP;
 
 		<span class="setfav" style="white-space: nowrap;"><a href="{$info_url_hs}{$setfav_q}{$sid_q}" target="info" onClick="return setFavJs('{$js_q_hs}', '{$favvalue}', {$STYLE['info_pop_size']}, 'read_new', this);" title="{$favtitle}">お気に{$favmark}</a></span>
 
-		<span style="white-space: nowrap;"><a href="{$info_url_hs}&amp;dele=1" target="info" onClick="return deleLog('{$js_q_hs}', {$STYLE['info_pop_size']}, 'read_new',  this);" title="ログを削除する。自動で「お気にスレ」「殿堂」からも外れます。">{$dele_st}</a></span>
+		<span style="white-space: nowrap;"><a href="{$info_url_hs}&amp;dele=1" target="info" onClick="return !deleLog('{$js_q_hs}', {$STYLE['info_pop_size']}, 'read_new',  this);" title="ログを削除する。自動で「お気にスレ」「殿堂」からも外れます。">{$dele_st}</a></span>
 
 <!--		<a style="white-space: nowrap;" href="{$info_url_hs}&amp;taborn=2" target="info" onClick="return !openSubWin('{$info_url_hs}&amp;popup=2&amp;taborn=2{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">あぼん</a> -->
 

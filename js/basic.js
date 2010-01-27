@@ -62,22 +62,38 @@ function getXmlHttp()
 	return xmlHttpObj;
 }
 
-// xmlHttpObj とurlを渡して、結果テキストを取得する。同期。
-// @param nc string|false 指定するとこれをキーとしたキャッシュ回避のためのダミークエリーが追加される
-function getResponseTextHttp(xmlHttpObj, url, nc)
+// xmlHttpObj とurlを渡して、結果テキストを取得する。
+// @param nc string|false|void 指定するとこれをキーとしたキャッシュ回避のためのダミークエリーが追加される
+function getResponseTextHttp(xmlHttpObj, url, nc, async, func)
 {
 	if (nc) {
 		var now = new Date();
 		url = url + '&' + nc + '=' + now.getTime(); // キャッシュ回避用
 	}
-	xmlHttpObj.open('GET', url, false);
+	xmlHttpObj.open('GET', url, async);
 	xmlHttpObj.send(null);
 	
-	if (xmlHttpObj.readyState == 4) {
-		if (xmlHttpObj.status == 200) {
-			return xmlHttpObj.responseText.replace(/^<\?xml .+?\?>\n?/, '');
-		} else {
-			// rt = '<em>HTTP Error:<br />' + req.status + ' ' + req.statusText + '</em>';
+	if (async) {
+		if (func) {
+			if (isSafari()) {
+				xmlHttpObj.onload = function(){ func(xmlHttpObj); }
+			} else {
+				xmlHttpObj.onreadystatechange = function() {
+					if (xmlHttpObj.readyState == 4 && xmlHttpObj.status == 200) {
+						func(xmlHttpObj);
+					}
+				}
+			}
+			return;
+		}
+		return;
+	} else {
+		if (xmlHttpObj.readyState == 4) {
+			if (xmlHttpObj.status == 200) {
+				return xmlHttpObj.responseText.replace(/^<\?xml .+?\?>\n?/, '');
+			} else {
+				// rt = '<em>HTTP Error:<br />' + req.status + ' ' + req.statusText + '</em>';
+			}
 		}
 	}
 	return false;
