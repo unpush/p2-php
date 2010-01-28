@@ -36,6 +36,11 @@ $GLOBALS['_SESS_VERSION'] = 1; // セッションのバージョン（全ての稼動途中セッショ
  */
 class Session
 {
+    // {{{ static properties
+
+    static public $_session_started = false;
+
+    // }}}
     // {{{ properties
 
     public $sess_array = '_sess_array';
@@ -74,6 +79,7 @@ class Session
 
         // セッションデータを初期化する
         session_start();
+        self::$_session_started = true;
 
         // Cookieが使用できず、session.use_trans_sidがOffの場合
         if (!$use_cookies && !ini_get('session.use_trans_sid')) {
@@ -304,7 +310,9 @@ class Session
 
         // セッションの初期化
         // session_name("something")を使用している場合は特にこれを忘れないように!
-        session_start();
+        if (!self::$_session_started) {
+            session_start();
+        }
 
         // セッション変数を全て解除する
         $_SESSION = array();

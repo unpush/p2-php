@@ -1818,7 +1818,7 @@ ERR;
                 $key = $matches[4];
                 $ls = '';
                 $kakolog_url = $matches[1];
-                $_GET['kakolog'] = rawurlencode($kakolog_url);
+                $_GET['kakolog'] = $kakolog_url;
 
             // ‚Ü‚¿BBS - http://kanto.machi.to/bbs/read.cgi/kanto/1241815559/
             } elseif (preg_match('<^http://(\\w+\\.machi(?:bbs\\.com|\\.to))/bbs/read\\.cgi

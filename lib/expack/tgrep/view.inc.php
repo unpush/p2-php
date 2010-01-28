@@ -129,7 +129,6 @@
     <th class="t">î¬</th>
     <th class="t">Birthday</th>
     <th class="ti">ê®Ç¢</th>
-    <th class="ti">äàî≠Ç≥</th>
 </tr>
 </thead>
 <tbody>
@@ -163,14 +162,13 @@ foreach ($threads as $o => $t) {
     <td class="t"><a href="<?php echo $burl; ?>"><?php echo $t->ita; ?></a></td>
     <td class="t"><?php echo date('y/m/d', $t->tkey); ?></td>
     <td class="ti"><?php echo round($t->dayres, 2); ?></td>
-    <td class="ti"><?php echo round($t->dratio * 100); ?>%</td>
 </tr>
 <?php } ?>
 </tbody>
 <?php if ($htm['pager']) { ?>
 <tfoot>
 <tr class="tablefooter">
-    <td colspan="8"><?php echo $htm['pager']; ?></td>
+    <td colspan="7"><?php echo $htm['pager']; ?></td>
 </tr>
 </tfoot>
 <?php } ?>

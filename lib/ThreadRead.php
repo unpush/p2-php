@@ -102,7 +102,7 @@ class ThreadRead extends Thread
                 } elseif ($_GET['kakoget'] == 2) {
                     $ext = '.dat';
                 }
-                $this->_downloadDat2chKako(urldecode($_GET['kakolog']), $ext);
+                $this->_downloadDat2chKako($_GET['kakolog'], $ext);
 
             // 2ch or 2ch互換
             } else {
@@ -701,8 +701,9 @@ class ThreadRead extends Thread
             //.dat.gzがなかったら.datでもう一度
             return $this->_downloadDat2chKako($uri, ".dat");
         }
-        if ($_GET['kakolog']) {
-            $kakolog_ht = "<p><a href=\"{$_GET['kakolog']}.html\"{$_conf['bbs_win_target_at']}>{$_GET['kakolog']}.html</a></p>";
+        if (!empty($_GET['kakolog'])) {
+            $kako_html_url = htmlspecialchars($_GET['kakolog'] . '.html', ENT_QUOTES);
+            $kakolog_ht = "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a></p>";
         }
         $this->getdat_error_msg_ht = "<p>rep2 info: 2ちゃんねる過去ログ倉庫からのスレッド取り込みに失敗しました。</p>";
         $this->getdat_error_msg_ht .= $kakolog_ht;
@@ -802,23 +803,25 @@ class ThreadRead extends Thread
                 $dat_response_msg = "<p>2ch info - 隊長! スレッドはhtml化されるのを待っているようです。{$marutori_ht}{$moritori_ht}</p>";
 
             } else {
-                if ($_GET['kakolog']) {
-                    $dat_response_status = "そんな板orスレッドないです。";
-                    $kako_html_url = urldecode($_GET['kakolog']) . ".html";
-                    $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
-                    $dat_response_msg = "<p>2ch info - そんな板orスレッドないです。</p>";
+                if (!empty($_GET['kakolog'])) {
+                    $dat_response_status = 'そんな板orスレッドないです。';
+                    $kako_html_url = htmlspecialchars($_GET['kakolog'] . '.html', ENT_QUOTES);
+                    $kakolog_query = rawurlencode($_GET['kakolog']);
+                    $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$kakolog_query}&amp;kakoget=1";
+                    $dat_response_msg = '<p>2ch info - そんな板orスレッドないです。</p>';
                     $dat_response_msg .= "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">rep2にログを取り込んで読む</a>]</p>";
                 } else {
-                    $dat_response_status = "そんな板orスレッドないです。";
-                    $dat_response_msg = "<p>2ch info - そんな板orスレッドないです。</p>";
+                    $dat_response_status = 'そんな板orスレッドないです。';
+                    $dat_response_msg = '<p>2ch info - そんな板orスレッドないです。</p>';
                 }
             }
 
         // 原因が分からない場合でも、とりあえず過去ログ取り込みのリンクを維持している。と思う。あまり覚えていない 2005/2/27 aki
-        } elseif ($_GET['kakolog']) {
-            $dat_response_status = "";
-            $kako_html_url = urldecode($_GET['kakolog']).".html";
-            $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
+        } elseif (!empty($_GET['kakolog'])) {
+            $dat_response_status = '';
+            $kako_html_url = htmlspecialchars($_GET['kakolog'] . '.html', ENT_QUOTES);
+            $kakolog_query = rawurlencode($_GET['kakolog']);
+            $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$kakolog_query}&amp;kakoget=1";
             $dat_response_msg = "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">rep2にログを取り込んで読む</a>]</p>";
 
         }

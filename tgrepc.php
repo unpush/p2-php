@@ -122,7 +122,7 @@ if ($query) {
     }
 
     $errors = (isset($search_result['errors'])) ? $search_result['errors'] : null;
-    $threads = $search_result['threads'];
+    $threads = (isset($search_result['threads'])) ? $search_result['threads'] : null;
     $profile = $search_profile['profile'];
     $modified = strtotime($search_profile['modified']);
     if ($errors) {
