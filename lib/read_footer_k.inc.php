@@ -28,7 +28,7 @@ $htm['goto'] = kspform($aThread, ($_conf['filtering'] ? $last_hit_resnum : $aThr
 //=====================================================================
 // ƒvƒŠƒ“ƒg
 //=====================================================================
-if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
+if ($aThread->rescount or (!empty($_GET['one']) && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
     if (!$aThread->diedat) {
         if (!empty($_conf['disable_res'])) {
