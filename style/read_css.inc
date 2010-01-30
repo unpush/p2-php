@@ -19,7 +19,7 @@ if (isset($STYLE['respop_color']) && strlen($STYLE['respop_color']) > 0) {
     $respop_color = '';
 }
 
-if ($STYLE['fontfamily_bold']) {
+if (!empty($STYLE['fontfamily_bold'])) {
     $fontstyle_bold = empty($STYLE['fontstyle_bold']) ? 'normal' : $STYLE['fontstyle_bold'];
     $fontweight_bold = empty($STYLE['fontweight_bold']) ? 'normal' : $STYLE['fontweight_bold'];
     echo <<<EOSTYLE

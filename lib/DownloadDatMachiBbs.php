@@ -99,7 +99,7 @@ class DownloadDatMachiBbs implements DownloadDatInterface
                 while ($thread->gotnum < $resnum) {
                     $abn = "あぼーん<>あぼーん<>あぼーん<>あぼーん<>";
                     if ($thread->gotnum == 1) {
-                        $abn .= $lar[4];
+                        $abn .= $lar[4]; // スレタイトル
                     }
                     $abn .= "\n";
                     fwrite($fp, $abn);
@@ -108,6 +108,7 @@ class DownloadDatMachiBbs implements DownloadDatInterface
                 // 行を書き込む
                 fwrite($fp, implode('<>', $lar) . "\n");
             } else {
+                $thread->gotnum--;
                 $lineno = $i + 1;
                 P2Util::pushInfoHtml("<p>rep2 info: dat書式エラー: line {$lineno} of {$url}.</p>");
                 break;
