@@ -70,6 +70,9 @@ function getResponseTextHttp(xmlHttpObj, url, nc, async, func)
 		var now = new Date();
 		url = url + '&' + nc + '=' + now.getTime(); // キャッシュ回避用
 	}
+	if (undefined == async) {
+		async = false;
+	}
 	xmlHttpObj.open('GET', url, async);
 	xmlHttpObj.send(null);
 	
