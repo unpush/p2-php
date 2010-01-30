@@ -88,10 +88,25 @@ class DownloadDatMachiBbs implements DownloadDatInterface
         flock($fp, LOCK_EX);
 
         foreach ($lines as $i => $line) {
-            if (substr_count($line, '<>') >= 4) { // 厳密には "=== 5"
-                // 行頭の "レス番号<>" は保存しない
-                fwrite($fp, substr($line, strpos($line, '<>') + 2));
-                $thread->gotnum++;
+            // 取得済みレス数をインクリメント
+            $thread->gotnum++;
+            // 行を分解、要素数チェック (厳密には === 6)
+            $lar = explode('<>', rtrim($line));
+            if (count($lar) >= 5) {
+                // レス番号は保存しないので取り出す
+                $resnum = (int)array_shift($lar);
+                // レス番号と取得済みレス数が異なっていたらあぼーん扱い
+                while ($thread->gotnum < $resnum) {
+                    $abn = "あぼーん<>あぼーん<>あぼーん<>あぼーん<>";
+                    if ($thread->gotnum == 1) {
+                        $abn .= $lar[4];
+                    }
+                    $abn .= "\n";
+                    fwrite($fp, $abn);
+                    $thread->gotnum++;
+                }
+                // 行を書き込む
+                fwrite($fp, implode('<>', $lar) . "\n");
             } else {
                 $lineno = $i + 1;
                 P2Util::pushInfoHtml("<p>rep2 info: dat書式エラー: line {$lineno} of {$url}.</p>");
