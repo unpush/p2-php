@@ -376,8 +376,8 @@ if ($skin != P2_CONF_DIR . '/conf_user_style.inc.php') {
 $skin_uniq = P2_VERSION_ID;
 
 foreach ($STYLE as $K => $V) {
-    if (empty($V)) {
-        $STYLE[$K] = '';
+    if ($V === null || $V === '') {
+        // pass
     } elseif (strpos($K, 'fontfamily') !== false) {
         $STYLE[$K] = p2_correct_css_fontfamily($V);
     } elseif (strpos($K, 'color') !== false) {
