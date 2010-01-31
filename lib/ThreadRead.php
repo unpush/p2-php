@@ -548,7 +548,7 @@ class ThreadRead extends Thread
             $_REQUEST['relogin2ch'] = true;
             return $this->downloadDat();
         } else {
-            $remarutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true&amp;relogin2ch=true\">再取得を試みる</a>]";
+            $remarutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true&amp;relogin2ch=true{$_conf['k_at_a']}\">再取得を試みる</a>]";
             $moritori_ht = $this->_generateMoritapoDatLink();
             $this->getdat_error_msg_ht .= "<p>rep2 info: ●IDでのスレッド取得に失敗しました。{$remarutori_ht}{$moritori_ht}</p>";
             $this->diedat = true;
@@ -777,7 +777,7 @@ class ThreadRead extends Thread
         if (preg_match($kakosoko_match, $read_response_html, $matches)) {
             $dat_response_status = "このスレッドは過去ログ倉庫に格納されています。";
             //if (file_exists($_conf['idpw2ch_php']) || file_exists($_conf['sid2ch_php'])) {
-                $marutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでrep2に取り込む</a>]";
+                $marutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true{$_conf['k_at_a']}\">●IDでrep2に取り込む</a>]";
             //} else {
             //    $marutori_ht = " [<a href=\"login2ch.php\" target=\"subject\">●IDログイン</a>]";
             //}
@@ -798,7 +798,7 @@ class ThreadRead extends Thread
 
             } elseif (preg_match($waithtml_match, $read_response_html, $matches)) {
                 $dat_response_status = "隊長! スレッドはhtml化されるのを待っているようです。";
-                $marutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでrep2に取り込む</a>]";
+                $marutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true{$_conf['k_at_a']}\">●IDでrep2に取り込む</a>]";
                 $moritori_ht = $this->_generateMoritapoDatLink();
                 $dat_response_msg = "<p>2ch info - 隊長! スレッドはhtml化されるのを待っているようです。{$marutori_ht}{$moritori_ht}</p>";
 
@@ -1282,7 +1282,7 @@ class ThreadRead extends Thread
                       . '&amp;ls=' . rawurldecode($this->ls);
             $diedat_msg .= '<br>datから他のホスト候補を検出しました。';
             foreach ($hosts as $host) {
-                $diedat_msg .= " [<a href=\"{$_conf['read_php']}?host={$host}{$common_q}\">{$host}</a>]";
+                $diedat_msg .= " [<a href=\"{$_conf['read_php']}?host={$host}{$common_q}{$_conf['k_at_a']}\">{$host}</a>]";
             }
         }
         $diedat_msg .= '</p>';
@@ -1310,7 +1310,7 @@ class ThreadRead extends Thread
                                     . '&key=' . rawurldecode($this->key)
                                     . '&ls=' . rawurldecode($this->ls)
                                     . '&moritapodat=true&csrfid=' . $csrfid, ENT_QUOTES);
-            return " [<a href=\"{$_conf['read_php']}?{$query}\">モリタポでrep2に取り込む</a>]";
+            return " [<a href=\"{$_conf['read_php']}?{$query}{$_conf['k_at_a']}\">モリタポでrep2に取り込む</a>]";
         } else {
             return '';
         }
@@ -1411,7 +1411,7 @@ class ThreadRead extends Thread
         $ls_ht = htmlspecialchars($this->ls, ENT_QUOTES);
 
         $query_ht = htmlspecialchars("host={$host_en}&bbs={$bbs_en}&key={$key_en}&ls={$ls_en}&maru=true");
-        $marutori_ht = " [<a href=\"{$_conf['read_php']}?{$query_ht}\">●IDでrep2に取り込む</a>]";
+        $marutori_ht = " [<a href=\"{$_conf['read_php']}?{$query_ht}{$_conf['k_at_a']}\">●IDでrep2に取り込む</a>]";
 
         if ($hosts = $this->scanOriginalHosts()) {
             $hostlist_ht = '<br>datから他のホスト候補を検出しました。';
@@ -1434,6 +1434,7 @@ class ThreadRead extends Thread
     <input type="submit" name="moritapodat" value="モリタポでrep2に取り込んでみる">
     <input type="hidden" name="csrfid" value="{$csrfid}">
     {$hostlist_ht}
+    {$_conf['k_input_ht']}
 </form>\n
 EOF;
         $this->diedat = true;

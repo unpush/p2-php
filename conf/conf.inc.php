@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29+1.8.x',  // rep2のバージョン
-    'p2expack'  => '100130.2245',   // 拡張パックのバージョン
+    'p2expack'  => '100131.1645',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -303,6 +303,7 @@ function p2_init()
 
     // }}}
 
+    include P2_CONF_DIR . '/empty_style.php';
     include P2_LIB_DIR . '/bootstrap.php';
 }
 

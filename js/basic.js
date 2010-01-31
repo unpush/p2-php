@@ -116,7 +116,15 @@ function p2BindReady(callback, filename)
 	} else if (isOpera && version < 9) {
 		// Opera < 9
 	} else if (window.addEventListener) {
-		window.addEventListener('DOMContentLoaded', callback, false);
+		if (isOpera) {
+			// Opera‚ÍDOMContentLoaded‚©‚çƒXƒ^ƒCƒ‹ŒvŽZŠ®—¹‚Ü‚Å
+			// ’x‰„‚ª‚ ‚é‚æ‚¤‚È‚Ì‚ÅA1/40•b‚Ù‚Ç‘Ò‚Á‚Ä‚Ý‚é
+			window.addEventListener('DOMContentLoaded', (function (f) {
+				return function () { window.setTimeout(f, 25); };
+			})(callback), false);
+		} else {
+			window.addEventListener('DOMContentLoaded', callback, false);
+		}
 		return;
 	} else if (document.all && filename) { 
 		document.write('<script type="text/javascript" src="' + filename + '" defer></script>');

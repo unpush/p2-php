@@ -2,11 +2,12 @@
  * ImageCache2::LightBox_Plus
  */
 
+// {{{ _ic2_create_elements()
+
 /**
  * ランク表示用コンテナを作成する
  */
-LightBox.prototype._ic2_create_elements = function()
-{
+LightBox.prototype._ic2_create_elements = function () {
 	var self = this;
 
 	var rankbox = document.createElement('span');
@@ -44,11 +45,13 @@ LightBox.prototype._ic2_create_elements = function()
 	return rankbox;
 };
 
+// }}}
+// {{{ _ic2_show_rank()
+
 /**
  * ランク表示をトグルする
  */
-LightBox.prototype._ic2_show_rank = function(enable)
-{
+LightBox.prototype._ic2_show_rank = function (enable) {
 	var self = this;
 	var rankbox = document.getElementById('lightboxIC2Rank');
 	if (!rankbox) {
@@ -75,11 +78,13 @@ LightBox.prototype._ic2_show_rank = function(enable)
 	}
 };
 
+// }}}
+// {{{ _ic2_draw_rank()
+
 /**
  * ランク描画
  */
-LightBox.prototype._ic2_draw_rank = function(rank)
-{
+LightBox.prototype._ic2_draw_rank = function (rank) {
 	var rankbox = document.getElementById('lightboxIC2Rank');
 	var pos = rank + 1;
 	if (!rankbox) {
@@ -93,11 +98,13 @@ LightBox.prototype._ic2_draw_rank = function(rank)
 	}
 };
 
+// }}}
+// {{{ _ic2_get_rank()
+
 /**
  * ランク取得
  */
-LightBox.prototype._ic2_get_rank = function(id)
-{
+LightBox.prototype._ic2_get_rank = function (id) {
 	var info = ic2_getinfo('id', id);
 	if (!info) {
 		alert('画像情報を取得できませんでした');
@@ -107,11 +114,13 @@ LightBox.prototype._ic2_get_rank = function(id)
 	return info.rank;
 };
 
+// }}}
+// {{{ _ic2_set_rank()
+
 /**
  * ランク変更
  */
-LightBox.prototype._ic2_set_rank = function(rank)
-{
+LightBox.prototype._ic2_set_rank = function (rank) {
 	var self = this;
 	if (self._open == -1 || !self._imgs[self._open].id) {
 		return;
@@ -131,11 +140,13 @@ LightBox.prototype._ic2_set_rank = function(rank)
 	return false;
 };
 
+// }}}
+// {{{ _ic2_generate_setrank()
+
 /**
  * ランク変更をコールする関数を生成する
  */
-LightBox.prototype._ic2_generate_setrank = function(rank)
-{
+LightBox.prototype._ic2_generate_setrank = function (rank) {
 	var self = this;
 	return (function(){
 		self._ic2_set_rank(rank);
@@ -143,14 +154,16 @@ LightBox.prototype._ic2_generate_setrank = function(rank)
 	});
 };
 
+// }}}
+// {{{ _ic2_keydown_handler()
+
 /**
  * キー押下イベントハンドラ
  *
  * カーソルキー, ESDX (emacs風), HJKL (vi風) で上下左右の画像に切り替えたり
  * 0～5でランクを変更したりする
  */
-LightBox.prototype._ic2_keydown_handler = function(evt, num, len)
-{
+LightBox.prototype._ic2_keydown_handler = function(evt, num, len) {
 	var self = this;
 	var rank = 0;
 	var set_rank    = false;
@@ -342,6 +355,26 @@ LightBox.prototype._ic2_keydown_handler = function(evt, num, len)
 
 	return Event.stop(evt);
 };
+
+// }}}
+// {{{ p2BindReady()
+
+p2BindReady((function () {
+	window.lightbox = new LightBox({
+		loadingimg: 'img/lightbox/loading.gif',
+		expandimg: 'img/lightbox/expand.gif',
+		shrinkimg: 'img/lightbox/shrink.gif',
+		previmg: 'img/lightbox/prev.gif',
+		nextimg: 'img/lightbox/next.gif',
+		effectimg: 'img/lightbox/zzoop.gif',
+		effectpos: {x:-40, y:-20},
+		effectclass: 'effectable',
+		closeimg: 'img/lightbox/close.gif',
+		resizable: true
+	});
+}), 'js/defer/lightbox_activate.js');
+
+// }}}
 
 /*
  * Local Variables:

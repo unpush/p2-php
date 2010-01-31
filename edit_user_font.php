@@ -30,9 +30,9 @@ $fontconfig_types = array(
     'other'     => '‚»‚Ì‘¼',
 );
 $fontconfig_params = array('fontfamily', 'fontfamily_bold', 'fontweight_bold', 'fontstyle_bold', 'fontfamily_aa', 'fontsize', 'menu_fontsize', 'sb_fontsize', 'read_fontsize', 'respop_fontsize', 'infowin_fontsize', 'form_fontsize');
-$fontconfig_weights = array('', 'normal', 'bold', 'lighter', 'bolder'/*, '100', '200', '300', '400', '500', '600', '700', '800', '900'*/);
-$fontconfig_styles = array('', 'normal', 'italic', 'oblique');
-$fontconfig_sizes = array('' => '', '6px', '8px', '9px', '10px', '11px', '12px', '13px', '14px', '16px', '18px', '21px', '24px');
+$fontconfig_weights = array('normal', 'bold', 'lighter', 'bolder'/*, '100', '200', '300', '400', '500', '600', '700', '800', '900'*/);
+$fontconfig_styles = array('normal', 'italic', 'oblique');
+$fontconfig_sizes = array('6px', '8px', '9px', '10px', '11px', '12px', '13px', '14px', '16px', '18px', '21px', '24px');
 
 $controllerObject = (object)array(
     'fontconfig_types' => $fontconfig_types,
@@ -123,7 +123,9 @@ foreach ($fontconfig_params as $pname) {
             if (!isset($elements[$newElemName])) {
                 $elements[$newElemName] = clone $elements[$elemName];
             }
-            if (!is_array($updated_fontconfig['custom'][$tname])) {
+            if (!array_key_exists($tname, $updated_fontconfig['custom']) ||
+                !is_array($updated_fontconfig['custom'][$tname]))
+            {
                 $updated_fontconfig['custom'][$tname] = array();
             }
             if (isset($_POST[$pname][$tname])) {
@@ -135,19 +137,31 @@ foreach ($fontconfig_params as $pname) {
             }
             if ($elements[$newElemName]->tag == 'select') {
                 if (strpos($pname, 'fontweight') !== false) {
-                    $elements[$newElemName]->setOptions(array_combine($fontconfig_weights, $fontconfig_weights));
-                    if (!in_array($value, $fontconfig_weights)) {
-                        $elements[$newElemName]->setOptions(array($value => $value));
+                    $option_values = $fontconfig_weights;
+                    $option_labels = $fontconfig_weights;
+                    array_unshift($option_values, '');
+                    array_unshift($option_labels, 'inherit');
+                    $elements[$newElemName]->setOptions(array_combine($option_values, $option_labels));
+                    if ($value !== '' && !in_array($value, $fontconfig_weights)) {
+                        $elements[$newElemName]->setOptions(array($value, $value));
                     }
                 } else if (strpos($pname, 'fontstyle') !== false) {
-                    $elements[$newElemName]->setOptions(array_combine($fontconfig_styles, $fontconfig_styles));
-                    if (!in_array($value, $fontconfig_styles)) {
-                        $elements[$newElemName]->setOptions(array($value => $value));
+                    $option_values = $fontconfig_styles;
+                    $option_labels = $fontconfig_styles;
+                    array_unshift($option_values, '');
+                    array_unshift($option_labels, 'inherit');
+                    $elements[$newElemName]->setOptions(array_combine($option_values, $option_labels));
+                    if ($value !== '' && !in_array($value, $fontconfig_styles)) {
+                        $elements[$newElemName]->setOptions(array($value, $value));
                     }
                 } else if (strpos($pname, 'fontsize') !== false) {
-                    $elements[$newElemName]->setOptions(array_combine($fontconfig_sizes, $fontconfig_sizes));
-                    if (!in_array($value, $fontconfig_sizes)) {
-                        $elements[$newElemName]->setOptions(array($value => $value));
+                    $option_values = $fontconfig_sizes;
+                    $option_labels = $fontconfig_sizes;
+                    array_unshift($option_values, '');
+                    array_unshift($option_labels, 'inherit');
+                    $elements[$newElemName]->setOptions(array_combine($option_values, $option_labels));
+                    if ($value !== '' && !in_array($value, $fontconfig_sizes)) {
+                        $elements[$newElemName]->setOptions(array($value, $value));
                     }
                 }
             }
