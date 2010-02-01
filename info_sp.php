@@ -108,6 +108,7 @@ if ($popup == 2) {
     }
 }
 
+$input_size_at = ($_conf['ktai']) ? '' : ' size="50"';
 if (strpos($mode, '_msg') !== false) {
     if (isset($_GET['selected_string'])) {
         $aborn_str = trim($_GET['selected_string']);
@@ -116,10 +117,10 @@ if (strpos($mode, '_msg') !== false) {
         // encodeURIComponent()ÇÕECMA-262 3rd EditionÇÃédólÇ…ÇÊÇËï∂éöóÒÇUTF-8Ç≈àµÇ§ÇΩÇﬂÅB
         $aborn_str = mb_convert_encoding($aborn_str, 'CP932', 'UTF-8');
         $aborn_str = htmlspecialchars($aborn_str, ENT_QUOTES);
-        $input_size_at = ($_conf['ktai']) ? '' : ' size="50"';
-    } elseif (!isset($aborn_str)) {
-        $aborn_str = '';
     }
+}
+if (!isset($aborn_str)) {
+    $aborn_str = '';
 }
 
 //=====================================================
@@ -338,10 +339,12 @@ if (isset($edit_value)) {
     $rows = $_conf['ktai'] ? 5 : 36;
     $cols = $_conf['ktai'] ? 0 : 128;
     $edit_php = ($mode == 'aborn_res') ? 'editfile.php' : 'edit_aborn_word.php';
+    $filename = basename($path);
+    $filename_ht = htmlspecialchars($filename, ENT_QUOTES);
     echo <<<EOFORM
 <form action="{$edit_php}" method="get"{$target_edit_at}>
     {$_conf['k_input_ht']}
-    <input type="hidden" name="path" value="{$path}">
+    <input type="hidden" name="file" value="{$filename_ht}">
     <input type="hidden" name="encode" value="Shift_JIS">
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
