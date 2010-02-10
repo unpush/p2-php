@@ -21,7 +21,7 @@ $ptitle = '書き込んだレスの記録';
 // 特殊な前置処理
 //================================================================
 // 削除
-if ($_POST['submit'] == $deletemsg_st or isset($_GET['checked_hists'])) {
+if ((isset($_POST['submit']) && $_POST['submit'] == $deletemsg_st) or isset($_GET['checked_hists'])) {
     $checked_hists = array();
     if (isset($_POST['checked_hists'])) {
         $checked_hists = $_POST['checked_hists'];

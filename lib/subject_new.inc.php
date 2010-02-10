@@ -16,12 +16,14 @@ if (!isset($spmode)) {
     $spmode = false;
 }
 
+$idx_host_bbs_dir_s = P2Util::idxDirOfHostBbs($host, $bbs);
+$p2_sb_keys_txt = $idx_host_bbs_dir_s . 'p2_sb_keys.txt';
+$p2_setting_txt = $idx_host_bbs_dir_s . 'p2_setting.txt';
+
 // {{{ sb_keys 設定
 
 if (!$spmode) {
-    $sb_keys_txt = P2Util::idxDirOfHostBbs($host, $bbs) . 'p2_sb_keys.txt';
-
-    if ($pre_sb_cont = FileCtl::file_read_contents($sb_keys_txt)) {
+    if ($pre_sb_cont = FileCtl::file_read_contents($p2_sb_keys_txt)) {
         $pre_subject_keys = @unserialize($pre_sb_cont);
         if (!is_array($pre_subject_keys)) {
             $pre_subject_keys = array();
@@ -35,6 +37,20 @@ if (!$spmode) {
 }
 
 // }}}
+// {{{ itaj 設定
+
+$itaj = null;
+if ($p2_setting_cont = FileCtl::file_read_contents($p2_setting_txt)) {
+    $p2_setting = @unserialize($p2_setting_cont);
+    if (is_array($p2_setting) && array_key_exists('itaj', $p2_setting)) {
+        $itaj = $p2_setting['itaj'];
+    }
+}
+if ($itaj === null || $itaj === '') {
+    $itaj = P2Util::getItaName($host, $bbs);
+}
+
+// }}}
 
 //============================================================
 // メイン
@@ -44,13 +60,12 @@ $aThreadList = new ThreadList();
 
 // 板とモードのセット ===================================
 if ($spmode) {
-    if ($spmode == "taborn" or $spmode == "soko") {
-        $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
+    if ($spmode == 'taborn' or $spmode == 'soko') {
+        $aThreadList->setIta($host, $bbs, $itaj);
     }
     $aThreadList->setSpMode($spmode);
 } else {
-    // if(!$p2_setting['itaj']){$p2_setting['itaj'] = P2Util::getItaName($host, $bbs);}
-    $aThreadList->setIta($host, $bbs, $p2_setting['itaj']);
+    $aThreadList->setIta($host, $bbs, $itaj);
 
     // スレッドあぼーんリスト読込
     $taborn_file = $aThreadList->getIdxDir() . 'p2_threads_aborn.idx';
