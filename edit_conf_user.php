@@ -281,10 +281,6 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('cmp_dayres_midoku', '勢いソート時に新着レスのあるスレを優先'),
         array('cmp_title_norm', 'タイトルソート時に全角半角・大文字小文字を無視'),
         array('viewall_kitoku', '既得スレは表示件数に関わらず表示'),
-
-        array('sb_ttitle_max_len', 'スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
-        array('sb_ttitle_trim_len', 'スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
-        array('sb_ttitle_trim_pos', 'スレッドタイトルを切り詰める位置'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

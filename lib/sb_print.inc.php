@@ -331,7 +331,7 @@ EOP;
                 $moto_thre_ht = '<a class="thre_title moto_thre" href="'
                               . htmlspecialchars($aThread->getMotoThread(false, ''), ENT_QUOTES)
                               . '"'
-                              . ' onmouseover="showMotoLsPopUp(event, this, this.nextSibling.innerText)"'
+                              . ' onmouseover="wrapShowMotoLsPopUp(event,this)"'
                               . ' onmouseout="hideMotoLsPopUp()">ÅE</a>';
             }
         }
@@ -435,7 +435,7 @@ EOP;
         echo <<<EOR
 <tr class="{$row_class}">
 {$td['edit']}{$td['offrec']}{$td['unum']}{$td['rescount']}{$td['one']}{$td['checkbox']}<td{$class_to}>{$torder_ht}</td>
-<td{$class_tl}>{$moto_thre_ht}<a id="tt{$i}" href="{$thre_url}" title="{$aThread->ttitle_hd}"{$classtitle_q}{$change_color}>{$ttitle_ht}</a></td>
+<td{$class_tl}>{$moto_thre_ht}<a id="tt{$i}" href="{$thre_url}"{$classtitle_q}{$change_color}>{$ttitle_ht}</a></td>
 {$td['ita']}{$td['spd']}{$td['ikioi']}{$td['birth']}{$td['fav']}</tr>\n
 EOR;
 

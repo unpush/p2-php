@@ -111,6 +111,8 @@ function editFile($path, $encode, $title)
 
     if ($modori_url) {
         $modori_url_ht = "<p><a href=\"{$modori_url}\">Back</a></p>\n";
+    } else {
+        $modori_url_ht = '';
     }
 
     $rows_at = ($rows > 0) ? sprintf(' rows="%d"', $rows) : '';

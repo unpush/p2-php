@@ -159,6 +159,7 @@ function p2_load_class($name)
             FavSetManager |
             FileCtl |
             HostCheck |
+            JStyle |
             Login |
             MD5Crypt |
             MatomeCache(List)? |

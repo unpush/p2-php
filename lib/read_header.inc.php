@@ -213,7 +213,21 @@ EOP;
 EOP;
 }*/
 if ($_conf['expack.spm.enabled']) {
+    $info_popup_width = 0;
+    $info_popup_height = 0;
+    $post_popup_width = 0;
+    $post_popup_height = 0;
+    sscanf($STYLE['info_pop_size'], '%u,%u', $info_popup_width, $info_popup_height);
+    sscanf($STYLE['post_pop_size'], '%u,%u', $post_popup_width, $post_popup_height);
     echo <<<EOP
+    <script type="text/javascript">
+    // <![CDATA[
+    var info_popup_width = {$info_popup_width};
+    var info_popup_height = {$info_popup_height};
+    var post_popup_width = {$post_popup_width};
+    var post_popup_height = {$post_popup_height};
+    // ]]>
+    </script>
     <script type="text/javascript" src="js/invite.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/smartpopup.js?{$_conf['p2_version_id']}"></script>\n
 EOP;

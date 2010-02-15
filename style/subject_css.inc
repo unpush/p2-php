@@ -103,6 +103,7 @@ table.threadlist {
 }
 
 table.threadlist td, table.threadlist th {
+	width: auto;
 	margin: 0;
 	padding: 4px;
 	white-space: nowrap;
@@ -220,45 +221,53 @@ table.threadlist td.t , table.threadlist th.t {
 
 /* te スレッドリスト 並び替え欄 */
 table.threadlist td.te, table.threadlist th.te {
-	width: 70px;
+	width: 5em;
 }
 
 /* tu スレッドリスト 新着レス数欄 */
 table.threadlist td.tu, table.threadlist th.tu {
-	width: 26px;
+	width: 2.5em;
 	text-align: right;
 }
 
 /* tn スレッドリストのレス数欄 */
 table.threadlist td.tn, table.threadlist th.tn {
-	width: 36px;
+	width: 2.5em;
+	text-align: right;
 	color: {$STYLE['sb_ttcolor']};
 }
 
 /* tc スレッドリスト チェックボックス欄 */
 table.threadlist td.tc, table.threadlist th.tc {
-	width: 20px;
-	padding: 0px 2px;
+	width: 1em;
+	padding: 0 2px 0 4px;
 	text-align: right;
 }
 
 /* to スレッドリスト オーダー番号欄 */
 table.threadlist td.to, table.threadlist th.to {
-	width: 26px;
+	width: 2.5em;
 	text-align: right;
 }
 
 /* tl スレッドリスト タイトル名欄 */
 table.threadlist td.tl, table.threadlist th.tl {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	-o-text-overflow: ellipsis;
+	/*-moz-text-overflow: ellipsis;*/
+	-webkit-text-overflow: ellipsis;
 }
 
 /* ti スレッドリスト すばやさ欄 */
 table.threadlist td.ts, table.threadlist th.ts {
+	width: 3em;
 	text-align: right;
 }
 
 /* ti スレッドリスト 勢い欄 */
 table.threadlist td.ti, table.threadlist th.ti {
+	width: 3em;
 	text-align: right;
 }
 

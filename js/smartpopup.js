@@ -339,6 +339,23 @@ SPM.openSubWin = function (aThread, inUrl, option) {
 	} else if (inUrl == 'aas.php') {
 		inWidth  = (aas_popup_width) ? aas_popup_width : 250;
 		inHeight = (aas_popup_height) ? aas_popup_height : 330;
+	} else if (inUrl == 'info.php') {
+		if (info_popup_width) {
+			inWidth = info_popup_width;
+		}
+		if (info_popup_height) {
+			inHeight = info_popup_height;
+		}
+	} else if (inUrl == 'post.php') {
+		if (post_popup_width) {
+			inWidth = post_popup_width;
+		}
+		if (post_popup_height) {
+			inHeight = post_popup_height;
+		}
+	} else if (inUrl == 'aas.php') {
+		inWidth  = (aas_popup_width) ? aas_popup_width : 250;
+		inHeight = (aas_popup_height) ? aas_popup_height : 330;
 	}
 	inUrl += '?host=' + aThread.host + '&bbs=' + aThread.bbs + '&key=' + aThread.key.toString();
 	inUrl += '&rescount=' + aThread.rc.toString() + '&ttitle_en=' + aThread.ttitle_en;

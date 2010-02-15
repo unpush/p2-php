@@ -27,6 +27,8 @@ if ($aThreadList->spmode != 'soko') {
     $shinchaku_matome_ht =<<<EOP
 <a id="smy{$new_matome_i}" class="matome" href="{$_conf['read_new_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;nt={$newtime}" onclick="chNewAllColor();">êVíÖÇ‹Ç∆Çﬂì«Ç›{$shinchaku_num_ht}</a>
 EOP;
+} else {
+    $shinchaku_matome_ht = '';
 }
 // }}}
 
