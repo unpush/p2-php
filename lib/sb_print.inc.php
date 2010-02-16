@@ -435,7 +435,7 @@ EOP;
         echo <<<EOR
 <tr class="{$row_class}">
 {$td['edit']}{$td['offrec']}{$td['unum']}{$td['rescount']}{$td['one']}{$td['checkbox']}<td{$class_to}>{$torder_ht}</td>
-<td{$class_tl}>{$moto_thre_ht}<a id="tt{$i}" href="{$thre_url}"{$classtitle_q}{$change_color}>{$ttitle_ht}</a></td>
+<td{$class_tl}><div class="el">{$moto_thre_ht}<a id="tt{$i}" href="{$thre_url}"{$classtitle_q}{$change_color}>{$ttitle_ht}</a></div></td>
 {$td['ita']}{$td['spd']}{$td['ikioi']}{$td['birth']}{$td['fav']}</tr>\n
 EOR;
 

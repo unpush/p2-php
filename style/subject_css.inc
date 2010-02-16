@@ -85,7 +85,7 @@ table.toolbar td.toolbar-anchor {
 	text-align: right;
 }
 
-table.toolbar a{
+table.toolbar a {
 	color: {$STYLE['sb_tool_acolor']};
 }
 table.toolbar a:visited {
@@ -102,7 +102,8 @@ table.threadlist {
 	padding: 0;
 }
 
-table.threadlist td, table.threadlist th {
+table.threadlist th,
+table.threadlist td {
 	width: auto;
 	margin: 0;
 	padding: 4px;
@@ -118,8 +119,12 @@ table.threadlist tr.tableheader th {
 	background: {$STYLE['sb_th_bgcolor']} {$STYLE['sb_th_background']};
 }
 
+table.threadlist a {
+	white-space: nowrap; /* for IE */
+}
+
 /* 板の名前 */
-.itatitle{
+.itatitle {
 	display: inline;
 	margin: 0;
 	padding: 0;
@@ -208,7 +213,7 @@ a.te:visited { color: #999; }
 a.te:hover   { color: {$STYLE['sb_tacolor_h']}; }
 
 /* r スレッドリスト 行 */
-table.threadlist tr.r1{
+table.threadlist tr.r1 {
 	background: {$STYLE['sb_tbgcolor1']} {$STYLE['sb_tbackground1']};
 }
 table.threadlist tr.r2 {
@@ -216,57 +221,77 @@ table.threadlist tr.r2 {
 }
 
 /* t スレッドリスト テーブル欄 基本 */
-table.threadlist td.t , table.threadlist th.t {
+/*
+table.threadlist td.t,
+table.threadlist th.t {
 }
+*/
 
 /* te スレッドリスト 並び替え欄 */
-table.threadlist td.te, table.threadlist th.te {
+table.threadlist th.te,
+table.threadlist td.te {
 	width: 5em;
 }
 
 /* tu スレッドリスト 新着レス数欄 */
-table.threadlist td.tu, table.threadlist th.tu {
+table.threadlist th.tu,
+table.threadlist td.tu {
 	width: 2.5em;
 	text-align: right;
 }
 
 /* tn スレッドリストのレス数欄 */
-table.threadlist td.tn, table.threadlist th.tn {
+table.threadlist th.tn,
+table.threadlist td.tn {
 	width: 2.5em;
 	text-align: right;
 	color: {$STYLE['sb_ttcolor']};
 }
 
 /* tc スレッドリスト チェックボックス欄 */
-table.threadlist td.tc, table.threadlist th.tc {
+table.threadlist th.tc,
+table.threadlist td.tc {
 	width: 1em;
 	padding: 0 2px 0 4px;
 	text-align: right;
 }
 
 /* to スレッドリスト オーダー番号欄 */
-table.threadlist td.to, table.threadlist th.to {
+table.threadlist th.to,
+table.threadlist td.to {
 	width: 2.5em;
 	text-align: right;
 }
 
 /* tl スレッドリスト タイトル名欄 */
-table.threadlist td.tl, table.threadlist th.tl {
+/*
+table.threadlist th.tl,
+table.threadlist td.tl {
+}
+*/
+
+/* tl スレッドリスト タイトル名欄 */
+table.threadlist td.tl div.el {
+	min-width: 10em;
+	margin: 0;
+	padding: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	-o-text-overflow: ellipsis;
-	/*-moz-text-overflow: ellipsis;*/
 	-webkit-text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 /* ti スレッドリスト すばやさ欄 */
-table.threadlist td.ts, table.threadlist th.ts {
+table.threadlist th.ts,
+table.threadlist td.ts {
 	width: 3em;
 	text-align: right;
 }
 
 /* ti スレッドリスト 勢い欄 */
-table.threadlist td.ti, table.threadlist th.ti {
+table.threadlist th.ti,
+table.threadlist td.ti {
 	width: 3em;
 	text-align: right;
 }

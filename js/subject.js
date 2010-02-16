@@ -68,7 +68,7 @@ var wrapShowMotoLsPopUp = function (event, element) {
 
 var resizeTitleCell = function () {
 	var w = $(window).width(), d = 0;
-	$.each($('.threadlist tr').first().find('th'), function(){
+	$.each($('table.threadlist tr').first().find('th'), function(){
 		var self = $(this);
 		w -= self.outerWidth();
 		if (self.hasClass('tl')) {
@@ -76,7 +76,7 @@ var resizeTitleCell = function () {
 			d++;
 		}
 	});
-	$('.threadlist .tl').css('max-width', (w / d) + 'px');
+	$('table.threadlist td.tl div.el').width(w / d);
 };
 
 // }}}
