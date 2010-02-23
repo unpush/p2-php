@@ -62,7 +62,7 @@ if (!empty($_conf['updatan_haahaa'])) {
 $htm['auth_user'] = "<p>ログインユーザ: {$_login->user_u} - " . date("Y/m/d (D) G:i") . "</p>\n";
 
 // （携帯）ログイン用URL
-$base_url = rtrim(dirname(P2Util::getMyUrl()), '/');
+$base_url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
 $url_b = $base_url . '?user=' . rawurlencode($_login->user_u) . '&b=';
 $url_b_ht = htmlspecialchars($url_b, ENT_QUOTES);
 

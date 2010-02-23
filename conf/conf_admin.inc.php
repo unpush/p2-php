@@ -32,6 +32,31 @@ $_conf['db_dir'] = "./data/db";     // ("./data/db")
 
 // }}}
 // ----------------------------------------------------------------------
+// {{{ リバースプロキシ
+
+// リバースプロキシを通してアクセスする際のホスト名。
+// $_SERVER['HTTP_HOST'] を上書きし、オリジナルの値を
+// $_SERVER['X_REP2_ORIG_HTTP_HOST'] に書き込む。
+// 'auto' の場合、$_SERVER['HTTP_X_FORWARDED_HOST'] が
+// 設定されている場合だけ適用される
+$_conf['reverse_proxy_host'] = '';  // ("")
+
+// リバースプロキシを通してアクセスする際のポート番号。
+// $_SERVER['HTTP_PORT'] を上書しき、オリジナルの値を
+// $_SERVER['X_REP2_ORIG_HTTP_PORT'] に書き込む。
+// 'auto' の場合、$_SERVER['HTTP_X_FORWARDED_PORT'] が
+// 設定されている場合だけ適用される。
+$_conf['reverse_proxy_port'] = '';  // ("")
+
+// リバースプロキシを通してアクセスする際のパス。
+// $_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'], $_SERVER['PHP_SELF']
+// の前に付加される。
+// オリジナルの値は、それぞれ $_SERVER["X_REP2_ORIG_{$key}"] に書き込まれる。
+// reverse_proxy_host が無効のときは無視される。
+$_conf['reverse_proxy_path'] = '';  // ("")
+
+// }}}
+// ----------------------------------------------------------------------
 // {{{ セキュリティ機能
 
 /**

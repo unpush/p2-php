@@ -145,7 +145,7 @@ function p2_invoke_migrators(array $migrators, array $user_config)
 /**
  * クラスローダー
  *
- * @string $name
+ * @param string $name
  * @return void
  */
 function p2_load_class($name)
@@ -187,6 +187,58 @@ function p2_load_class($name)
         }
     } elseif (preg_match('/^[A-Z][A-Za-z]*DataStore$/', $name)) {
         include P2_LIB_DIR . '/P2DataStore/' . $name . '.php';
+    }
+}
+
+// }}}
+// {{{ p2_rewrite_vars_for_proxy()
+
+/**
+ * リバースプロキシ経由で動作するように$_SERVER変数を書き換える
+ *
+ * @param void
+ * @return void
+ */
+function p2_rewrite_vars_for_proxy()
+{
+    global $_conf;
+
+    foreach (array('HTTP_HOST', 'HTTP_PORT', 'REQUEST_URI', 'SCRIPT_NAME', 'PHP_SELF') as $key) {
+        $_SERVER["X_REP2_ORIG_{$key}"] = $_SERVER[$key];
+    }
+
+    if ($_conf['reverse_proxy_host']) {
+        if ($_conf['reverse_proxy_host'] === 'auto') {
+            if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+                $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
+            } else {
+                return;
+            }
+        } else {
+            $_SERVER['HTTP_HOST'] = $_conf['reverse_proxy_host'];
+        }
+    } else {
+        return;
+    }
+
+    if ($_conf['reverse_proxy_port']) {
+        if ($_conf['reverse_proxy_port'] === 'auto') {
+            if (isset($_SERVER['HTTP_X_FORWARDED_PORT'])) {
+                $SERVER['HTTP_PORT'] = $_SERVER['HTTP_X_FORWARDED_PORT'];
+            }
+        } else {
+             $SERVER['HTTP_PORT'] = $_conf['reverse_proxy_port'];
+        }
+    }
+
+    if ($_conf['reverse_proxy_path']) {
+        foreach (array('REQUEST_URI', 'SCRIPT_NAME', 'PHP_SELF') as $key) {
+            if (!isset($_SERVER[$key]) || $_SERVER[$key] === '') {
+                $_SERVER[$key] = $_conf['reverse_proxy_path'] . '/';
+            } else {
+                $_SERVER[$key] = $_conf['reverse_proxy_path'] . $_SERVER[$key];
+            }
+        }
     }
 }
 

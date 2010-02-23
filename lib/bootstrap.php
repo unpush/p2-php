@@ -6,6 +6,8 @@
 
 require_once 'Net/UserAgent/Mobile.php';
 
+p2_rewrite_vars_for_proxy();
+
 // {{{ ユーザー設定 読込
 
 // ユーザー設定があれば読み込む

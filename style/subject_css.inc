@@ -16,7 +16,7 @@ EOSTYLE;
 
 echo <<<EOSTYLE
 
-body{
+body {
 	margin: 0 0 8px 0;
 	padding: 0;
 	line-height: 130%;
@@ -36,8 +36,10 @@ form {
 	margin: 0;
 	padding: 0;
 }
+/*
 form.check {
 }
+*/
 form#urlform {
 	margin: 8px;
 }
@@ -271,10 +273,13 @@ table.threadlist td.tl {
 */
 
 /* tl スレッドリスト タイトル名欄 */
+table.threadlist td.tl {
+    padding: 0 4px;
+}
 table.threadlist td.tl div.el {
 	min-width: 10em;
 	margin: 0;
-	padding: 0;
+	padding: 4px 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	-o-text-overflow: ellipsis;
