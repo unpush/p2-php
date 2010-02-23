@@ -204,7 +204,9 @@ function p2_rewrite_vars_for_proxy()
     global $_conf;
 
     foreach (array('HTTP_HOST', 'HTTP_PORT', 'REQUEST_URI', 'SCRIPT_NAME', 'PHP_SELF') as $key) {
-        $_SERVER["X_REP2_ORIG_{$key}"] = $_SERVER[$key];
+        if (array_key_exists($key, $_SERVER)) {
+            $_SERVER["X_REP2_ORIG_{$key}"] = $_SERVER[$key];
+        }
     }
 
     if ($_conf['reverse_proxy_host']) {
@@ -224,19 +226,20 @@ function p2_rewrite_vars_for_proxy()
     if ($_conf['reverse_proxy_port']) {
         if ($_conf['reverse_proxy_port'] === 'auto') {
             if (isset($_SERVER['HTTP_X_FORWARDED_PORT'])) {
-                $SERVER['HTTP_PORT'] = $_SERVER['HTTP_X_FORWARDED_PORT'];
+                $_SERVER['HTTP_PORT'] = $_SERVER['HTTP_X_FORWARDED_PORT'];
             }
         } else {
-             $SERVER['HTTP_PORT'] = $_conf['reverse_proxy_port'];
+             $_SERVER['HTTP_PORT'] = $_conf['reverse_proxy_port'];
         }
     }
 
     if ($_conf['reverse_proxy_path']) {
+        $path = '/' . trim($_conf['reverse_proxy_path'], '/');
         foreach (array('REQUEST_URI', 'SCRIPT_NAME', 'PHP_SELF') as $key) {
             if (!isset($_SERVER[$key]) || $_SERVER[$key] === '') {
-                $_SERVER[$key] = $_conf['reverse_proxy_path'] . '/';
+                $_SERVER[$key] = $path . '/';
             } else {
-                $_SERVER[$key] = $_conf['reverse_proxy_path'] . $_SERVER[$key];
+                $_SERVER[$key] = $path . $_SERVER[$key];
             }
         }
     }
