@@ -319,7 +319,7 @@ if (!$_conf['ktai']) {
     <link rel="stylesheet" type="text/css" href="css.php?css=info&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
-    if ($_GET['popup'] == 2) {
+    if (isset($_GET['popup']) && $_GET['popup'] == 2) {
         echo <<<EOSCRIPT
     <script type="text/javascript" src="js/closetimer.js?{$_conf['p2_version_id']}"></script>\n
 EOSCRIPT;

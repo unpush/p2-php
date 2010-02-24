@@ -196,7 +196,7 @@ if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
 if (!empty($_GET['dele']) || (isset($_POST['submit']) && $_POST['submit'] == $deletelog_st)) {
     if ($host && $bbs) {
         require_once P2_LIB_DIR . '/dele.inc.php';
-        if ($_POST['checkedkeys']) {
+        if (isset($_POST['checkedkeys'])) {
             $dele_keys = $_POST['checkedkeys'];
         } else {
             $dele_keys = array($_GET['key']);

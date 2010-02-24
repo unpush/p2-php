@@ -147,7 +147,7 @@ EOP;
     // チェックボックス
     if ($checkbox_bool) {
         echo <<<EOP
-<th{$class_tc}><input id="allbox" name="allbox" type="checkbox" onclick="checkAll();" title="すべての項目を選択、または選択解除"></th>\n
+<th{$class_tc}><input id="allbox" name="allbox" type="checkbox" onclick="rep2.subject.checkAll();" title="すべての項目を選択、または選択解除"></th>\n
 EOP;
     }
     // No.
@@ -229,7 +229,7 @@ EOP;
             $row_class .= ' r_read'; // readは過去分詞
 
             // $ttitle_en_q は節減省略
-            $delelog_js = "return wrapDeleLog('{$host_bbs_key_q}',this);";
+            $delelog_js = "return rep2.subject.deleLog('{$host_bbs_key_q}',this);";
             $title_at = ' title="クリックするとログ削除"';
 
             $anum_ht = sprintf('#r%d', min($aThread->rescount, $aThread->rescount - $aThread->nunum + 1 - $_conf['respointer']));
@@ -239,7 +239,7 @@ EOP;
                 $row_class .= ' r_offline';
                 // JavaScriptでの確認ダイアログあり
                 $unum_ht_c = <<<EOP
-<a class="un_n" href="{$_conf['subject_php']}?{$host_bbs_key_q}{$spmode_q}&amp;dele=true" target="_self" onclick="if (!window.confirm('ログを削除しますか？')) {return false;} {$delelog_js}"{$title_at}>-</a>
+<a class="un_n" href="{$_conf['subject_php']}?{$host_bbs_key_q}{$spmode_q}&amp;dele=true">-</a>
 EOP;
 
             // 新着あり
@@ -247,13 +247,13 @@ EOP;
                 $row_class .= ' r_new';
                 $midoku_ari = true;
                 $unum_ht_c = <<<EOP
-<a id="un{$i}" class="un_a" href="{$_conf['subject_php']}?{$host_bbs_key_q}{$spmode_q}&amp;dele=true" target="_self" onclick="{$delelog_js}"{$title_at}>{$aThread->unum}</a>
+<a id="un{$i}" class="un_a" href="{$_conf['subject_php']}?{$host_bbs_key_q}{$spmode_q}&amp;dele=true">{$aThread->unum}</a>
 EOP;
 
             // subject.txtにはあるが、新着なし
             } else {
                 $unum_ht_c = <<<EOP
-<a class="un" href="{$_conf['subject_php']}?{$host_bbs_key_q}{$spmode_q}&amp;dele=true" target="_self" onclick="{$delelog_js}"{$title_at}>{$aThread->unum}</a>
+<a class="un" href="{$_conf['subject_php']}?{$host_bbs_key_q}{$spmode_q}&amp;dele=true">{$aThread->unum}</a>
 EOP;
             }
         }
@@ -283,7 +283,7 @@ EOP;
 
                 // $ttitle_en_q も付けた方がいいが、節約のため省略する
                 $td['fav'] = <<<EOP
-<td{$class_t}><a class="fav" href="info.php?{$host_bbs_key_q}{$favdo_q}" target="info" onclick="return wrapSetFavJs('{$host_bbs_key_q}','{$favdo}',this);" title="{$favtitle}">{$favmark}</a></td>\n
+<td{$class_t}><a class="fav" href="info.php?{$host_bbs_key_q}{$favdo_q}" target="info" onclick="return rep2.subject.setFav('{$host_bbs_key_q}','{$favdo}',this);" title="{$favtitle}">{$favmark}</a></td>\n
 EOP;
             }
         }
@@ -296,7 +296,7 @@ EOP;
             $torder_st = $aThread->torder;
         }
         $torder_ht = <<<EOP
-<a id="to{$i}" class="info" href="info.php?{$host_bbs_key_q}" target="_self" onclick="return wrapOpenSubWin(this.href.toString())">{$torder_st}</a>
+<a id="to{$i}" class="info" href="info.php?{$host_bbs_key_q}">{$torder_st}</a>
 EOP;
 
         // title =================================================
@@ -330,18 +330,19 @@ EOP;
             if (!$aThread->isKitoku()) {
                 $moto_thre_ht = '<a class="thre_title moto_thre" href="'
                               . htmlspecialchars($aThread->getMotoThread(false, ''), ENT_QUOTES)
-                              . '"'
-                              . ' onmouseover="wrapShowMotoLsPopUp(event,this)"'
-                              . ' onmouseout="hideMotoLsPopUp()">・</a>';
+                              . '">・</a>';
             }
         }
 
         // 新規スレ
         if ($aThread->new) {
             $row_class .= ' r_brand_new';
-            $classtitle_q = ' class="thre_title_new"';
+            $title_class = 'thre_title_new';
         } else {
-            $classtitle_q = ' class="thre_title"';
+            $title_class = 'thre_title';
+        }
+        if ($midoku_ari) {
+            $title_class .= ' midoku_ari';
         }
 
         // スレリンク
@@ -351,9 +352,6 @@ EOP;
             $anum_ht = '';
         }
         $thre_url = "{$_conf['read_php']}?{$host_bbs_key_q}{$rescount_q}{$offline_q}{$word_q}{$anum_ht}";
-
-        $chUnColor_js = ($midoku_ari) ? "chUnColor('{$i}');" : '';
-        $change_color = " onclick=\"chTtColor('{$i}');{$chUnColor_js}\"";
 
         // オンリー>>1
         if ($only_one_bool) {
@@ -400,7 +398,7 @@ EOP;
         // 最近読んだスレの解除
         if ($aThreadList->spmode == 'recent') {
             $td['offrec'] = <<<EOP
-<td{$class_tc}><a href="info.php?{$host_bbs_key_q}&amp;offrec=true" target="_self" onclick="return offrec_ajax(this);">×</a></td>\n
+<td{$class_tc}><a href="info.php?{$host_bbs_key_q}&amp;offrec=true">×</a></td>\n
 EOP;
         }
 
@@ -435,7 +433,7 @@ EOP;
         echo <<<EOR
 <tr class="{$row_class}">
 {$td['edit']}{$td['offrec']}{$td['unum']}{$td['rescount']}{$td['one']}{$td['checkbox']}<td{$class_to}>{$torder_ht}</td>
-<td{$class_tl}><div class="el">{$moto_thre_ht}<a id="tt{$i}" href="{$thre_url}"{$classtitle_q}{$change_color}>{$ttitle_ht}</a></div></td>
+<td{$class_tl}><div class="el">{$moto_thre_ht}<a id="tt{$i}" href="{$thre_url}" class="{$title_class}">{$ttitle_ht}</a></div></td>
 {$td['ita']}{$td['spd']}{$td['ikioi']}{$td['birth']}{$td['fav']}</tr>\n
 EOR;
 
