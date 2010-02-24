@@ -290,15 +290,22 @@ table.threadlist td.tl div.el {
 /* ti スレッドリスト すばやさ欄 */
 table.threadlist th.ts,
 table.threadlist td.ts {
-	width: 3em;
+	width: 3.5em;
 	text-align: right;
 }
 
 /* ti スレッドリスト 勢い欄 */
 table.threadlist th.ti,
 table.threadlist td.ti {
-	width: 3em;
+	width: 3.5em;
 	text-align: right;
+}
+
+/* IEのth,td要素でwhite-space:nowrapが効かないバグ対策 */
+table.threadlist td span.nowrap {
+	margin: 0;
+	padding: 0;
+	white-space: nowrap;
 }
 
 EOSTYLE;

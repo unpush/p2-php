@@ -121,6 +121,9 @@ $(document).ready(function(){
 			self.attr('title', self.text());
 		}
 	})
+	if ($.browser.msie) {
+		$('.threadlist td').contents('[nodeType=3]').wrap('<span class="nowrap"></span>');
+	}
 });
 
 // }}}
