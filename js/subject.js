@@ -38,10 +38,10 @@ rep2.subject.changeThreadTitleColor = function (idnum) {
 // }}}
 // {{{ rep2.subject.deleteLog()
 
-rep2.subject.deleteLog = function (qeury, from) {
+rep2.subject.deleteLog = function (query, from) {
 	var width = rep2.subject.properties.pop_size[0];
 	var height = rep2.subject.properties.pop_size[1];
-	return deleLog(qeury, width, height, 'subject', from);
+	return deleLog(query, width, height, 'subject', from);
 };
 
 // }}}

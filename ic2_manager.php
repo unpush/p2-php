@@ -33,7 +33,7 @@ if ($ini['Viewer']['cache'] && file_exists($_conf['iv2_cache_db_path'])) {
 // データベースに接続
 $db = DB::connect($ini['General']['dsn']);
 if (DB::isError($db)) {
-    p2die($result->getMessage());
+    p2die($db->getMessage());
 }
 
 // テンプレートエンジン初期化
