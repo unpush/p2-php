@@ -1,8 +1,9 @@
-/* p2 - 基本JavaScriptファイル */
+/* rep2 - 基本JavaScriptファイル */
+
+var rep2 = { 'util': {}, 'info': {}, 'menu': {}, 'read': {}, 'subject': {} };
 
 // サブウィンドウをポップアップする
-function OpenSubWin(inUrl, inWidth, inHeight, boolS, boolR, boolW)
-{
+rep2.util.openSubWindow = function (inUrl, inWidth, inHeight, boolS, boolR, boolW) {
 	var proparty3rd = "width=" + inWidth + ",height=" + inHeight + ",scrollbars=" + boolS + ",resizable=1";
 	SubWin = window.open(inUrl,"",proparty3rd);
 	if (boolR == 1) {
@@ -13,11 +14,12 @@ function OpenSubWin(inUrl, inWidth, inHeight, boolS, boolR, boolW)
 		return SubWin;
 	}
 	return false;
-}
+};
+
+var OpenSubWin = rep2.util.openSubWindow;
 
 // HTMLドキュメントのタイトルをセットする
-function setWinTitle()
-{
+rep2.util.setWindowTitle = function () {
 	if (top != self) {
 		try {
 			top.document.title = self.document.title;
@@ -25,21 +27,12 @@ function setWinTitle()
 			// 何もしない
 		}
 	}
-}
+};
+
+var setWinTitle = rep2.util.setWindowTitle;
 
 // DOMオブジェクトを取得
-function p2GetElementById(id)
-{
-	if (document.getElementById) {
-		return (document.getElementById(id));
-	} else if (document.all) {
-		return (document.all[id]);
-	} else if (document.layers) {
-		return (document.layers[id]);
-	} else {
-		return false;
-	}
-}
+var p2GetElementById = document.getElementById;
 
 // XMLHttpRequest オブジェクトを取得
 function getXmlHttp()
@@ -68,8 +61,7 @@ function getXmlHttp()
 function getResponseTextHttp(objHTTP, url, nc)
 {
 	if (nc) {
-		var now = new Date();
-		url = url + '&' + nc + '=' + now.getTime(); // キャッシュ回避用
+		url = url + '&' + nc + '=' + (new Date()).getTime(); // キャッシュ回避用
 	}
 	objHTTP.open('GET', url, false);
 	objHTTP.send(null);

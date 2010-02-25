@@ -220,9 +220,9 @@ echo <<<EOP
     <script type="text/javascript" src="js/jquery-1.4.1.min.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
     //<![CDATA[
-    var sb_vars = {
+    rep2.subject.properties = {
         'shinchaku_ari': {$shinchaku_attayo_json},
-        'ptitle': {$ptitle_json},
+        'page_title': {$ptitle_json},
         'ttcolor': {$JSTYLE['sb_ttcolor']},
         'ttcolor_v': {$JSTYLE['thre_title_color_v']},
         'pop_size': [{$JSTYLE['info_pop_size']}]

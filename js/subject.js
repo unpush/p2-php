@@ -2,20 +2,11 @@
  * rep2expack - スレ一覧用JavaScript
  */
 
-// {{{ GLOBALS
-
-if (typeof rep2 === 'undefined') {
-	rep2 = {};
-}
-
-rep2.subject = {};
-
-// }}}
 // {{{ rep2.subject.setWindowTitle()
 
 rep2.subject.setWindowTitle = function () {
-	if (sb_vars.shinchaku_ari) {
-		window.top.document.title = '★' + sb_vars.ptitle;
+	if (rep2.subject.properties.shinchaku_ari) {
+		window.top.document.title = '★' + rep2.subject.properties.page_title;
 	} else {
 		if (window.top != window.self) {
 			window.top.document.title = window.self.document.title;
@@ -27,42 +18,48 @@ rep2.subject.setWindowTitle = function () {
 // {{{ rep2.subject.changeNewAllColor()
 
 rep2.subject.changeNewAllColor = function () {
-	$('#smynum1, #smynum2, a.un_a').css('color', sb_vars.ttcolor);
+	$('#smynum1, #smynum2, a.un_a').css('color', rep2.subject.properties.ttcolor);
 };
 
 // }}}
 // {{{ rep2.subject.changeUnReadColor()
 
 rep2.subject.changeUnReadColor = function (idnum) {
-	$('#un' + idnum).css('color', sb_vars.ttcolor);
+	$('#un' + idnum).css('color', rep2.subject.properties.ttcolor);
 }
 
 // }}}
 // {{{ rep2.subject.changeThreadTitleColor()
 
 rep2.subject.changeThreadTitleColor = function (idnum) {
-	$('#tt' + idnum + ', #to' + idnum).css('color', sb_vars.ttcolor_v);
+	$('#tt' + idnum + ', #to' + idnum).css('color', rep2.subject.properties.ttcolor_v);
 };
 
 // }}}
 // {{{ rep2.subject.deleteLog()
 
 rep2.subject.deleteLog = function (qeury, from) {
-	return deleLog(qeury, sb_vars.pop_size[0], sb_vars.pop_size[1], 'subject', from);
+	var width = rep2.subject.properties.pop_size[0];
+	var height = rep2.subject.properties.pop_size[1];
+	return deleLog(qeury, width, height, 'subject', from);
 };
 
 // }}}
 // {{{ rep2.subject.setFavorite()
 
 rep2.subject.setFavorite = function (query, favdo, from) {
-	return setFavJs(query, favdo, sb_vars.pop_size[0], sb_vars.pop_size[1], 'subject', from);
+	var width = rep2.subject.properties.pop_size[0];
+	var height = rep2.subject.properties.pop_size[1];
+	return setFavJs(query, favdo, width, height, 'subject', from);
 };
 
 // }}}
 // {{{ rep2.subject.openSubWindow()
 
 rep2.subject.openSubWindow = function (url) {
-	return OpenSubWin(url + '&popup=1', sb_vars.pop_size[0], sb_vars.pop_size[1], 0, 0);
+	var width = rep2.subject.properties.pop_size[0];
+	var height = rep2.subject.properties.pop_size[1];
+	return rep2.util.openSubWindow(url + '&popup=1', width, height, 0, 0);
 };
 
 // }}}
@@ -122,17 +119,19 @@ rep2.subject.offRecent = function (anchor) {
 // {{{ $(document).ready()
 
 $(document).ready(function(){
-	rep2.subject.setWindowTitle();
-	rep2.subject.resizeTitleCell();
+	var _ = rep2.subject;
+
+	_.setWindowTitle();
+	_.resizeTitleCell();
 
 	// 最近読んだスレ解除
 	$('.threadlist td.tc a[href$="&offrec=true"]').click(function(){
-		return rep2.subject.offRecent(this);
+		return _.offRecent(this);
 	});
 
 	// 情報ウインドウ表示
 	$('.threadlist td.to a.info').click(function(){
-		return rep2.subject.openSubWindow(this.href.toString());
+		return _.openSubWindow(this.href);
 	});
 
 	// URLからhost-bbs-keyを抽出する正規表現
@@ -144,28 +143,23 @@ $(document).ready(function(){
 		if (!window.confirm('ログを削除しますか？')) {
 			return false;
 		}
-		return rep2.subject.deleteLog(re.exec($(this).attr('href'))[1], this);
+		return _.deleteLog(re.exec(this.href)[1], this);
 	});
 	$('.threadlist td.tu').find('a.un, a.un_a').click(function(){
-		return rep2.subject.deleteLog(re.exec($(this).attr('href'))[1], this);
+		return _.deleteLog(re.exec(this.href)[1], this);
 	});
 
 	// 範囲を指定して元スレを開く小ポップアップメニュー
 	var hover = function (event) {
-		rep2.subject.showMotoLsPopUp(event, this);
+		_.showMotoLsPopUp(event, this);
 	};
 
 	// スレッドタイトルの文字色を変更
-	var generator = function (id, midoku_ari) {
-		if (midoku_ari) {
-			return (function(){
-				rep2.subject.changeThreadTitleColor(id);
-				rep2.subject.changeUnReadColor(id);
-			});
-		} else {
-			return (function(){
-				rep2.subject.changeThreadTitleColor(id);
-			});
+	var click = function () {
+		var id = this.id.substring(2);
+		_.changeThreadTitleColor(id);
+		if ($(this).hasClass('midoku_ari')) {
+			_.changeUnReadColor(id);
 		}
 	};
 
@@ -176,7 +170,7 @@ $(document).ready(function(){
 			self.hover(hover, hideMotoLsPopUp);
 		} else {
 			self.attr('title', self.text());
-			self.click(generator(self.attr('id').substring(2), self.hasClass('midoku_ari')));
+			self.click(click);
 		}
 	})
 

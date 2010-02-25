@@ -726,7 +726,7 @@ if ($all == 0) {
             // 32400 = 9*60*60 (Žž·•â³)
             $time2date = sprintf('floor((%s + 32400) / 86400)', $db->quoteIdentifier('time'));
         }
-        $orderBy .= sprintf('%s %s, %s ', $time2date, $sort, $db->quoteIdentifier('uri'));
+        $orderBy = sprintf('%s %s, %s ', $time2date, $sort, $db->quoteIdentifier('uri'));
         if ($order == 'date_uri') {
             $orderBy .= $sort;
         } else {
