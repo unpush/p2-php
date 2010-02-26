@@ -276,14 +276,17 @@ EOP;
         if ($_conf['sb_show_fav']) {
             if ($aThreadList->spmode != 'taborn') {
 
-                $favmark = (!empty($aThread->fav)) ? '★' : '+';
-                $favdo = (!empty($aThread->fav)) ? 0 : 1;
-                $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
-                $favdo_q = '&amp;setfav='.$favdo;
+                if (empty($aThread->fav)) {
+                    $favmark = '+';
+                    $favdo = '1';
+                } else {
+                    $favmark = '★';
+                    $favdo = '0';
+                }
 
                 // $ttitle_en_q も付けた方がいいが、節約のため省略する
                 $td['fav'] = <<<EOP
-<td{$class_t}><a class="fav" href="info.php?{$host_bbs_key_q}{$favdo_q}" target="info" onclick="return rep2.subject.setFav('{$host_bbs_key_q}','{$favdo}',this);" title="{$favtitle}">{$favmark}</a></td>\n
+<td{$class_t}><a class="fav" href="info.php?{$host_bbs_key_q}&amp;setfav={$favdo}" target="info">{$favmark}</a></td>\n
 EOP;
             }
         }

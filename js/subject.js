@@ -120,7 +120,15 @@ rep2.subject.offRecent = function (anchor) {
 
 $(document).ready(function(){
 	var _ = rep2.subject;
+	var set;
 
+	// URLからhost-bbs-keyを抽出する正規表現
+	var re = /[\?&](host=.+?&bbs=.+?&key=.+?)(&|$)/;
+	var host_bbs_key = function (anchor) {
+		return re.exec(anchor.href)[1];
+	};
+
+	// 表示の調整
 	_.setWindowTitle();
 	_.resizeTitleCell();
 
@@ -134,19 +142,16 @@ $(document).ready(function(){
 		return _.openSubWindow(this.href);
 	});
 
-	// URLからhost-bbs-keyを抽出する正規表現
-	var re = /[\?&](host=.+?&bbs=.+?&key=.+?)(&|$)/;
-
 	// ログを削除
 	$('.threadlist td.tu').find('a.un, a.un_a, a.un_n').attr('title', 'クリックするとログ削除');
 	$('.threadlist td.tu a.un_n').click(function(){
 		if (!window.confirm('ログを削除しますか？')) {
 			return false;
 		}
-		return _.deleteLog(re.exec(this.href)[1], this);
+		return _.deleteLog(host_bbs_key(this), this);
 	});
 	$('.threadlist td.tu').find('a.un, a.un_a').click(function(){
-		return _.deleteLog(re.exec(this.href)[1], this);
+		return _.deleteLog(host_bbs_key(this), this);
 	});
 
 	// 範囲を指定して元スレを開く小ポップアップメニュー
@@ -173,6 +178,18 @@ $(document).ready(function(){
 			self.click(click);
 		}
 	})
+
+	// お気にスレ
+	set = $('.threadlist td.t a.fav[href$="&setfav=0"]');
+	set.attr('title', 'お気にスレから外す');
+	set.click(function () {
+		return _.setFavorite(host_bbs_key(this), '0', this);
+	});
+	set = $('.threadlist td.t a.fav[href$="&setfav=1"]');
+	set.attr('title', 'お気にスレに追加');
+	set.click(function(){
+		return _.setFavorite(host_bbs_key(this), '1', this);
+	});
 
 	// IE対策
 	if ($.browser.msie) {
