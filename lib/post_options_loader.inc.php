@@ -34,8 +34,10 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
         $aThread->readDat($aThread->keydat);
         $q_resar = $aThread->explodeDatLine($aThread->datlines[$q_resnum - 1]);
         $q_resar = array_map('trim', $q_resar);
-        $q_resar[3] = strip_tags($q_resar[3], '<br>');
-        $q_resar[3] = P2Util::htmlEntityDecodeLite($q_resar[3]);
+        $q_resar[3] = str_replace('<br>', "\n", $q_resar[3]);
+        //$q_resar[3] = P2Util::htmlEntityDecodeLite($q_resar[3]);
+        $q_resar[3] = strip_tags($q_resar[3]);
+        $q_resar[3] = str_replace("\n", '<br>', $q_resar[3]);
         if ($_GET['inyou'] == 1 || $_GET['inyou'] == 3) {
             // 引用レス番号ができてしまわないように、二つの半角スペースを入れている
             $resv['MESSAGE'] .= '>  ';
