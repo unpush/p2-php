@@ -194,8 +194,6 @@ EOP;
     //テーブルボディ
     //=====================================================
 
-    echo "<tbody>\n";
-
     //spmodeがあればクエリー追加
     if ($aThreadList->spmode) {
         $spmode_q = "&amp;spmode={$aThreadList->spmode}";
@@ -205,6 +203,12 @@ EOP;
 
     $i = 0;
     foreach ($aThreadList->threads as $aThread) {
+        if ($i % 100 == 0) {
+            if ($i > 0) {
+                echo '</tbody>';
+            }
+            printf('<tbody class="tgroup%d">', $i / 100 + 1);
+        }
         $i++;
         $midoku_ari = false;
         $anum_ht = ''; // #r1

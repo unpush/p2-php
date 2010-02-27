@@ -10,6 +10,7 @@
 $newtime = date('gis');
 $reloaded_time = date('m/d G:i:s'); //更新時刻
 $shinchaku_attayo_json = json_encode($shinchaku_attayo);
+$threads_count_json = json_encode($aThreadList->num);
 $JSTYLE = JStyle::singleton();
 
 // スレあぼーんチェック、倉庫 =============================================
@@ -223,6 +224,7 @@ echo <<<EOP
     rep2.subject.properties = {
         'shinchaku_ari': {$shinchaku_attayo_json},
         'page_title': {$ptitle_json},
+        'threads_count': {$threads_count_json},
         'ttcolor': {$JSTYLE['sb_ttcolor']},
         'ttcolor_v': {$JSTYLE['thre_title_color_v']},
         'pop_size': [{$JSTYLE['info_pop_size']}]

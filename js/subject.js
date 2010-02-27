@@ -116,11 +116,17 @@ rep2.subject.offRecent = function (anchor) {
 };
 
 // }}}
-// {{{ $(document).ready()
+// {{{ rep2.subject.setup()
 
-$(document).ready(function(){
+rep2.subject.setup = function (group_number) {
 	var _ = rep2.subject;
-	var set;
+	var cells, set;
+
+	if (typeof group_number === 'undefined') {
+		cells = $('table.threadlist > tbody > tr > td');
+	} else {
+		cells = $('table.threadlist > tbody.tgroup' + group_number + ' > tr > td');
+	}
 
 	// URLからhost-bbs-keyを抽出する正規表現
 	var re = /[\?&](host=.+?&bbs=.+?&key=.+?)(&|$)/;
@@ -128,29 +134,26 @@ $(document).ready(function(){
 		return re.exec(anchor.href)[1];
 	};
 
-	// 表示の調整
-	_.setWindowTitle();
-	_.resizeTitleCell();
-
 	// 最近読んだスレ解除
-	$('.threadlist td.tc a[href$="&offrec=true"]').click(function(){
+	cells.filter('.tc').find('a[href$="&offrec=true"]').click(function(){
 		return _.offRecent(this);
 	});
 
 	// 情報ウインドウ表示
-	$('.threadlist td.to a.info').click(function(){
+	cells.filter('.to').find('a.info').click(function(){
 		return _.openSubWindow(this.href);
 	});
 
 	// ログを削除
-	$('.threadlist td.tu').find('a.un, a.un_a, a.un_n').attr('title', 'クリックするとログ削除');
-	$('.threadlist td.tu a.un_n').click(function(){
+	set = cells.filter('.tu').find('a.un, a.un_a, a.un_n');
+	set.attr('title', 'クリックするとログ削除');
+	set.filter('.un_n').click(function(){
 		if (!window.confirm('ログを削除しますか？')) {
 			return false;
 		}
 		return _.deleteLog(host_bbs_key(this), this);
 	});
-	$('.threadlist td.tu').find('a.un, a.un_a').click(function(){
+	set.filter('.un, .un_a').click(function(){
 		return _.deleteLog(host_bbs_key(this), this);
 	});
 
@@ -169,7 +172,7 @@ $(document).ready(function(){
 	};
 
 	// 元スレとスレッドタイトル
-	$('.threadlist td.tl a').map(function(){
+	cells.filter('.tl').find('a').map(function(){
 		var self = $(this);
 		if (self.hasClass('moto_thre')) {
 			self.hover(hover, hideMotoLsPopUp);
@@ -180,12 +183,12 @@ $(document).ready(function(){
 	})
 
 	// お気にスレ
-	set = $('.threadlist td.t a.fav[href$="&setfav=0"]');
+	set = cells.filter('.t').find('a.fav[href$="&setfav=0"]');
 	set.attr('title', 'お気にスレから外す');
 	set.click(function () {
 		return _.setFavorite(host_bbs_key(this), '0', this);
 	});
-	set = $('.threadlist td.t a.fav[href$="&setfav=1"]');
+	set = cells.filter('.t').find('a.fav[href$="&setfav=1"]');
 	set.attr('title', 'お気にスレに追加');
 	set.click(function(){
 		return _.setFavorite(host_bbs_key(this), '1', this);
@@ -193,7 +196,30 @@ $(document).ready(function(){
 
 	// IE対策
 	if ($.browser.msie) {
-		$('.threadlist td').contents('[nodeType=3]').wrap('<span class="nowrap"></span>');
+		cells.contents().filter('[nodeType=3]').wrap('<span class="nowrap"></span>');
+	}
+};
+
+// }}}
+// {{{ $(document).ready()
+
+$(document).ready(function(){
+	var _ = rep2.subject;
+
+	_.setWindowTitle();
+	_.resizeTitleCell();
+
+	if (_.properties.threads_count > 300) {
+		var i, j, n;
+		i = 0;
+		n = $('table.threadlist > tbody').length;
+		while (i < n) {
+			j = i + 1;
+			window.setTimeout('rep2.subject.setup(' + j + ')', 100 * i + 1);
+			i = j;
+		}
+	} else {
+		_.setup();
 	}
 });
 
