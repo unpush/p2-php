@@ -15,7 +15,7 @@ function sb_print($aThreadList)
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('sb_print()');
     
     if (!$aThreadList->threads) {
-        echo "<tr><td>　該当サブジェクトはなかったぽ</td></tr>";
+        echo '<tr><td>　該当サブジェクトはなかったぽ</td></tr>';
         $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
         return;
     }
@@ -24,7 +24,10 @@ function sb_print($aThreadList)
     
     // >>1 表示
     $onlyone_bool = false;
-    if (($_conf['sb_show_one'] == 1) or ($_conf['sb_show_one'] == 2 and ereg("news", $aThreadList->bbs) || $aThreadList->bbs == "bizplus")) {
+    if (
+        $_conf['sb_show_one'] == 1
+        or ($_conf['sb_show_one'] == 2 and ereg('news', $aThreadList->bbs) || $aThreadList->bbs == 'bizplus')
+    ) {
         // spmodeは除く
         if (empty($aThreadList->spmode)) {
             $onlyone_bool = true;
@@ -32,20 +35,18 @@ function sb_print($aThreadList)
     }
     
     // チェックボックス
-    if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
+    $checkbox_bool = false;
+    if ($aThreadList->spmode == 'taborn' || $aThreadList->spmode == 'soko') {
         $checkbox_bool = true;
-    } else {
-        $checkbox_bool = false;
     }
     
     // 板名
-    if ($aThreadList->spmode and $aThreadList->spmode != "taborn" and $aThreadList->spmode != "soko") {
+    $ita_name_bool = false;
+    if ($aThreadList->spmode && $aThreadList->spmode != 'taborn' && $aThreadList->spmode != 'soko') {
         $ita_name_bool = true;
-    } else {
-        $ita_name_bool = false;
     }
 
-    $norefresh_q = "&amp;norefresh=1";
+    $norefresh_q = '&amp;norefresh=1';
 
     // ソート ==================================================
     
@@ -393,12 +394,12 @@ EOP;
             );
             
             $edit_ht = <<<EOP
-        <td{$class_te}>
-            <a class="te" href="{$narabikae_a}&amp;{$setkey}=top" target="_self">▲</a>
-            <a class="te" href="{$narabikae_a}&amp;{$setkey}=up" target="_self">↑</a>
-            <a class="te" href="{$narabikae_a}&amp;{$setkey}=down" target="_self">↓</a>
-            <a class="te" href="{$narabikae_a}&amp;{$setkey}=bottom" target="_self">▼</a>
-        </td>
+		<td{$class_te}>
+			<a class="te" href="{$narabikae_a}&amp;{$setkey}=top" target="_self">▲</a>
+			<a class="te" href="{$narabikae_a}&amp;{$setkey}=up" target="_self">↑</a>
+			<a class="te" href="{$narabikae_a}&amp;{$setkey}=down" target="_self">↓</a>
+			<a class="te" href="{$narabikae_a}&amp;{$setkey}=bottom" target="_self">▼</a>
+		</td>
 EOP;
         }
         

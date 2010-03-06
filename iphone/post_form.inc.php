@@ -44,7 +44,7 @@ $htm['post_form'] = <<<EOP
     <textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="{$wrap}"{$htm['kakiko_on_js']}>{$MESSAGE_hs}</textarea>{$htm['k_br']}
     </div>
     </fieldset>
-    <input class="whitebutton" id="submit" type="submit" name="submit" value="{$submit_value}"{$htm['res_disabled']}{$htm['title_need_be']} onClick="setHiddenValue(this);">
+    <input class="whitebutton" id="submit" type="submit" name="submit" value="{$submit_value}"{$res_disabled_at}{$htm['title_need_be']} onClick="setHiddenValue(this);">
     {$htm['be2ch']}
     
     {$htm['src_fix']}

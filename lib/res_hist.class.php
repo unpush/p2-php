@@ -67,33 +67,21 @@ class ResHist
     }
     
     /**
-     * レス記事HTMLを表示する PC用
-     *
-     * @access  public
-     * @param   array
-     * @return  void
+     * @access  private
+     * @return  array
      */
-    function printArticlesHtml($datlines)
+    function getPagerParams($datlines, $perPage)
     {
-        global $_conf, $STYLE;
-
-        // Pager 準備
-        if (!include_once 'Pager/Pager.php') {
-            P2Util::printSimpleHtml('p2 error: PEARの Pager/Pager.php がインストールされていません');
-            die;
-        }
-        
         $qv = UA::getQueryValue();
         
-        $perPage = 100;
-        $params = array(
+        return $params = array(
             'mode'       => 'Jumping',
             'itemData'   => $datlines,
             'perPage'    => $perPage,
             'delta'      => 25,
             'clearIfVoid' => true,
-            'prevImg' => "前の{$perPage}件",
-            'nextImg' => "次の{$perPage}件",
+            'prevImg' => sprintf('前の%d件', $perPage),
+            'nextImg' => sprintf('次の%d件', $perPage),
             //'separator' => '|',
             //'expanded' => true,
             'spacesBeforeSeparator' => 2,
@@ -111,11 +99,29 @@ class ResHist
                 ),
                 array('encode' => null) // %d をエンコードしないように
             )
-            
         );
+    }
+    
+    /**
+     * レス記事HTMLを表示する PC用
+     *
+     * @access  public
+     * @param   array
+     * @return  void
+     */
+    function printArticlesHtml($datlines)
+    {
+        global $_conf, $STYLE;
 
-        $pager = &Pager::factory($params);
-        $links = $pager->getLinks();
+        // Pager 準備
+        if (!include_once 'Pager/Pager.php') {
+            P2Util::printSimpleHtml('p2 error: PEARの Pager/Pager.php がインストールされていません');
+            die;
+        }
+        
+        $perPage = 100;
+        $pager = Pager::factory($this->getPagerParams($datlines, $perPage));
+        //$links = $pager->getLinks();
         $data  = $pager->getPageData();
 
         if ($pager->links) {

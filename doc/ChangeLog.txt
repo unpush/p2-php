@@ -1,4 +1,15 @@
 2010/01/16
+	* rep2 version 1.8.61
+
+	[修正]「これにレス」でHTML表示がデコードされていない状態だったのを修正した。
+	[修正] クッキー無効時に、(p)ポップアップ、ユーザ設定編集の「リロード」でセッションが途切れていたのを修正した。
+	[改良] 削除リンクのJavaScript動作を非同期ajaxに変更した。
+	[更新] フレーム解除を避けるために、twitter.comとnoaa.govを(p)ポップアップの適用外とした。
+	[更新] 設定値 $_conf['default_socket_timeout'] = 20 を追加した（conf/conf_admin.inc.php）
+	[更新] WILLCOM, au, docomoのIPアドレス帯域を更新した。
+	[内部更新] UriUtilクラス(UriUtil.php)を追加した。
+
+2010/01/16
 	* rep2 version 1.8.60
 
 	[修正] PC表示のタイトルページに記載の携帯ログイン用URLにuser引数が抜けていたのを直した。

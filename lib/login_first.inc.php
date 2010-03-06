@@ -39,7 +39,6 @@ function printLoginFirst(&$_login)
     
     $myname = basename($_SERVER['SCRIPT_NAME']);
 
-    $auth_sub_input_ht = '';
     $body_ht = '';
     $show_login_form_flag = false;
     
@@ -59,58 +58,10 @@ function printLoginFirst(&$_login)
         }
     }
 
-    // {{{ 補助認証
-    
-    $mobile = &Net_UserAgent_Mobile::singleton();
+    // 補助認証
     require_once P2_LIB_DIR . '/HostCheck.php';
-    
-    // EZ認証
-    if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
-        //if (!$_login->hasRegistedAuthCarrier('EZWEB')) {
-            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_ez" value="1">' . "\n" .
-                '<input type="checkbox" name="regist_ez" value="1" checked>EZ端末IDで認証を登録<br>';
-        //}
-
-    // SoftBank認証
-    // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
-    } elseif (HostCheck::isAddrSoftBank() and P2Util::getSoftBankID()) {
-        //if (!$_login->hasRegistedAuthCarrier('SOFTBANK')) {
-            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_jp" value="1">' . "\n" .
-                '<input type="checkbox" name="regist_jp" value="1" checked>SoftBank端末IDで認証を登録<br>';
-        //}
-
-    // docomo認証
-    } elseif ($mobile->isDoCoMo()) {
-        //if (!$_login->hasRegistedAuthCarrier('DOCOMO')) {
-            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_docomo" value="1">' . "\n" .
-                '<input type="checkbox" name="regist_docomo" value="1" checked>docomo端末IDで認証を登録<br>';
-        //}
-
-    // Cookie認証
-    } else {
-
-        $regist_cookie_checked = ' checked';
-        if (isset($_POST['submit_newuser']) || isset($_POST['submit_userlogin'])) {
-            if (empty($_POST['regist_cookie'])) {
-                $regist_cookie_checked = '';
-            }
-        }
-        $ignore_cip_checked = '';
-        if (isset($_POST['submit_newuser']) || isset($_POST['submit_userlogin'])) {
-            if (geti($_POST['ignore_cip']) == '1') {
-                $ignore_cip_checked = ' checked';
-            }
-        } else {
-            if (geti($_COOKIE['ignore_cip']) == '1') {
-                $ignore_cip_checked = ' checked';
-            }
-        }
-        $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_cookie" value="1">'
-          . sprintf('<input type="checkbox" id="regist_cookie" name="regist_cookie" value="1"%s><label for="regist_cookie">ログイン情報をCookieに保存する（推奨）</label><br>', $regist_cookie_checked)
-          . sprintf('<input type="checkbox" id="ignore_cip" name="ignore_cip" value="1"%s><label for="ignore_cip">Cookie認証時にIPの同一性をチェックしない</label><br>', $ignore_cip_checked);
-    }
-    
-    // }}}
+    $mobile = Net_UserAgent_Mobile::singleton();
+    $auth_sub_input_ht = _getAuthSubInputHtml($mobile);
     
     // ログインフォームからの指定
 
@@ -121,10 +72,9 @@ function printLoginFirst(&$_login)
         $form_login_id_hs = hs($post['form_login_id']);
     }
     
+    $form_login_pass_hs = '';
     if ($_login->validLoginPass($post['form_login_pass'])) {
         $form_login_pass_hs = hs($post['form_login_pass']);
-    } else {
-        $form_login_pass_hs = '';
     }
 
     // docomoの固有端末認証（セッション利用時のみ有効）
@@ -184,7 +134,10 @@ EOP;
     ) {
         // {{{ 入力エラーをチェック、判定
         
-        if (!$_login->validLoginId($post['form_login_id']) || !$_login->validLoginPass($post['form_login_pass'])) {
+        if (
+            !$_login->validLoginId($post['form_login_id']) 
+            || !$_login->validLoginPass($post['form_login_pass'])
+        ) {
             P2Util::pushInfoHtml(
                 sprintf(
                     '<p class="infomsg">p2 error: 「%s」名と「%s」は半角英数字で入力して下さい。</p>',
@@ -305,6 +258,62 @@ EOP;
     }
     
     ?></body></html><?php
+}
+
+/**
+ * @return  string  HTML
+ */
+function _getAuthSubInputHtml($mobile)
+{
+    $auth_sub_input_ht = '';
+    
+    // EZ認証
+    if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
+        //if (!$_login->hasRegistedAuthCarrier('EZWEB')) {
+            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_ez" value="1">' . "\n" .
+                '<input type="checkbox" name="regist_ez" value="1" checked>EZ端末IDで認証を登録<br>';
+        //}
+
+    // SoftBank認証
+    // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
+    } elseif (HostCheck::isAddrSoftBank() and P2Util::getSoftBankID()) {
+        //if (!$_login->hasRegistedAuthCarrier('SOFTBANK')) {
+            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_jp" value="1">' . "\n" .
+                '<input type="checkbox" name="regist_jp" value="1" checked>SoftBank端末IDで認証を登録<br>';
+        //}
+
+    // docomo認証
+    } elseif ($mobile->isDoCoMo()) {
+        //if (!$_login->hasRegistedAuthCarrier('DOCOMO')) {
+            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_docomo" value="1">' . "\n" .
+                '<input type="checkbox" name="regist_docomo" value="1" checked>docomo端末IDで認証を登録<br>';
+        //}
+
+    // Cookie認証
+    } else {
+
+        $regist_cookie_checked = ' checked';
+        if (isset($_POST['submit_newuser']) || isset($_POST['submit_userlogin'])) {
+            if (empty($_POST['regist_cookie'])) {
+                $regist_cookie_checked = '';
+            }
+        }
+        $ignore_cip_checked = '';
+        if (isset($_POST['submit_newuser']) || isset($_POST['submit_userlogin'])) {
+            if (geti($_POST['ignore_cip']) == '1') {
+                $ignore_cip_checked = ' checked';
+            }
+        } else {
+            if (geti($_COOKIE['ignore_cip']) == '1') {
+                $ignore_cip_checked = ' checked';
+            }
+        }
+        $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_cookie" value="1">'
+          . sprintf('<input type="checkbox" id="regist_cookie" name="regist_cookie" value="1"%s><label for="regist_cookie">ログイン情報をCookieに保存する（推奨）</label><br>', $regist_cookie_checked)
+          . sprintf('<input type="checkbox" id="ignore_cip" name="ignore_cip" value="1"%s><label for="ignore_cip">Cookie認証時にIPの同一性をチェックしない</label><br>', $ignore_cip_checked);
+    }
+    
+    return $auth_sub_input_ht;
 }
 
 /*

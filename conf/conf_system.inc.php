@@ -3,7 +3,7 @@
 // このファイルは、特に理由の無い限り変更しないで下さい。
 // include from conf.inc.php
 
-$_conf['p2version'] = '1.8.60'; // rep2のバージョン
+$_conf['p2version'] = '1.8.61'; // rep2のバージョン
 
 $_conf['p2name'] = 'rep2';    // rep2の名前。
 
@@ -78,16 +78,17 @@ if (!require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'conf_admin.inc.php'
     die;
 }
 
-ini_set('default_socket_timeout', $_conf['fsockopen_time_limit']);
-
-// 管理用保存ディレクトリ (パーミッションは707)
-$_conf['admin_dir'] = $_conf['data_dir'] . '/admin';
+ini_set('default_socket_timeout', $_conf['default_socket_timeout']);
 
 // cache 保存ディレクトリ (パーミッションは707)
 $_conf['cache_dir'] = $_conf['data_dir'] . '/cache'; // 2005/6/29 $_conf['pref_dir'] . '/p2_cache' より変更
 
 // テンポラリディレクトリ (パーミッションは707)
 $_conf['tmp_dir'] = $_conf['data_dir'] . '/tmp';
+
+// 管理用保存ディレクトリ (パーミッションは707)
+// 2010/02/01 拡張の設定。使用していない。
+$_conf['admin_dir'] = $_conf['data_dir'] . '/admin';
 
 $_conf['accesskey_for_k'] = 'accesskey';
 

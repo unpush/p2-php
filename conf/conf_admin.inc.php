@@ -61,6 +61,8 @@ $_conf['session_save'] = 'p2';      // ('p2') sessionデータの保存管理 (PHPデフォ
 
 $_conf['fsockopen_time_limit'] = 6; // (6) ネットワーク接続タイムアウト時間 (秒)
 
+$_conf['default_socket_timeout'] = 20; // ini_set('default_socket_timeout', )
+
 $_conf['dlSubjectTotalLimitTime'] = 15; // (15) subject.txtのダウンロードに費やす合計制限時間（秒）
 
 // （モバイル表示時）subject.txtのダウンロードに費やす合計制限時間（秒）

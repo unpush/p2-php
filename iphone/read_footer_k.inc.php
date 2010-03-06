@@ -16,7 +16,9 @@ if (!empty($_GET['onlyone'])) {
 //$goto_ht = _kspform($aThread, isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to']);
 
 // フィルター表示 Edit 080727 by 240
-$seafrm_ht = _createFilterForm(isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to'], $aThread);
+$seafrm_ht = _createFilterForm(
+    isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to'], $aThread
+);
 $hr = P2View::getHrHtmlK();
 
 //=====================================================================
@@ -30,9 +32,19 @@ if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat)) { // 
       | <a href="{$motothre_url}" target="_blank" >{$dores_st}</a>
 EOP;
         } else {
-            $dores_ht = <<<EOP
-<a href="post_form_i.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}" >{$dores_st}</a>
-EOP;
+            $dores_ht = P2View::tagA(
+                UriUtil::buildQueryUri('post_form_i.php',
+                    array(
+                        'host' => $aThread->host,
+                        'bbs'  => $aThread->bbs,
+                        'key'  => $aThread->key,
+                        'rescount' => $aThread->rescount,
+                        'ttitle_en' => $ttitle_en,
+                        UA::getQueryKey() => UA::getQueryValue()
+                    )
+                ),
+                hs($dores_st)
+            );
         }
     }
     
@@ -99,12 +111,6 @@ EOP;
 
     // フォームのオプション読み込み
     require_once P2_IPHONE_LIB_DIR . '/post_options_loader_popup.inc.php';
-
-// sageチェックボタンの作成
-        $on_check_sage = ' onChange="checkSage();"';
-    	$sage_cb_ht = <<<EOP
-<input id="sage" type="checkbox" onClick="mailSage();">
-EOP;
 
 // スレッドタイトルの作成
     $htm['resform_ttitle'] = <<<EOP

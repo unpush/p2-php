@@ -8,7 +8,7 @@
 
 ■動作環境：サーバサイド
 
- PHP4.3.8以降。PHP5でも動きます。
+ PHP4.3.8以上。PHP5でも動きます。
  OSは、UNIX、Linux、Windows、Mac OS Xでの動作報告あり。
  
  ※PHPは、mbstring が有効である必要があります。

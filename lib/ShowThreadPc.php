@@ -1050,6 +1050,21 @@ EOMSG;
     // link_callback()はFALSEが返ってくると$url_handlersに登録されている次の関数/メソッドに処理させようとする。
 
     /**
+     * （フレーム解除を避けるため、）iframeポップアップの適用外とするURIならtrueを返す
+     *
+     * @access  private
+     * @return  boolean
+     */
+    function isNoIframeUri($uri)
+    {
+        // http://www.prh.noaa.gov/ptwc/?region=1&id=pacific.2010.02.28.085650
+        if (preg_match('{(?:wikipedia\\.org|twitter\\.com|noaa\\.gov)}', $uri)) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * 通常URLリンク
      *
      * @access  private
@@ -1064,9 +1079,8 @@ EOMSG;
             // ime
             $link_url = $_conf['through_ime'] ? P2Util::throughIme($url) : $url;
 
-            // HTMLポップアップ
-            // wikipedia.org は、フレームを解除してしまうので、対象外とする
-            if ($_conf['iframe_popup'] && preg_match('/https?/', $purl['scheme']) && !preg_match('~wikipedia\.org~', $url)) {
+            // HTMLポップアップ (p)など
+            if ($_conf['iframe_popup'] && preg_match('/https?/', $purl['scheme']) && !$this->isNoIframeUri($url)) {
                 // p2pm 指定の場合のみ、特別にm指定を追加する
                 if ($_conf['through_ime'] == 'p2pm') {
                     $pop_url = preg_replace('/\\?(enc=1&)url=/', '?$1m=1&url=', $link_url);

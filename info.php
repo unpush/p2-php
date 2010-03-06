@@ -219,8 +219,9 @@ $taborn_ht = sprintf(
 // }}}
 
 // ログありなしフラグセット
-if (file_exists($aThread->keydat) or file_exists($aThread->keyidx)) {
-    $existLog = true;
+$existsLog = false;
+if (file_exists($aThread->keydat) || file_exists($aThread->keyidx)) {
+    $existsLog = true;
 }
 
 //=================================================================
@@ -361,7 +362,7 @@ if (UA::isPC()) {
     _printInfoTrHtml("key", $aThread->key);
 }
 
-if ($existLog) {
+if ($existsLog) {
     $atag = P2View::tagA(
         UriUtil::buildQueryUri('info.php',
             array(
@@ -386,7 +387,7 @@ if ($existLog) {
 if ($aThread->gotnum) {
     _printInfoTrHtml("既得レス数", $aThread->gotnum);
 
-} elseif (!$aThread->gotnum and $existLog) {
+} elseif (!$aThread->gotnum and $existsLog) {
     _printInfoTrHtml("既得レス数", "0");
 
 } else {

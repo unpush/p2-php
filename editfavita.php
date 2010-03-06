@@ -28,14 +28,13 @@ if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
 // }}}
 
 // ï¿Ç—ë÷Ç¶Ç…JavaScriptégÇ§Ç©Ç¢ÅH
+$sortNoJs = false;
 if (
     UA::isK() || UA::isNetFront() 
     or !empty($_POST['sortNoJs']) || !empty($_GET['sortNoJs']) 
     or isset($_GET['setfavita'])
 ) {
     $sortNoJs = true;
-} else {
-    $sortNoJs = false;
 }
 
 $csrfid = P2Util::getCsrfId();

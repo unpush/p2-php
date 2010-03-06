@@ -446,7 +446,7 @@ class P2Util
     /**
      * @static
      * @access  public
-     * @return  array
+     * @return  array  'FROM', 'mail', 'MESSAGE, 'subject'
      */
     function getDefaultResValues($host, $bbs, $key)
     {

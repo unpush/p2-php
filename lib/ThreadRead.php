@@ -625,7 +625,7 @@ class ThreadRead extends Thread
         // gzip圧縮なら
         if ($isGzip) {
             // gzip tempファイルに保存
-            $gztempfile = $this->keydat . ".gz";
+            $gztempfile = $this->keydat . '.gz';
             FileCtl::mkdirFor($gztempfile);
             if (file_put_contents($gztempfile, $body, LOCK_EX) === false) {
                 die("Error: cannot write file. downloadDat2chMaru()");
@@ -638,20 +638,21 @@ class ThreadRead extends Thread
             // コマンドラインで解凍
             } else {
                 // 既に存在するなら一時datをバックアップ退避
+                $keydat_bak = $this->keydat . '.bak';
                 if (file_exists($this->keydat)) {
-                    if (file_exists($this->keydat . ".bak")) {
-                        unlink($this->keydat . ".bak");
+                    if (file_exists($keydat_bak)) {
+                        unlink($keydat_bak);
                     }
-                    rename($this->keydat, $this->keydat . ".bak");
+                    rename($this->keydat, $keydat_bak);
                 }
                 $rcode = 1;
                 // 解凍する
                 system("gzip -d $gztempfile", $rcode);
                 // 解凍失敗ならバックアップを戻す
                 if ($rcode != 0) {
-                    if (file_exists($this->keydat . ".bak")) {
+                    if (file_exists($keydat_bak)) {
                         file_exists($this->keydat) and unlink($this->keydat);
-                        rename($this->keydat . ".bak", $this->keydat);
+                        rename($keydat_bak, $this->keydat);
                     }
                     $this->pushDownloadDatErrorMsgHtml("<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みは、PHPの<a href=\"http://www.php.net/manual/ja/ref.zlib.php\">zlib拡張モジュール</a>がないか、systemでgzipコマンドが使用可能でなければできません。</p>");
                     // gztempファイルを捨てる
@@ -662,7 +663,7 @@ class ThreadRead extends Thread
                     
                 // 解凍成功なら
                 } else {
-                    file_exists($this->keydat . ".bak") and unlink($this->keydat . ".bak");
+                    file_exists($keydat_bak) and unlink($keydat_bak);
                     
                     $done_gunzip = true;
                 }
@@ -879,7 +880,7 @@ class ThreadRead extends Thread
         $done_gunzip = false;
         
         if ($isGzip) {
-            $gztempfile = $this->keydat . ".gz";
+            $gztempfile = $this->keydat . '.gz';
             FileCtl::mkdirFor($gztempfile);
             if (file_put_contents($gztempfile, $body, LOCK_EX) === false) {
                 die("Error: cannot write file. downloadDat2chKako()");
@@ -889,22 +890,23 @@ class ThreadRead extends Thread
                 $body = FileCtl::getGzFileContents($gztempfile);
             } else {
                 // 既に存在するなら一時バックアップ退避
+                $keydat_bak = $this->keydat . '.bak';
                 if (file_exists($this->keydat)) {
-                    if (file_exists($this->keydat . ".bak")) {
-                        unlink($this->keydat . ".bak");
+                    if (file_exists($keydat_bak)) {
+                        unlink($keydat_bak);
                     }
-                    rename($this->keydat, $this->keydat . ".bak");
+                    rename($this->keydat, $keydat_bak);
                 }
                 $rcode = 1;
                 // 解凍
                 system("gzip -d $gztempfile", $rcode);
                 if ($rcode != 0) {
-                    if (file_exists($this->keydat . ".bak")) {
+                    if (file_exists($keydat_bak)) {
                         if (file_exists($this->keydat)) {
                             unlink($this->keydat);
                         }
                         // 失敗ならバックアップ戻す
-                        rename($this->keydat . ".bak", $this->keydat);
+                        rename($keydat_bak, $this->keydat);
                     }
                     $this->pushDownloadDatErrorMsgHtml("<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みは、PHPの<a href=\"http://www.php.net/manual/ja/ref.zlib.php\">zlib拡張モジュール</a>がないか、systemでgzipコマンドが使用可能でなければできません。</p>");
                     // gztempファイルを捨てる
@@ -913,8 +915,8 @@ class ThreadRead extends Thread
                     return false;
                     
                 } else {
-                    if (file_exists($this->keydat . ".bak")) {
-                        unlink($this->keydat . ".bak");
+                    if (file_exists($keydat_bak)) {
+                        unlink($keydat_bak);
                     }
                     $done_gunzip = true;
                 }
@@ -1339,15 +1341,15 @@ class ThreadRead extends Thread
         $body = '';
         if (!empty($this->onthefly)) {
             // PC
-            if (empty($GLOBALS['_conf']['ktai'])) {
-                $body .= "<div><span class=\"onthefly\">プレビュー</span></div>";
+            if (UA::isPC()) {
+                $body .= '<div><span class="onthefly">プレビュー</span></div>';
             // 携帯
             } else {
-                $body .= "<div><font size=\"-1\" color=\"#00aa00\">ﾌﾟﾚﾋﾞｭｰ</font></div>";
+                $body .= '<div><font size="-1" color="#00aa00">ﾌﾟﾚﾋﾞｭｰ</font></div>';
             }
         }
         
-        empty($GLOBALS['_conf']['ktai']) and $body .= "<dl>";
+        UA::isPC() and $body .= '<dl>';
         
         require_once P2_LIB_DIR . '/ShowThread.php';
         
@@ -1362,9 +1364,8 @@ class ThreadRead extends Thread
         }
         
         $body .= $aShowThread->transRes($first_line, 1); // 1を表示
-        unset($aShowThread);
         
-        empty($GLOBALS['_conf']['ktai']) and $body .= "</dl>\n";
+        UA::isPC() and $body .= "</dl>\n";
         
         return $body;
     }

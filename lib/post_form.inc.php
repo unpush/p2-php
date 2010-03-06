@@ -23,16 +23,17 @@ $ttitle_en_hs = hs($ttitle_en);
 
 // 文字コード判定用文字列を先頭に仕込むことでmb_convert_variables()の自動判定を助ける
 $htm['post_form'] = <<<EOP
+<form id="resform" method="POST" action="{$_conf['post_php']}" accept-charset="{$_conf['accept_charset']}" onsubmit="disableSubmit(this)">
 {$htm['resform_ttitle']}
 {$htm['orig_msg']}
-<form id="resform" method="POST" action="{$_conf['post_php']}" accept-charset="{$_conf['accept_charset']}" onsubmit="disableSubmit(this)">
+
     <input type="hidden" name="detect_hint" value="◎◇">
     {$htm['subject']}
     {$htm['maru_kakiko']} 名前： <input id="FROM" name="FROM" type="text" value="{$hs['FROM']}"{$name_size_at}>{$htm['k_br']} 
      E-mail : <input id="mail" name="mail" type="text" value="{$hs['mail']}"{$mail_size_at}{$on_check_sage}>
     {$sage_cb_ht}{$htm['k_br']}
-    <textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="{$wrap}"{$htm['kakiko_on_js']}>{$hs['MESSAGE']}</textarea>{$htm['k_br']}
-    <input id="submit" type="submit" name="submit" value="{$submit_value}"{$htm['res_disabled']}{$htm['title_need_be']} onClick="setHiddenValue(this);">
+    <textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="{$wrap}"{$htm['kakiko_on_js']}>{$MESSAGE_hs}</textarea>{$htm['k_br']}
+    <input id="submit" type="submit" name="submit" value="{$submit_value}"{$res_disabled_at}{$htm['title_need_be']} onClick="setHiddenValue(this);">
     {$htm['be2ch']}
     <br>
     {$htm['src_fix']}
