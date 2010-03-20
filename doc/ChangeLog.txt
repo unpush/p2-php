@@ -1,3 +1,9 @@
+2010/03/20
+	* rep2 version 1.8.62
+
+	[修正] PHP設定のshort_open_tagが無効の時、iPhoneモードでスクリプトエラーが起きていたのを修正した。
+	[更新] iPhone、jigブラウザのIPアドレス帯域を更新した。
+
 2010/03/06
 	* rep2 version 1.8.61
 
