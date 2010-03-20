@@ -16,9 +16,7 @@ if (!empty($_GET['onlyone'])) {
 //$goto_ht = _kspform($aThread, isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to']);
 
 // フィルター表示 Edit 080727 by 240
-$seafrm_ht = _createFilterForm(
-    isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to'], $aThread
-);
+$seafrm_ht = _createFilterForm($aThread, $res_filter);
 $hr = P2View::getHrHtmlK();
 
 //=====================================================================
@@ -96,7 +94,7 @@ EOP;
 </filedset>
 </div>
 <?php echo $seafrm_ht; ?>
-<?
+<?php
 
 /* 書き込みフォーム------------------------------------ */
     $bbs        = $aThread->bbs;
@@ -285,17 +283,13 @@ function _getDoResATag($aThread, $dores_st, $motothre_url)
  * Edit 080727 by 240
  * @return string
  */
-function _createFilterForm($default = '', &$aThread)
+function _createFilterForm($aThread, $res_filter)
 {
-	global $_conf;
-    global $res_filter, $read_navi_prev_header; // read only
-    // read_footer.inc.php でも参照している
-    global $all_st, $latest_st, $motothre_url, $p2frame_ht, $toolbar_right_ht, $goto_ht;
-    global $rnum_range, $latest_show_res_num; // confにした方がよさそう
+    global $_conf;
     
     $headbar_htm = '';
     
-    // {{{ レスフィルタ form HTML
+    // レスフィルタ form HTML
 
     if ($aThread->rescount and empty($_GET['renzokupop'])) {
 
@@ -321,9 +315,7 @@ EOP;
     
         $word_hs = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
 
-	
-	$headbar_htm = <<< EOP
-	
+        $headbar_htm = <<<EOP
 <form id="searchForm" name="searchForm" class="dialog_filter" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
 	<fieldset>
 		<select id="field" name="field">
@@ -352,11 +344,8 @@ EOP;
 		<input type="hidden" name="ls" value="all">
 		<input type="hidden" name="offline" value="1">
 		<input type="hidden" name="b" value="i">
-
 	</fieldset>
-
-</form>\n
-
+</form>
 EOP;
 	}
 
