@@ -978,6 +978,7 @@ class ShowThreadK extends ShowThread
 
     /**
      * 引用変換（範囲）
+     * quote_res_callback()から呼び出される
      *
      * @access  private
      * @return  string  HTML

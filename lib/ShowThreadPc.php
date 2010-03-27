@@ -346,7 +346,7 @@ EOID;
      * >>1 ポップアップ表示用の (引用ポップアップ用) HTMLデータ（配列）を返す
      *
      * @access  public
-     * @return  array
+     * @return  array  ('q' => , 'body' => )  HTML
      */
     function quoteOne()
     {
@@ -356,23 +356,23 @@ EOID;
             return false;
         }
 
-        $ds = '';
-        $rpop = '';
+        $qpop_ht = '';
         $dummy_msg = '';
         $quote_res_nums = $this->checkQuoteResNums(0, '1', $dummy_msg);
         foreach ($quote_res_nums as $rnv) {
             if (empty($this->quote_res_nums_done[$rnv])) {
-                if ($this->thread->ttitle_hs) {
-                    $ds = "<b>{$this->thread->ttitle_hs} </b><br><br>";
+                $q_ht = '';
+                if ($rnv == 1 && $this->thread->ttitle_hs) {
+                    $q_ht = "<b>{$this->thread->ttitle_hs} </b><br><br>";
                 }
                 $resline = isset($this->thread->datlines[$rnv - 1]) ? $this->thread->datlines[$rnv - 1] : '';
-                $ds .= $this->qRes($resline, $rnv);
+                $q_ht .= $this->qRes($resline, $rnv);
                 $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event,true)\"";
-                $rpop .= "<div id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></div>\n";
+                $qpop_ht .= "<div id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $q_ht . "</i></div>\n";
                 $this->quote_res_nums_done[$rnv] = true;
             }
         }
-        $res1['q'] = $rpop;
+        $res1['q'] = $qpop_ht;
 
         $m1 = '&gt;&gt;1';
         $res1['body'] = $this->transMsg($m1, 1);
@@ -747,7 +747,6 @@ EOMSG;
         
         // 自分自身の番号も変換せずに戻したいところだが
         
-        
         $read_url = UriUtil::buildQueryUri($_conf['read_php'],
             array(
                 'host' => $this->thread->host,
@@ -759,18 +758,21 @@ EOMSG;
         );
         
         $attributes = array();
-        strlen($_conf['bbs_win_target']) and $attributes['target'] = $_conf['bbs_win_target'];
+        if (strlen($_conf['bbs_win_target'])) {
+            $attributes['target'] = $_conf['bbs_win_target'];
+        }
         if ($_conf['quote_res_view']) {
             $attributes = array_merge($attributes, array(
                 'onmouseover' => "showResPopUp('q{$qnum}of{$this->thread->key}',event)",
                 'onmouseout'  => "hideResPopUp('q{$qnum}of{$this->thread->key}')"
             ));
         }
-        return P2View::tagA($read_url, "{$full}", $attributes);
+        return P2View::tagA($read_url, $full, $attributes);
     }
 
     /**
      * 引用変換（範囲）
+     * quote_res_callback()から呼び出される
      *
      * @access  private
      * @return  string
@@ -804,7 +806,7 @@ EOMSG;
         }
 
         // 普通にリンク
-        return  P2View::tagA($read_url, "{$full}", array('target' => $_conf['bbs_win_target']));
+        return  P2View::tagA($read_url, $full, array('target' => $_conf['bbs_win_target']));
 
         // 1つ目を引用レスポップアップ
         /*

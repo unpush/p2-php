@@ -83,8 +83,6 @@ if (false === $datlines = file($_conf['p2_res_hist_dat'])) {
     exit;
 }
 
-// [more] ここで表示範囲に合わせて、array_slice()しておいた方が処理負担が少ない
-
 // ファイルの下に記録されているものが新しいので反転させる
 $datlines = array_reverse($datlines);
 $datlines_num = count($datlines);

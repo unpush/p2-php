@@ -70,13 +70,14 @@ class ResHist
      * @access  private
      * @return  array
      */
-    function getPagerParams($datlines, $perPage)
+    function getPagerParams($totalItems, $perPage)
     {
         $qv = UA::getQueryValue();
         
         return $params = array(
             'mode'       => 'Jumping',
-            'itemData'   => $datlines,
+            'totalItems' => $totalItems, // count
+            //'itemData'   => $datlines,
             'perPage'    => $perPage,
             'delta'      => 25,
             'clearIfVoid' => true,
@@ -119,22 +120,22 @@ class ResHist
             die;
         }
         
+        $pageID = 1;
+        if (isset($_REQUEST['pageID'])) {
+            $pageID = max(1, intval($_REQUEST['pageID']));
+        }
+        
         $perPage = 100;
-        $pager = Pager::factory($this->getPagerParams($datlines, $perPage));
+        $pager = Pager::factory($this->getPagerParams(count($datlines), $perPage));
         //$links = $pager->getLinks();
-        $data  = $pager->getPageData();
+        //$data  = $pager->getPageData();
+        $data = array_slice($datlines, $perPage * ($pageID - 1), $perPage);
 
         if ($pager->links) {
             echo "<div>{$pager->links}</div>";
         }
         
         ?><dl><?php
-        
-        if (isset($_REQUEST['pageID'])) {
-            $pageID = max(1, intval($_REQUEST['pageID']));
-        } else {
-            $pageID = 1;
-        }
         
         $n = ($pageID - 1) * $perPage;
         foreach ($data as $aline) {
