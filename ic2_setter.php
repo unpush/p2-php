@@ -322,7 +322,7 @@ function ic2_register_uploaded_file($file)
         if ($changed) {
             $update->update();
         }
-        $file['message'] = '同じ画像が登録されていました。';
+        $file['message'] = '<a href="iv2.php?field=md5&amp;key=' . $file['md5'] . '" target="_blank">同じ画像が登録されていました。</a>';
         if ($changed) {
             $file['message'] .= '(ステータスの更新あり)';
         }
@@ -347,7 +347,7 @@ function ic2_register_uploaded_file($file)
         // 登録済みの画像で、URLが異なるとき
         if ($search2->find(TRUE) && file_exists($file['img_src'])) {
             $record->insert();
-            $file['message'] = '同じ画像が異なるURLで登録されていました。';
+            $file['message'] = '<a href="iv2.php?field=md5&amp;key=' . $file['md5'] . '" target="_blank">同じ画像が異なるURLで登録されていました。</a>';
 
         // 未登録の画像だったとき
         } else {
@@ -359,7 +359,7 @@ function ic2_register_uploaded_file($file)
                 return sprintf($err_fmt['file'], $file['path'], $file['tmp_name'], $file['img_src']);
             }
             $record->insert();
-            $file['message'] = 'アップロード成功。';
+            $file['message'] = '<a href="iv2.php?field=md5&amp;key=' . $file['md5'] . '" target="_blank">アップロード成功。</a>';
         }
     }
 

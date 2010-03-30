@@ -35,7 +35,7 @@ function getIC2ImageCount($key, $threshold = null) {
             // ESCAPEでエスケープ文字を指定することができないのでGLOB演算子を使う
             if ($db_class == 'db_sqlite') {
                 if (strpos($k, '*') !== false || strpos($k, '?') !== false) {
-                    p2die('ImageCache2 Warning', '「%または_」と「*または?」が混在するキーワードは使えません。');
+                    throw new InvalidArgumentException('「%または_」と「*または?」が混在するキーワードは使えません。');
                 } else {
                     $operator = 'GLOB';
                     $wildcard = '*';
@@ -54,7 +54,7 @@ function getIC2ImageCount($key, $threshold = null) {
     $sql = sprintf('SELECT COUNT(*) FROM %s %s', $db->quoteIdentifier($ini['General']['table']), $icdb->_query['condition']);
     $all = $db->getOne($sql);
     if (DB::isError($all)) {
-        p2die($all->getMessage());
+        throw new InvalidArgumentException($all->getMessage());
     }
     return $all;
 }
