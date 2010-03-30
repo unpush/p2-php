@@ -1002,14 +1002,14 @@ EOP;
         sort($anchors);
 
         if ($type == 1) {
-            return $this->_quoteback_vertical_list_html($anchors);
+            return $this->_quoteback_vertical_list_html($anchors, $resnum);
         } else if ($type == 2) {
-            return $this->_quoteback_horizontal_list_html($anchors,$popup);
+            return $this->_quoteback_horizontal_list_html($anchors,$resnum);
         } else if ($type == 3) {
-            return $this->_quoteback_res_data($anchors);
+            return $this->_quoteback_res_data($anchors, $resnum);
         }
     }
-    protected function _quoteback_vertical_list_html($anchors)
+    protected function _quoteback_vertical_list_html($anchors, $resnum)
     {
         $ret = '<div class="v_reslist"><ul>';
         $anchor_cnt = 1;
@@ -1020,19 +1020,21 @@ EOP;
             } else {
                 $ret .= '<li>„¤';
             }
-            $ret .= $this->quoteRes($anchor, '', $anchor, true);
+            $ret .= $anchor == $resnum ? $anchor
+                : $this->quoteRes($anchor, '', $anchor, true);
             $anchor_cnt++;
         }
         $ret .= '</ul></div>';
         return $ret;
     }
-    protected function _quoteback_horizontal_list_html($anchors,$popup)
+    protected function _quoteback_horizontal_list_html($anchors, $resnum)
     {
         $ret="";
         $ret.= '<div class="reslist">';
         $count=0;
 
         foreach($anchors as $idx=>$anchor) {
+            if ($anchor == $resnum) continue;
             $anchor_link= $this->quoteRes('>>'.$anchor, '>>', $anchor);
             $qres_id = ($this->_matome ? "t{$this->_matome}" : "" ) ."qr{$anchor}";
             $ret.='<div class="reslist_inner" >';
@@ -1043,13 +1045,15 @@ EOP;
         $ret.='</div>';
         return $ret;
     }
-    protected function _quoteback_res_data($anchors)
+    protected function _quoteback_res_data($anchors, $resnum)
     {
+        $ret = array();
         foreach($anchors as $idx=>$anchor) {
-            $anchors2[]=($this->_matome ? "t{$this->_matome}" : "" ) ."qr{$anchor}";
+            if ($anchor == $resnum) continue;
+            $ret[]=($this->_matome ? "t{$this->_matome}" : "" ) ."qr{$anchor}";
         }
 
-        return join('/',$anchors2);
+        return join('/',$ret);
     }
 
     // }}}
