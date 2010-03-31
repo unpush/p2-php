@@ -138,6 +138,11 @@ div#read_new_footer {
 div.read_new_toolbar {
 }
 
+span.autosave-info {
+	font-size: xx-small;
+	color:#777;
+}
+
 /* }}} *
 /* {{{ SPM */
 

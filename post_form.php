@@ -108,6 +108,13 @@ EOP;
     <script type="text/javascript" src="js/post_form.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
 }
+// â∫èëÇ´ï€ë∂JS
+if ((!$_conf['ktai'] && $_conf['expack.editor.savedraft']) ||
+    ($_conf['iphone'] && $_conf['expack.editor.mobile.savedraft'])) {
+    echo <<<EOP
+    <script type="text/javascript" src="js/post_draft.js?{$_conf['p2_version_id']}"></script>
+EOP;
+}
 
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="setFocus(\'MESSAGE\'); checkSage();"';
 echo <<<EOP

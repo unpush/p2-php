@@ -34,7 +34,12 @@ require_once P2EX_LIB_DIR . '/ic2_getcount.inc.php';
 // }}}
 // {{{ execute
 
-echo getIC2ImageCount((string)$_GET['key']);
+try {
+    echo getIC2ImageCount((string)$_GET['key']);
+}
+catch (Exception $e) {
+    echo '?';
+}
 exit;
 
 // }}}

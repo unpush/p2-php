@@ -36,6 +36,9 @@ EOP;
         $htm['mail_extra_at'] = ' autocorrect="off" autocapitalize="off"';
         $htm['msg_extra_at'] = ' autocorrect="off" autocapitalize="off"';
         $htm['submit_extra_at'] = '';
+        if ($_conf['expack.editor.mobile.savedraft'] != '0' && $_conf['expack.editor.mobile.savedraft.interval'] > 0) {
+            $htm['kaiko_on_js'] = ' onfocus="DraftKakiko.startAutoSave(this.form, ' . ($_conf['expack.editor.mobile.savedraft.interval'] * 1000) . ')"';
+        }
     } else {
         $htm['name_label'] = '名前：';
         $htm['mail_label'] = 'E-mail：';
@@ -52,6 +55,9 @@ EOP;
         $htm['kaiko_on_js_fmt'] = ' onfocus="%1$s" onkeyup="if(%2$s){%1$s}"';
     }
     $htm['kaiko_on_js_func'] = sprintf("adjustTextareaRows(this,%d,2)", $STYLE['post_msg_rows']);
+    if ($_conf['expack.editor.savedraft'] != '0' && $_conf['expack.editor.savedraft.interval'] > 0) {
+        $htm['kaiko_on_js_func'] = 'DraftKakiko.startAutoSave(this.form, ' . ($_conf['expack.editor.savedraft.interval'] * 1000) . '); ' . $htm['kaiko_on_js_func'];
+    }
     $htm['kaiko_on_js_cond'] = '!event||((event.keyCode&&(event.keyCode==8||event.keyCode==13))||event.ctrlKey||event.metaKey||event.altKey)';
     $htm['kaiko_on_js'] = sprintf($htm['kaiko_on_js_fmt'], $htm['kaiko_on_js_func'], htmlspecialchars($htm['kaiko_on_js_cond'], ENT_QUOTES));
     //$htm['kaiko_on_js'] .= ' ondblclick="this.rows=this.value.split(/\r\n|\r|\n/).length+1"';
@@ -73,6 +79,20 @@ if ($_conf['wiki.samba_timer']) {
     require_once P2_LIB_DIR . '/wiki/samba.class.php';
     $samba = &new samba;
     $htm['samba'] .= $samba->createTimer($samba->getSamba($host, $bbs));
+}
+
+// 下書き保存
+$savedraft = '';
+if ((!$_conf['ktai'] && $_conf['expack.editor.savedraft'] != 0) ||
+    ($_conf['iphone'] && $_conf['expack.editor.mobile.savedraft'] != 0)) {
+    $savedraft = <<<EOP
+<input id="post_draft_button" type="button" value="下書き保存" onclick="DraftKakiko.saveDraftForm(this.form)">
+<span id="post_draft_msg" class="autosave-info"></span>
+EOP;
+} else if ($_conf['ktai'] && $_conf['expack.editor.mobile.savedraft']) {
+    $savedraft = <<<EOP
+<input type="submit" name="savedraft" value="下書保存">
+EOP;
 }
 
 // 文字コード判定用文字列を先頭に仕込むことでmb_convert_variables()の自動判定を助ける
@@ -98,6 +118,7 @@ $htm['post_form'] = <<<EOP
 {$htm['be2ch']}
 {$htm['table_end']}
 {$htm['samba']}
+{$htm['k_br']}{$savedraft}
 
 <input type="hidden" name="bbs" value="{$bbs}">
 <input type="hidden" name="key" value="{$key}">

@@ -21,6 +21,11 @@ echo <<<EOSTYLE
 	color:{$STYLE['respop_color']};
 }
 
+.autosave-info{
+	font-size:8pt;
+	color:#777;
+}
+
 EOSTYLE;
 
 /*

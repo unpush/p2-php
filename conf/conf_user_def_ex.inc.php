@@ -141,6 +141,19 @@ $conf_user_rad['expack.editor.check_message'] = array('1' => '‚·‚é', '0' => '‚µ‚
 $conf_user_def['expack.editor.check_sage'] = 0; // (0)
 $conf_user_rad['expack.editor.check_sage'] = array('1' => '‚·‚é', '0' => '‚µ‚È‚¢');
 
+// ‰º‘‚«•Û‘¶
+$conf_user_def['expack.editor.savedraft'] = 1; // (1)
+$conf_user_rad['expack.editor.savedraft'] = array('1' => '‚·‚é', '0' => '‚µ‚È‚¢');
+// ‰º‘‚«‚ğ©“®•Û‘¶‚·‚éƒCƒ“ƒ^[ƒoƒ‹(•b)
+$conf_user_def['expack.editor.savedraft.interval'] = 20; // (20)
+$conf_user_rules['expack.editor.savedraft.interval'] = array('notIntExceptMinusToDef');
+// ‰º‘‚«•Û‘¶(Œg‘Ñ)
+$conf_user_def['expack.editor.mobile.savedraft'] = 1; // (1)
+$conf_user_rad['expack.editor.mobile.savedraft'] = array('1' => '‚·‚é', '0' => '‚µ‚È‚¢');
+// ‰º‘‚«‚ğ©“®•Û‘¶‚·‚éƒCƒ“ƒ^[ƒoƒ‹(•b)(iphone)
+$conf_user_def['expack.editor.mobile.savedraft.interval'] = 0; // (0)
+$conf_user_rules['expack.editor.mobile.savedraft.interval'] = array('notIntExceptMinusToDef');
+
 // }}}
 // {{{ RSSƒŠ[ƒ_
 
