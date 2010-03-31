@@ -78,7 +78,8 @@ abstract class ShowThread
     public $activeMona; // アクティブモナー・オブジェクト
     public $am_enabled = false; // アクティブモナーが有効か否か
 
-    protected $_quote_from; // 被アンカーを集計した配列 // [被参照レス番 : [参照レス番, ...], ...)
+    protected $_quote_from; // 被アンカーを集計した配列(範囲アンカー含む) // [被参照レス番 : [参照レス番, ...], ...)
+    protected $_quote_to;   // アンカーを集計した配列(範囲アンカー除く) // [レス番 : [参照先レス番, ...], ...)
 
     // }}}
     // {{{ constructor
@@ -905,14 +906,15 @@ EOP;
     }
 
     // }}}
-    // {{{ _make_quote_from()
+    // {{{ _make_quotes()
 
     /**
-     * 被レスデータを集計して$this->_quote_fromに保存.
+     * レスデータを集計して$this->_quote_toと$this->_quote_fromに保存.
      */
-    protected function _make_quote_from()
+    protected function _make_quotes()
     {
         global $_conf;
+        $this->_quote_to = array();
         $this->_quote_from = array();
         if (!$this->thread->datlines) return;
 
@@ -925,6 +927,29 @@ EOP;
             }
             $ng_type = $this->_ngAbornCheck($num + 1, strip_tags($name), $mail, $date_id, $id, $msg, true);
             if ($ng_type == self::ABORN) {continue;}
+
+
+            $name = preg_replace('/(◆.*)/', '', $name, 1);
+            // 名前
+            if (preg_match('/[1-9]\\d*/', $name, $matches)) {
+                $a_quote_res_num = (int)$matches[0];
+                if ($a_quote_res_num) {
+                    if (!array_key_exists($a_quote_res_num, $this->_quote_from) || $this->_quote_from[$a_quote_res_num] === null) {
+                        $this->_quote_from[$a_quote_res_num] = array();
+                    }
+                    if (!in_array($num + 1, $this->_quote_from[$a_quote_res_num])) {
+                        $this->_quote_from[$a_quote_res_num][] = $num + 1;
+                    }
+
+                    if (!array_key_exists($num + 1, $this->_quote_to) || $this->_quote_to[$num + 1] === null) {
+                        $this->_quote_to[$num + 1] = array();
+                    }
+                    if (!in_array($a_quote_res_num, $this->_quote_to[$num + 1])) {
+                        $this->_quote_to[$num + 1][] = $a_quote_res_num;
+                    }
+                }
+            }
+
 
             // >>1のリンクをいったん外す
             // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
@@ -950,6 +975,13 @@ EOP;
                         }
                     } else if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
                         foreach ($matches[0] as $quote_num) {
+                            if (!array_key_exists($num + 1, $this->_quote_to) || $this->_quote_to[$num + 1] === null) {
+                                $this->_quote_to[$num + 1] = array();
+                            }
+                            if (!in_array($quote_num, $this->_quote_to[$num + 1])) {
+                                $this->_quote_to[$num + 1][] = $quote_num;
+                            }
+
                             if ($_conf['backlink_list_future_anchor'] == 0) {
                                 if ($quote_num >= $num+1) {continue;}   // レス番号以降のアンカーは無視する
                             }
@@ -977,9 +1009,25 @@ EOP;
     public function get_quote_from()
     {
         if ($this->_quote_from === null) {
-            $this->_make_quote_from();  // 被レスデータ集計
+            $this->_make_quotes();  // 被レスデータ集計
         }
         return $this->_quote_from;
+    }
+
+    // }}}
+    // {{{ _get_quote_to()
+
+    /**
+     * レスリストを返す.
+     *
+     * @return  array
+     */
+    public function get_quote_to()
+    {
+        if ($this->_quote_to === null) {
+            $this->_make_quotes();  // レスデータ集計
+        }
+        return $this->_quote_to;
     }
 
     // }}}
