@@ -76,30 +76,30 @@ function toggleResBlk(evt, res, mark) {
 		if (mark) resetReaded(res, anchors);
 		removeRes(res, button);
 	} else {
-		insertRes(evt, res, anchors, mark);
+		insertRes(evt, res, anchors, mark, ['q' + res.id]);
 	}
 }
 
-function insertRes(evt, res, anchors, mark) {
+function insertRes(evt, res, anchors, mark, registry) {
 
+	if (!registry) registry = [];
 	var resblock = _findChildByClassName(res, 'resblock');
-	if (!resblock) return;
+	if (!resblock) return registry;
 	var button = resblock.firstChild;
 	var resblock_inner = _findChildByClassName(resblock, 'resblock_inner');
 	// 既に開いていた場合
 	if (resblock_inner) {
-		if (evt.type != 'dblclick') return;
+		if (evt.type != 'dblclick') return registry;
 		// ダブルクリックならカスケード
 		(function (nodes) {
 			for  (var i=0;i<nodes.length;i++) {
 				if (nodes[i].className != 'folding_container') continue;
 				var anchor = _findAnchorComment(nodes[i]);
 				if (anchor != null)
-					insertRes(evt, nodes[i],
-						_findAnchorComment(nodes[i]), mark);
+					registry = insertRes(evt, nodes[i], anchor, mark, registry);
 			}
 		 })(resblock_inner.childNodes);
-		 return;
+		 return registry;
 	 }
 
 	// reslistがあれば非表示に
@@ -144,9 +144,11 @@ function insertRes(evt, res, anchors, mark) {
 			} else {
 				container.appendChild(c_resblock);
 			}
-			// ダブルクリックならカスケード
-			if (evt.type == 'dblclick') {
-				insertRes(evt, container, anchor, mark);
+			if (registry.indexOf(importId) == -1) {
+				registry.push(importId);
+				// ダブルクリックならカスケード
+				if (evt.type == 'dblclick')
+					registry = insertRes(evt, container, anchor, mark, registry);
 			}
 		}
 		container.className='folding_container';
@@ -156,6 +158,7 @@ function insertRes(evt, res, anchors, mark) {
 	resblock.appendChild(resblock_inner);
 
 	if (button) button.src=button.src.replace(/plus/,'minus');
+	return registry;
 }
 
 function removeRes(res, button) {
