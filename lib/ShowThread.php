@@ -1200,6 +1200,10 @@ EOP;
 
     function getQuoteResNumsName($name)
     {
+        if (strlen(trim($name)) == 0 || $name == $this->BBS_NONAME_NAME) {
+            return false;
+        }
+
         // ƒgƒŠƒbƒv‚ğœ‹
         $name = preg_replace('/(Ÿ.*)/', '', $name, 1);
 
