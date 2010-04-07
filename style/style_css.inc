@@ -104,7 +104,7 @@ $respop_background = "background:{$STYLE['respop_bgcolor']} {$STYLE['respop_back
 
 if (!isset($STYLE['respop_b_style'])) { $STYLE['respop_b_style'] = 'solid'; }
 if (!isset($STYLE['respop_b_width'])) { $STYLE['respop_b_width'] = '1px';   }
-if (!isset($STYLE['respop_b_color'])) { $STYLE['respop_b_color'] = 'black'; }
+if (!isset($STYLE['respop_b_color'])) { $STYLE['respop_b_color'] = '#aa7'; }
 $respop_border = "border:{$STYLE['respop_b_style']} {$STYLE['respop_b_width']} {$STYLE['respop_b_color']};";
 
 $respop_color = '';
@@ -125,6 +125,9 @@ if (isset($STYLE['respop_color']) && strlen($STYLE['respop_color']) > 0) {
 	font-size:{$STYLE['respop_fontsize']};
 	margin: 0;
 	padding: 8px;
+	-moz-box-shadow: 4px 4px 16px #555;
+	-webkit-box-shadow: 4px 4px 16px #555;
+	box-shadow: 4px 4px 16px #555;
 }
 
 div#motols {
