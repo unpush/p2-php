@@ -10,9 +10,9 @@ var _MOTOLSPOPUP_PARAMETERS = [
 	{ 'label': '‘S•”',   'parameter': '' }
 ];
 
-function showMotoLsPopUp(event, origin, title)
+function showMotoLsPopUp(event, origin, title, baseUrl)
 {
-	var div, baseUrl, url, anchor, target, i, l;
+	var div, url, anchor, target, i, l;
 
 	l = _MOTOLSPOPUP_PARAMETERS.length;
 
@@ -52,7 +52,7 @@ function showMotoLsPopUp(event, origin, title)
 		target = null;
 	}
 
-	baseUrl = origin.getAttribute('href');
+	baseUrl = baseUrl || origin.getAttribute('href');
 	for (i = 0; i < l; i++) {
 		anchor = div.childNodes[i];
 		url = baseUrl + _MOTOLSPOPUP_PARAMETERS[i].parameter;

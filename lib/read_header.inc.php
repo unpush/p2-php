@@ -20,7 +20,8 @@ $latest_st      = '最新';
 $dores_st       = '書込'; // 'レス';
 $aborn_st       = 'あぼん';
 
-$motothre_url = $aThread->getMotoThread(false, '');
+$motothre_url = $aThread->getMotoThread(false);
+$motothre_origin_url = $aThread->getMotoThread(false, '');
 $ttitle_en = UrlSafeBase64::encode($aThread->ttitle);
 $ttitle_en_q = '&amp;ttitle_en=' . $ttitle_en;
 $bbs_q = '&amp;bbs=' . $aThread->bbs;
@@ -170,7 +171,7 @@ $toolbar_right_ht = <<<EOTOOLBAR
             {$toolbar_setfav_ht}
             <span><a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}&amp;dele=true" target="info" onclick="return deleLog('{$host_bbs_key_q}{$ttitle_en_q}', {$STYLE['info_pop_size']}, 'read', this);" title="ログを削除する">{$delete_st}</a></span>
 <!--            <a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onclick="return OpenSubWin('info.php?{$host_bbs_key_q}{$ttitle_en_q}&amp;popup=2&amp;taborn=2',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">{$aborn_st}</a> -->
-            <a href="{$motothre_url}" title="板サーバ上のオリジナルスレを表示" onmouseover="showMotoLsPopUp(event, this)" onmouseout="hideMotoLsPopUp()">{$moto_thre_st}</a>
+            <a href="{$motothre_url}" title="板サーバ上のオリジナルスレを表示" onmouseover="showMotoLsPopUp(event, this, null, '{$motothre_origin_url}')" onmouseout="hideMotoLsPopUp()">{$moto_thre_st}</a>
             <a href="{$_conf['subject_php']}?{$host_bbs_key_q}{$similar_q}" target="subject" title="タイトルが似ているスレッドを検索">{$siml_thre_st}</a>
 EOTOOLBAR;
 
