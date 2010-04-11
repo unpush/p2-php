@@ -499,15 +499,18 @@ EOTOOLBAR;
         $cnt = '';
         if ($_conf['expack.ic2.thread_imagecount']) {
             require_once P2EX_LIB_DIR . '/ic2_getcount.inc.php';
-            $cnt = getIC2ImageCount($aThread->ttitle);
+            try {
+                $cnt = '(' . getIC2ImageCount($aThread->ttitle) . ')';
+            }
+            catch (Exception $e) {
+                $cnt = '(?)';
+            }
         }
-        if ($cnt === '' || $cnt > 0) {
-            $ic2navi = '<a class="button" href="iv2.php?field=memo&amp;key=' .
-                rawurlencode($aThread->ttitle) .
-                '&amp;session_no_close=1' .
-                '&amp;b=' . ($_conf['iphone'] ? 'i' : 'k') .
-                '">IC2(' . $cnt . ')</a>';
-        }
+        $ic2navi = '<a class="button" href="iv2.php?field=memo&amp;key=' .
+            rawurlencode($aThread->ttitle) .
+            '&amp;session_no_close=1' .
+            '&amp;b=' . ($_conf['iphone'] ? 'i' : 'k') .
+            '">IC2' . $cnt . '</a>';
     }
 
     $read_footer_ht = <<<EOP
