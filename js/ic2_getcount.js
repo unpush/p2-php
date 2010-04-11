@@ -16,7 +16,7 @@ function ic2_setcount(key, elem)
             return null;
         }
 
-        url = 'ic2_getcount.php?key=' + key;
+        url = 'ic2_getcount.php?searchkey=' + key;
         try {
             res = getResponseTextHttp(req, url, 'nc');
         } catch (err) {

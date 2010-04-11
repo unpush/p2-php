@@ -23,7 +23,7 @@ header('Content-Type: text/plain; charset=UTF-8');
 // {{{ ‰Šú‰»
 
 // ƒpƒ‰ƒ[ƒ^‚ğŒŸØ
-if (!isset($_GET['key'])) {
+if (!isset($_GET['searchkey'])) {
     echo 'null';
     exit;
 }
@@ -35,7 +35,7 @@ require_once P2EX_LIB_DIR . '/ic2_getcount.inc.php';
 // {{{ execute
 
 try {
-    echo getIC2ImageCount((string)$_GET['key']);
+    echo getIC2ImageCount((string)$_GET['searchkey']);
 }
 catch (Exception $e) {
     echo '?';
