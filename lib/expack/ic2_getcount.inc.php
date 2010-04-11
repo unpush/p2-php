@@ -4,11 +4,7 @@
  */
 
 function getIC2ImageCount($key, $threshold = null) {
-    require_once 'DB.php';
-    require_once 'DB/DataObject.php';
-    require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-    require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
-    require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+    require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
     // ê›íËÉtÉ@ÉCÉãì«Ç›çûÇ›
     $ini = ic2_loadconfig();
 
