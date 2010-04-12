@@ -347,7 +347,10 @@ class ThreadRead extends Thread
                     if ('203' == $req->getResponseCode()) {
                         $body2 = $req->getResponseBody();
                         $reason = null;
-                        if (preg_match('/過去ログ ★/', $body2)) {
+                        // $body2 "過去ログ ★<><>[過去ログ]<>「隊長! 過去ログ倉庫で、スレッド http://qb5.2ch.net/operate/kako/1103/11034/1103495887.html を発見しました。」<>過去ログ発見![改行]"
+                        if (preg_match('/<>過去ログ発見!/', $body2)) {
+                            //$reason = 'kakologsoko';
+                        } elseif (preg_match('/過去ログ ★<>/', $body2)) {
                             $reason = 'datochi';
                         }
                         $this->downloadDat2chNotFound($reason);
