@@ -164,8 +164,14 @@ class ShowThreadK extends ShowThread
         $date_id    = $resar[2];
         $msg        = $resar[3];
 
-        if (!empty($this->BBS_NONAME_NAME) and $this->BBS_NONAME_NAME == $name) {
-            $name = '';
+        // デフォルトの名前は、NG・あぼーんとフィルタ検索の対象外とする
+        $nameForAborn = $name;
+        if (strlen($this->BBS_NONAME_NAME) && $this->BBS_NONAME_NAME == $name) {
+            if (!$_conf['k_bbs_noname_name']) {
+                $nameForAborn = $name = '';
+            } else {
+                $nameForAborn = '';
+            }
         }
 
         // 現在の年号は省略カットする。（設定で）月日の先頭0もカット。
@@ -190,7 +196,7 @@ class ShowThreadK extends ShowThread
                 return '';
                 
             // ターゲット設定
-            } elseif (!$target = $this->getFilterTarget($i, $name, $mail, $date_id, $msg)) {
+            } elseif (!$target = $this->getFilterTarget($i, $nameForAborn, $mail, $date_id, $msg)) {
                 return '';
                 
             // マッチング
@@ -208,7 +214,7 @@ class ShowThreadK extends ShowThread
         */
         $aborned_res = "<span id=\"r{$i}\" name=\"r{$i}\"></span>\n";
         
-        if (false !== $this->checkAborns($name, $mail, $date_id, $msg)) {
+        if (false !== $this->checkAborns($nameForAborn, $mail, $date_id, $msg)) {
             return $aborned_res;
         }
         
@@ -221,7 +227,7 @@ class ShowThreadK extends ShowThread
         $isNgMsg  = false;
         
         if (empty($_GET['nong'])) {
-            if (false !== $this->ngAbornCheck('ng_name', strip_tags($name))) {
+            if (strlen($nameForAborn) and false !== $this->ngAbornCheck('ng_name', strip_tags($nameForAborn))) {
                 $isNgName = true;
             }
             if (false !== $this->ngAbornCheck('ng_mail', $mail)) {
@@ -479,9 +485,14 @@ class ShowThreadK extends ShowThread
         $date_id    = isset($resar[2]) ? $resar[2] : '';
         $msg        = isset($resar[3]) ? $resar[3] : '';
         
-        
-        if (!empty($this->BBS_NONAME_NAME) and $this->BBS_NONAME_NAME == $name) {
-            $name = '';
+        // デフォルトの名前は、NG・あぼーんとフィルタ検索の対象外とする
+        $nameForAborn = $name;
+        if (strlen($this->BBS_NONAME_NAME) && $this->BBS_NONAME_NAME == $name) {
+            if (!$_conf['k_bbs_noname_name']) {
+                $nameForAborn = $name = '';
+            } else {
+                $nameForAborn = '';
+            }
         }
         
         // 現在の年号は省略カットする。月日の先頭0もカット。
@@ -501,7 +512,7 @@ class ShowThreadK extends ShowThread
         
         
         // あぼーんチェック
-        if (false !== $this->checkAborns($name, $mail, $date_id, $msg)) {
+        if (false !== $this->checkAborns($nameForAborn, $mail, $date_id, $msg)) {
             $name = $date_id = $msg = 'あぼーん';
             $mail = '';
         
@@ -512,7 +523,7 @@ class ShowThreadK extends ShowThread
             $isNgId   = false;
             $isNgMsg  = false;
         
-            if (false !== $this->ngAbornCheck('ng_name', strip_tags($name))) {
+            if (strlen($nameForAborn) and false !== $this->ngAbornCheck('ng_name', strip_tags($nameForAborn))) {
                 $isNgName = true;
             }
             if (false !== $this->ngAbornCheck('ng_mail', $mail)) {

@@ -23,7 +23,7 @@ $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
         'au'        => 1,
     // SoftBank(Vodafone Live!)
         'SoftBank'  => 1,
-    // Air H"
+    // WILLCOM(Air H")
         'AirH'      => 1,
     // iPhone
         'iPhone'    => 0,

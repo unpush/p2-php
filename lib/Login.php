@@ -340,7 +340,7 @@ class Login
             // ログインフォーム入力からは利用せず、専用認証リンクからのみ利用
             if (empty($_POST['form_login_id'])) {
 
-                if (P2Util::getDocomoUtnId() and HostCheck::isAddrDocomo()) {
+                if ($sn = P2Util::getDocomoUtnId() and HostCheck::isAddrDocomo()) {
                     if ($registed_docomo = $this->getRegistedAuthCarrier('DOCOMO')) {
                         if ($sn == $registed_docomo) {
                             if (isset($_p2session)) {

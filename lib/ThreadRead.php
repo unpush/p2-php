@@ -1139,10 +1139,11 @@ class ThreadRead extends Thread
     }
     
     /**
+     * @access  private
      * @param   string  $kakolog  ‰ß‹ƒƒOURI‚©‚ç.html‚ğŠO‚µ‚½•¶š—ñ @see $kakohtml_match
      * @return  string
      */
-    private function getReadKakologUri($kakolog)
+    function getReadKakologUri($kakolog)
     {
         global $_conf;
         
@@ -1160,9 +1161,10 @@ class ThreadRead extends Thread
     }
     
     /**
+     * @access  private
      * @return  string  HTML
      */
-    private function getMarutoriHtml()
+    function getMarutoriHtml()
     {
         global $_conf;
         

@@ -167,7 +167,7 @@ class UriUtil
             } else {
                 unset($parsed['query']);
             }
-            $uri = self::glueUri($parsed);
+            $uri = UriUtil::glueUri($parsed);
         
         } else {
             $mark = (strpos($uri, '?') === false) ? '?': $sepa;

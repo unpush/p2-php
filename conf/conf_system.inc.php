@@ -446,7 +446,7 @@ function _loadPHPCompat()
         PHP_Compat::loadFunction('file_put_contents');
         //PHP_Compat::loadFunction('clone');
         PHP_Compat::loadFunction('scandir');
-        //PHP_Compat::loadFunction('http_build_query'); // ‘æ3ˆø”‚É‘Î‰‚·‚é‚Ü‚Å‚Íg‚¦‚È‚¢
+        PHP_Compat::loadFunction('http_build_query'); // ‘æ3ˆø”‚É‘Î‰‚·‚é‚Ü‚Å‚Íg‚¦‚È‚¢
         //PHP_Compat::loadFunction('array_walk_recursive');
     }
 }

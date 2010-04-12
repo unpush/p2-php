@@ -1188,7 +1188,7 @@ function _recLastPostTime($confirmed = '')
 }
 
 /**
- * subject‚©‚çkey‚ğæ“¾‚·‚é
+ * subject.txt‚©‚çkey‚ğæ“¾‚·‚é
  *
  * @return  string|false
  */
@@ -1197,9 +1197,9 @@ function _getKeyInSubject()
     global $host, $bbs, $ttitle;
 
     require_once P2_LIB_DIR . '/SubjectTxt.php';
-    $aSubjectTxt = new SubjectTxt($host, $bbs);
+    $SubjectTxt = new SubjectTxt($host, $bbs);
 
-    foreach ($aSubjectTxt->subject_lines as $l) {
+    foreach ($SubjectTxt->subject_lines as $l) {
         if (strstr($l, $ttitle)) {
             if (preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|i)([0-9]+)(\)|j)/", $l, $matches)) {
                 return $key = $matches[1];

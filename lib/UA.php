@@ -381,7 +381,7 @@ class UA
      * @param   string   $ua  UA‚ðŽw’è‚·‚é‚È‚ç
      * @return  boolean
      */
-    public static function isDoCoMo($ua = null)
+    function isDoCoMo($ua = null)
     {
         if ($nuam = &UA::getNet_UserAgent_Mobile($ua)) {
             return $nuam->isDoCoMo();

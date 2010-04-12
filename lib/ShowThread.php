@@ -54,9 +54,9 @@ class ShowThread
     {
         if (P2Util::isHost2chs($this->thread->host)) {
             require_once P2_LIB_DIR . '/SettingTxt.php';
-            $st = new SettingTxt($this->thread->host, $this->thread->bbs);
-            if (!empty($st->setting_array['BBS_NONAME_NAME'])) {
-                $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
+            $SettingTxt = new SettingTxt($this->thread->host, $this->thread->bbs);
+            if (array_key_exists('BBS_NONAME_NAME', $SettingTxt->setting_array)) {
+                $this->BBS_NONAME_NAME = $SettingTxt->setting_array['BBS_NONAME_NAME'];
             }
         }
     }

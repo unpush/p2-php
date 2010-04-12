@@ -160,7 +160,7 @@ class ThreadList
                     $lines = file($file);
                 }
             
-            // {{{ spmodeがdat倉庫の場合 @todo ページング用に数を制限できるしたい
+            // {{{ spmodeがdat倉庫の場合 @todo ページング用に数を制限できるようにしたい
             
             } elseif ($this->spmode == 'soko') {
 
