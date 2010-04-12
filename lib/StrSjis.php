@@ -4,7 +4,7 @@
  * SJIS文字列の末尾が壊れているのを修正カットする。
  *
  * @author aki
- * @since  2006/10/02
+ * @created  2006/10/02
  */
 class StrSjis
 {

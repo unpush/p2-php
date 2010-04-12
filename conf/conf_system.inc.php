@@ -3,7 +3,7 @@
 // このファイルは、特に理由の無い限り変更しないで下さい。
 // include from conf.inc.php
 
-$_conf['p2version'] = '1.8.62'; // rep2のバージョン
+$_conf['p2version'] = '1.8.63'; // rep2のバージョン
 
 $_conf['p2name'] = 'rep2';    // rep2の名前。
 
@@ -446,7 +446,7 @@ function _loadPHPCompat()
         PHP_Compat::loadFunction('file_put_contents');
         //PHP_Compat::loadFunction('clone');
         PHP_Compat::loadFunction('scandir');
-        PHP_Compat::loadFunction('http_build_query'); // 第3引数に対応するまでは使えない
+        PHP_Compat::loadFunction('http_build_query'); // 第3引数には対応していない
         //PHP_Compat::loadFunction('array_walk_recursive');
     }
 }
