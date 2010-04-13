@@ -3,7 +3,7 @@
 // このファイルは、特に理由の無い限り変更しないで下さい。
 // include from conf.inc.php
 
-$_conf['p2version'] = '1.8.63'; // rep2のバージョン
+$_conf['p2version'] = '1.8.64'; // rep2のバージョン
 
 $_conf['p2name'] = 'rep2';    // rep2の名前。
 
