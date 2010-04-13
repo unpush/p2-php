@@ -1695,10 +1695,11 @@ class ThreadRead extends Thread
     /**
      * デフォルトのdat取得失敗エラーメッセージHTMLを取得する
      *
+     * @access public
      * @param void
      * @return string
      */
-    public function getDefaultGetDatErrorMessageHTML()
+    function getDefaultGetDatErrorMessageHTML()
     {
         global $_conf;
 
