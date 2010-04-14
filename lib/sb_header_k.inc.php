@@ -100,20 +100,16 @@ if ($_conf['iphone']) {
 }
 
 if (!$spmode_without_palace_or_favita) {
-    if ($_conf['iphone']) {
-        $hd['label_for_method_open'] = '<span onclick="iutil.checkPrev(this);">';
-        $hd['label_for_method_close'] = '</span>';
+    if (array_key_exists('method', $sb_filter) && $sb_filter['method'] == 'or') {
+        $hd['method_checked_at'] = ' checked';
     } else {
-        $hd['label_for_method_open'] = '<label for="method">';
-        $hd['label_for_method_close'] = '</label>';
+        $hd['method_checked_at'] = '';
     }
-
-    $hd['method_checked_at'] = (isset($sb_filter['method']) && $sb_filter['method'] == 'or') ? ' checked' : '';
 
     $filter_form_ht = <<<EOP
 <form method="GET" action="{$_conf['subject_php']}" accept-charset="{$_conf['accept_charset']}">
-{$sb_form_hidden_ht}<input type="text" id="word" name="word" value="{$hd['word']}" size="15"{$hd['input_nocorrect_at']}>
-<input type="checkbox" id="method" name="method" value="or"{$hd['method_checked_at']}>{$hd['label_for_method_open']}OR{$hd['label_for_method_close']}
+{$sb_form_hidden_ht}<input type="text" id="sb_filter_word" name="word" value="{$hd['word']}" size="15"{$hd['input_nocorrect_at']}>
+<input type="checkbox" id="sb_filter_method" name="method" value="or"{$hd['method_checked_at']}><label for="sb_filter_method">OR</label>
 <input type="submit" name="submit_kensaku" value="ŒŸõ">
 </form>\n
 EOP;
@@ -174,8 +170,7 @@ echo <<<EOP
 <body{$_conf['k_colors']}>
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 

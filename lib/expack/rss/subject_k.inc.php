@@ -5,6 +5,8 @@
 
 // {{{ ƒwƒbƒ_
 
+$info_msg_ht = P2Util::getInfoHtml();
+
 echo <<<EOH
 <html lang="ja">
 <head>
@@ -14,7 +16,7 @@ echo <<<EOH
 <title>{$title}</title>
 </head>
 <body{$_conf['k_colors']}>
-{$_info_msg_ht}
+{$info_msg_ht}
 <p><b>{$title}</b></p>
 <hr>\n
 EOH;

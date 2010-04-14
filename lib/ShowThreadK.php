@@ -3,8 +3,6 @@
  * rep2 - 携帯用でスレッドを表示する クラス
  */
 
-require_once P2_LIB_DIR . '/ShowThread.php';
-require_once P2_LIB_DIR . '/StrCtl.php';
 require_once P2EX_LIB_DIR . '/ExpackLoader.php';
 
 ExpackLoader::loadAAS();
@@ -33,6 +31,9 @@ class ShowThreadK extends ShowThread
     private $_dateIdReplace;    // 日付書き換えの置換文字列
 
     //private $_lineBreaksReplace; // 連続する改行の置換文字列
+
+    //private $_nanashiName = null;   // デフォルトの名前
+    private $_kushiYakiName = null; // BBQに焼かれているときの名前接頭辞
 
     // }}}
     // {{{ constructor
@@ -66,9 +67,12 @@ class ShowThreadK extends ShowThread
         }
         $this->_url_handlers[] = 'plugin_linkURL';
 
-        $this->BBS_NONAME_NAME = null;
         if (!$_conf['mobile.bbs_noname_name']) {
             $this->setBbsNonameName();
+        }
+
+        if (P2Util::isHost2chs($aThread->host)) {
+            $this->_kushiYakiName = ' </b>[―{}@{}@{}-]<b> ';
         }
 
         if ($_conf['mobile.date_zerosuppress']) {
@@ -150,11 +154,6 @@ class ShowThreadK extends ShowThread
             $idstr = null;
         }
 
-        // デフォルトの名前と同じなら省略
-        if ($name === $this->BBS_NONAME_NAME) {
-            $name = '';
-        }
-
         // {{{ フィルタリング
 
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
@@ -178,7 +177,6 @@ class ShowThreadK extends ShowThread
             $res_id = "r{$i}";
         }
 
-
         // NGあぼーんチェック
         $nong = !empty($_GET['nong']);
         $ng_type = $this->_ngAbornCheck($i, strip_tags($name), $mail, $date_id, $id, $msg, $nong, $ng_info);
@@ -199,7 +197,21 @@ class ShowThreadK extends ShowThread
             $ngaborns_body_hits = self::$_ngaborns_body_hits;
         }
 
-        // {{{ 日付・IDを調整
+        // {{{ 名前と日付・IDを調整
+
+        // 串焼きマークを短縮
+        if ($this->_kushiYakiName !== null && strpos($name, $this->_kushiYakiName) === 0) {
+            $name = substr($name, strlen($this->_kushiYakiName));
+            // デフォルトの名前は省略
+            if ($name === $this->_nanashiName) {
+                $name = '[串]';
+            } else {
+                $name = '[串]' . $name;
+            }
+        // デフォルトの名前と同じなら省略
+        } elseif ($name === $this->_nanashiName) {
+            $name = '';
+        }
 
         // 現在の年号は省略カットする。月日の先頭0もカット。
         $date_id = preg_replace($this->_dateIdPattern, $this->_dateIdReplace, $date_id);
@@ -279,7 +291,7 @@ EOMSG;
             if (($ng_type & self::NG_AA) && P2_AAS_AVAILABLE) {
                 $aas_url = "aas.php?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;resnum={$i}";
                 if (P2_AAS_AVAILABLE == 2) {
-                    $aas_txt = "<img src=\"{$aas_url}{$_conf['k_at_a']}&amp;inline=1{$_conf['sid_at_a']}\">";
+                    $aas_txt = "<img src=\"{$aas_url}{$_conf['k_at_a']}&amp;inline=1\">";
                 } else {
                     $aas_txt = "AAS";
                 }
@@ -445,9 +457,9 @@ EOP;
         }
 
         // 数字を引用レスポップアップリンク化
-        if (strlen($name) && $name != $this->BBS_NONAME_NAME) {
+        if (strlen($name) && $name != $this->_nanashiName) {
             $name = preg_replace_callback(
-                $this->getAnchorRegex('/(?:^|%prefix%)%nums%/'),
+                self::getAnchorRegex('/(?:^|%prefix%)%nums%/'),
                 array($this, 'quote_name_callback'), $name
             );
         }
@@ -505,7 +517,7 @@ EOP;
 
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
             $msg = preg_replace_callback(
-                $this->getAnchorRegex('/%full%/'),
+                self::getAnchorRegex('/%full%/'),
                 array($this, 'quoteResCallback'), $msg
             );
 
@@ -566,7 +578,7 @@ EOP;
             return $retry ? self::$_spm_objects[$this->spmObjName] : '';
         }
 
-        $ttitle_en = rawurlencode(base64_encode($this->thread->ttitle));
+        $ttitle_en = UrlSafeBase64::encode($this->thread->ttitle);
 
         $motothre_url = $this->thread->getMotoThread();
         $motothre_url = substr($motothre_url, 0, strlen($this->thread->ls) * -1);
@@ -1048,7 +1060,7 @@ EOP;
                         // プレビュー画像が作られているかどうかでimg要素の属性を決定
                         if (file_exists($prv_url)) {
                             $prv_size = explode('x', $this->inline_prvw->calc($icdb->width, $icdb->height));
-                            $img_str = "<img src=\"{$prv_url}\" width=\"{$prvw_size[0]}\" height=\"{$prvw_size[1]}\">";
+                            $img_str = "<img src=\"{$prv_url}\" width=\"{$prv_size[0]}\" height=\"{$prv_size[1]}\">";
                         } else {
                             $r_type = ($this->thumbnailer->ini['General']['redirect'] == 1) ? 1 : 2;
                             if ($src_exists) {
@@ -1056,7 +1068,7 @@ EOP;
                             } else {
                                 $prv_url = "ic2.php?r={$r_type}&amp;t=1&amp;uri={$url_en}";
                             }
-                            $img_str = "<img src=\"{$prv_url}{$_conf['sid_at_a']}\">";
+                            $img_str = "<img src=\"{$prv_url}\">";
                         }
                         $inline_preview_done = true;
                     } else {
@@ -1101,7 +1113,7 @@ EOP;
                 // インラインプレビューが有効で、サムネイル表示制限数以内なら
                 if ($this->thumbnailer->ini['General']['inline'] == 1 && $inline_preview_flag) {
                     $rank_str = ($rank !== null) ? '&rank=' . $rank : '';
-                    $img_str = "<img src=\"ic2.php?r=2&amp;t=1&amp;uri={$url_en}{$this->img_memo_query}{$_conf['sid_at_a']}{$rank_str}\">";
+                    $img_str = "<img src=\"ic2.php?r=2&amp;t=1&amp;uri={$url_en}{$this->img_memo_query}{$rank_str}\">";
                     $inline_preview_done = true;
                 } else {
                     $img_url .= $this->img_memo_query;

@@ -2,6 +2,13 @@
  * rep2expack - ユーザ設定管理のUIをタブ化する
  */
 
+// {{{ GLOBALS
+
+var _EDIT_CONF_USER_JS_PARENT_TABS = [];
+var _EDIT_CONF_USER_JS_ACTIVE_TAB1 = null;
+var _EDIT_CONF_USER_JS_ACTIVE_TAB2 = null;
+
+// }}}
 // {{{ _edit_conf_user_js_onload()
 
 var _edit_conf_user_js_onload = function() {
@@ -29,7 +36,8 @@ var _edit_conf_user_js_onload = function() {
 
 	// １つ目の 'tabbernav' に送信・リセット用のタブを追加する
 	var tabs = document.getElementsByTagName('ul');
-	for (var i = 0; i < tabs.length; i++) {
+	var i, l = tabs.length;
+	for (i = 0; i < l; i++) {
 		if (tabs[i].className != 'tabbernav') {
 			continue;
 		}
@@ -68,7 +76,55 @@ var _edit_conf_user_js_onload = function() {
 		tabs[i].appendChild(document.createElement('li')).appendChild(saveTab);
 		tabs[i].appendChild(document.createElement('li')).appendChild(resetTab);
 		tabs[i].appendChild(document.createElement('li')).appendChild(defaultTab);
-		return;
+		break;
+	}
+
+	// タブをアクティベート
+	var anchors, anchor, callback, title, group, group1, group2, j, k;
+
+	k = _EDIT_CONF_USER_JS_PARENT_TABS.length;
+	group1 = document.getElementById('active_tab1');
+	group2 = document.getElementById('active_tab2');
+
+	anchors = document.evaluate('.//ul[contains(concat(" ", @class, " "), " tabbernav ")]'
+								+ '//a[@href = "javascript:void(null);" and @title]',
+								document.body, null,
+								XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	l = anchors.snapshotLength;
+
+	for (i = 0; i < l; i++) {
+		anchor = anchors.snapshotItem(i);
+		if (typeof anchor.onclick === 'function') {
+			title = anchor.getAttribute('title');
+
+			if (title == _EDIT_CONF_USER_JS_ACTIVE_TAB1 ||
+				title == _EDIT_CONF_USER_JS_ACTIVE_TAB2)
+			{
+				anchor.onclick();
+			}
+
+			group = group2;
+			for (j = 0; j < k; j++) {
+				if (title === _EDIT_CONF_USER_JS_PARENT_TABS[j]) {
+					group = group1;
+					break;
+				}
+			}
+
+			if (group) {
+				callback = (function(field, title) {
+					return function() {
+						field.value = title;
+					};
+				})(group, title);
+
+				if (typeof anchor.addEventListener === 'function') {
+					anchor.addEventListener('click', callback, false);
+				} else if (typeof anchor.attachEvent === 'function') {
+					anchor.attachEvent('click', callback);
+				}
+			}
+		}
 	}
 };
 

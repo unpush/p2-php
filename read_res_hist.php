@@ -5,7 +5,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/ResHist.php';
 require_once P2_LIB_DIR . '/read_res_hist.inc.php';
 
 $_login->authorize(); // ユーザ認証
@@ -22,7 +21,7 @@ $ptitle = '書き込んだレスの記録';
 // 特殊な前置処理
 //================================================================
 // 削除
-if ($_POST['submit'] == $deletemsg_st or isset($_GET['checked_hists'])) {
+if ((isset($_POST['submit']) && $_POST['submit'] == $deletemsg_st) or isset($_GET['checked_hists'])) {
     $checked_hists = array();
     if (isset($_POST['checked_hists'])) {
         $checked_hists = $_POST['checked_hists'];
@@ -113,8 +112,7 @@ echo <<<EOP
 <body{$body_at}>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 // 携帯用表示
 if ($_conf['ktai']) {

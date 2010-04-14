@@ -19,12 +19,8 @@ if (!$_conf['expack.ic2.enabled']) {
 // {{{ 初期化
 
 // ライブラリ読み込み
-require_once 'PEAR.php';
-require_once 'DB/DataObject.php';
 require_once 'HTML/Template/Flexy.php';
-require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
+require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 
 // }}}
 // {{{ 設定と消去
@@ -39,13 +35,11 @@ if (!isset($_REQUEST['table'])) {
 $mode = $_REQUEST['table'];
 switch ($mode) {
     case 'errlog':
-        require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
         $table = new IC2_DataObject_Errors;
         $table->orderBy('occured ASC');
         $title = 'エラーログ';
         break;
     case 'blacklist':
-        require_once P2EX_LIB_DIR . '/ic2/DataObject/BlackList.php';
         $table = new IC2_DataObject_BlackList;
         $table->orderBy('uri ASC');
         $title = 'ブラックリスト';
@@ -88,7 +82,7 @@ $flexy->setData('skin', $skin_en);
 $flexy->setData('title', $title);
 $flexy->setData('mode', $mode);
 $flexy->setData('reload_js', $_SERVER['SCRIPT_NAME'] . '?nt=' . time() . '&table=' . $mode);
-$flexy->setData('info_msg', $_info_msg_ht);
+$flexy->setData('info_msg', P2Util::getInfoHtml());
 $flexy->setData('pc', !$_conf['ktai']);
 $flexy->setData('iphone', $_conf['iphone']);
 $flexy->setData('doctype', $_conf['doctype']);
@@ -99,11 +93,11 @@ if ($table->find()) {
     switch ($mode) {
         case 'errlog':
             $flexy->setData('data_renderer_errlog', TRUE);
-            $flexy->setData('data', ic2dumptable_errlog($table));
+            $flexy->setData('data', ic2_dump_table_errlog($table));
             break;
         case 'blacklist':
             $flexy->setData('data_renderer_blacklist', TRUE);
-            $flexy->setData('data', ic2dumptable_blacklist($table));
+            $flexy->setData('data', ic2_dump_table_blacklist($table));
             break;
     }
 }
@@ -114,12 +108,12 @@ $flexy->output();
 
 // }}}
 // {{{ 関数
-// {{{ ic2dumptable_errlog()
+// {{{ ic2_dump_table_errlog()
 
 /**
  * エラーログを取得する
  */
-function ic2dumptable_errlog($dbdo)
+function ic2_dump_table_errlog($dbdo)
 {
     $data = array();
     while ($dbdo->fetch()) {
@@ -134,12 +128,12 @@ function ic2dumptable_errlog($dbdo)
 }
 
 // }}}
-// {{{ ic2dumptable_blacklist()
+// {{{ ic2_dump_table_blacklist()
 
 /**
  * ブラックリストを取得する
  */
-function ic2dumptable_blacklist($dbdo)
+function ic2_dump_table_blacklist($dbdo)
 {
     $data = array();
     while ($dbdo->fetch()) {

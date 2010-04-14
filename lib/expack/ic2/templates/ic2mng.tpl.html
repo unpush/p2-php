@@ -84,10 +84,9 @@
 		[<a href="ic2_viewtable.php?table=blacklist#footer" target="read">ブラックリストを見る</a>]
 	</div>
 
-	<div flexy:if="isSQLite">
-		<input type="radio" name="action" id="action_vacuumDB" value="vacuumDB" onclick="dropZeroOptions(false)" />
-		<label for="action_vacuumDB">データベースを整理する（SQLiteのみ）</label>
-		<!-- VACUUMを実行 -->
+	<div flexy:if="enable_optimize_db">
+		<input type="radio" name="action" id="action_optimizeDB" value="optimizeDB" onclick="dropZeroOptions(false)" />
+		<label for="action_optimizeDB">データベースを最適化する</label>
 	</div>
 
 	<hr />

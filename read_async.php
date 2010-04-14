@@ -5,10 +5,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/NgAbornCtl.php';
-require_once P2_LIB_DIR . '/ThreadRead.php';
-require_once P2_LIB_DIR . '/ShowThreadPc.php';
-//require_once P2_LIB_DIR . '/ShowThreadTree.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -18,8 +14,6 @@ $_login->authorize(); // ユーザ認証
 
 $newtime = date('gis'); // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
 //$_today = date('y/m/d');
-
-$_info_msg_ht = '';
 
 if (empty($_GET['host']) || empty($_GET['bbs']) || empty($_GET['key']) || empty($_GET['ls'])) {
     p2die('レスの指定が変です。');
@@ -48,7 +42,7 @@ if (!isset($aThread->keyidx)) {
 }
 
 // 板ディレクトリが無ければ作る
-//FileCtl::mkdir_for($aThread->keyidx);
+//FileCtl::mkdirFor($aThread->keyidx);
 
 $aThread->itaj = P2Util::getItaName($host, $bbs);
 if (!$aThread->itaj) {

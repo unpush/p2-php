@@ -9,6 +9,9 @@
 //===================================================================
 $newtime = date('gis');
 $reloaded_time = date('m/d G:i:s'); //更新時刻
+$shinchaku_attayo_json = json_encode($shinchaku_attayo);
+$threads_count_json = json_encode($aThreadList->num);
+$JSTYLE = JStyle::singleton();
 
 // スレあぼーんチェック、倉庫 =============================================
 $taborn_check_ht = '';
@@ -62,6 +65,7 @@ if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
 } else {
     $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 }
+$ptitle_json = JStyle::encode($aThreadList->ptitle);
 
 if ($aThreadList->spmode == 'taborn') {
     $ptitle_ht = <<<EOP
@@ -156,7 +160,7 @@ $input_find_cont_ht = <<<EOP
 EOP;
 
 $filter_form_ht = <<<EOP
-        <form class="toolbar" method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}" target="_self">
+        <form class="toolbar" method="GET" action="{$_conf['subject_php']}" accept-charset="{$_conf['accept_charset']}" target="_self">
             {$sb_form_hidden_ht}
             <input type="text" name="word" value="{$hd['word']}" size="16">{$sb_form_method_ht}
             {$input_find_cont_ht}
@@ -212,109 +216,29 @@ echo <<<EOP
     <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/settabornjs.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/delelog.js?{$_conf['p2_version_id']}"></script>
-    <script type="text/javascript" src="js/jquery.pack.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/respopup.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/motolspopup.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/jquery-1.4.1.min.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
     //<![CDATA[
-    function setWinTitle(){
-        var shinchaku_ari = "$shinchaku_attayo";
-        if(shinchaku_ari){
-            window.top.document.title="★{$aThreadList->ptitle}";
-        }else{
-            if (top != self) {top.document.title=self.document.title;}
-        }
-    }
-    function chNewAllColor()
-    {
-        var smynum1 = document.getElementById('smynum1');
-        if (smynum1) {
-            smynum1.style.color="{$STYLE['sb_ttcolor']}";
-        }
-        var smynum2 = document.getElementById('smynum2')
-        if (smynum2) {
-            smynum2.style.color="{$STYLE['sb_ttcolor']}";
-        }
-        var a = document.getElementsByTagName('a');
-        for (var i = 0; i < a.length; i++) {
-            if (a[i].className == 'un_a') {
-                a[i].style.color = "{$STYLE['sb_ttcolor']}";
-            }
-        }
-    }
-    function chUnColor(idnum){
-        var unid = 'un'+idnum;
-        var unid_obj = document.getElementById(unid);
-        if (unid_obj) {
-            unid_obj.style.color="{$STYLE['sb_ttcolor']}";
-        }
-    }
-    function chTtColor(idnum){
-        var ttid = "tt"+idnum;
-        var toid = "to"+idnum;
-        var ttid_obj = document.getElementById(ttid);
-        if (ttid_obj) {
-            ttid_obj.style.color="{$STYLE['thre_title_color_v']}";
-        }
-        var toid_obj = document.getElementById(toid);
-        if (toid_obj) {
-            toid_obj.style.color="{$STYLE['thre_title_color_v']}";
-        }
-    }
-    function wrapDeleLog(qeury, from){
-        return deleLog(qeury, {$STYLE['info_pop_size']}, 'subject', from);
-    }
-    function wrapSetFavJs(query, favdo, from){
-        return setFavJs(query, favdo, {$STYLE['info_pop_size']}, 'subject', from);
-    }
-    function wrapOpenSubWin(url){
-        return OpenSubWin(url + '&popup=1', {$STYLE['info_pop_size']}, 0, 0);
-    }
-    \$(setWinTitle);
+    rep2.subject.properties = {
+        'shinchaku_ari': {$shinchaku_attayo_json},
+        'page_title': {$ptitle_json},
+        'threads_count': {$threads_count_json},
+        'ttcolor': {$JSTYLE['sb_ttcolor']},
+        'ttcolor_v': {$JSTYLE['thre_title_color_v']},
+        'pop_size': [{$JSTYLE['info_pop_size']}]
+    };
     //]]>
-    </script>\n
+    </script>
+    <script type="text/javascript" src="js/subject.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
 
-if ($aThreadList->spmode == 'taborn' || $aThreadList->spmode == 'soko') {
-    echo <<<EOJS
-    <script type="text/javascript">
-    //<![CDATA[
-    function checkAll(){
-        var trk = 0;
-        var inp = document.getElementsByTagName('input');
-        for (var i=0; i<inp.length; i++){
-            var e = inp[i];
-            if ((e.name != 'allbox') && (e.type=='checkbox')){
-                trk++;
-                e.checked = document.getElementById('allbox').checked;
-            }
-        }
-    }
-    //]]>
-    </script>
-EOJS;
-} elseif ($aThreadList->spmode == 'recent') {
-    echo <<<EOJS
-    <script type="text/javascript">
-    //<![CDATA[
-    function offrec_ajax(anchor)
-    {
-        var url = anchor.href.replace('info.php?', 'httpcmd.php?cmd=offrec&');
-        \$.get(url, null, function(text, status){
-            if (status == 'error') {
-                window.alert('Async error!');
-            } else if (text === '0' || text === '') {
-                window.alert('履歴解除失敗!');
-            } else {
-                var row = anchor.parentNode.parentNode;
-                row.parentNode.removeChild(row);
-            }
-        });
-        return false;
-    }
-    //]]>
-    </script>
-EOJS;
+if (!empty($_SESSION['use_narrow_toolbars'])) {
+    echo <<<EOP
+    <link rel="stylesheet" type="text/css" href="css.php?css=narrow_toolbar&amp;skin={$skin_en}">\n
+EOP;
 }
-
 
 echo <<<EOP
 </head>
@@ -323,8 +247,7 @@ EOP;
 
 include P2_LIB_DIR . '/sb_toolbar.inc.php';
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 echo <<<EOP
 {$taborn_check_ht}{$check_form_ht}

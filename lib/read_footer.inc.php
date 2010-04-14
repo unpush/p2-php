@@ -3,8 +3,6 @@
  * rep2 - スレッド表示 -  フッタ部分 -  for read.php
  */
 
-require_once P2_LIB_DIR . '/DataPhp.php';
-
 //=====================================================================
 // ■フッタ
 //=====================================================================
@@ -15,14 +13,14 @@ if ($_conf['bottom_res_form']) {
     $key = $aThread->key;
     $host = $aThread->host;
     $rescount = $aThread->rescount;
-    $ttitle_en = base64_encode($aThread->ttitle);
+    $ttitle_en = UrlSafeBase64::encode($aThread->ttitle);
 
     $submit_value = '書き込む';
 
     $key_idx = $aThread->keyidx;
 
     // フォームのオプション読み込み
-    require_once P2_LIB_DIR . '/post_options_loader.inc.php';
+    require_once P2_LIB_DIR . '/post_form_options.inc.php';
 
     $htm['resform_ttitle'] = <<<EOP
 <p><b class="thre_title">{$aThread->ttitle_hd}</b></p>
@@ -49,13 +47,11 @@ EOP;
 if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagelink']) {
     $htm['ic2navi'] = '<a href="iv2.php?field=memo&amp;key=' . rawurlencode($aThread->ttitle) . '" target="_blank">キャッシュ画像' .
     ($_conf['expack.ic2.thread_imagecount'] ? '<span id="ic2_count_f"></span>' : '') .
-    '</a>';
+    '</a> ';
 }
 
 // ============================================================
-$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
-
-if ($aThread->rescount or ($_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
+if ($aThread->rescount or (!empty($_GET['one']) && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
     if (!$aThread->diedat) {
         if (!empty($_conf['disable_res'])) {
@@ -64,27 +60,34 @@ if ($aThread->rescount or ($_GET['one'] && !$aThread->diedat)) { // and (!$_GET[
 EOP;
         } else {
             $htm['dores'] = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target="_self" onclick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)"{$onmouse_showform_ht}>{$dores_st}</a>
+<a href="post_form.php?{$host_bbs_key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target="_self" onclick="return OpenSubWin('post_form.php?{$host_bbs_key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}&amp;popup=1',{$STYLE['post_pop_size']},1,0)"{$onmouse_showform_ht}>{$dores_st}</a>
 EOP;
         }
 
         $res_form_ht_pb = $res_form_ht;
+    } else {
+        $htm['dores'] = '';
+        $res_form_ht_pb = '';
     }
 
     if ($res1['body']) {
         $q_ichi = $res1['body']." | ";
+    } else {
+        $q_ichi = '';
     }
 
     // レスのすばやさ
-    $htm['spd'] = '';
     if ($spd_st = $aThread->getTimePerRes() and $spd_st != '-') {
         $htm['spd'] = '<span class="spd" title="すばやさ＝時間/レス">' . $spd_st . '</span>';
+    } else {
+        $htm['spd'] = '';
     }
 
     // datサイズ
-    $htm['dsize'] = '';
     if (file_exists($aThread->keydat) && $dsize_ht = filesize($aThread->keydat)) {
         $htm['dsize'] = sprintf('<span class="spd" title="%s">%01.1fKB</span> |', 'datサイズ', $dsize_ht / 1024);
+    } else {
+        $htm['dsize'] = '';
     }
 
     // レス番指定移動
@@ -101,10 +104,10 @@ GOTO;
     // {{{ フィルタヒットがあった場合、次Xと続きを読むを更新
     /*
     //if (!$read_navi_next_isInvisible) {
-    $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
+    $read_navi_next = "<a href=\"{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
     //}
 
-    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
+    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
     */
 
     if (!empty($GLOBALS['last_hit_resnum'])) {
@@ -113,38 +116,32 @@ GOTO;
             $read_navi_next_anchor = "#r{$aThread->rescount}";
         }
         $after_rnum = $GLOBALS['last_hit_resnum'] + $rnum_range;
-        $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
+        $read_navi_next = "<a href=\"{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
 
         // 「続きを読む」
-        $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
+        $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
     }
     // }}}
 
     // ■プリント
     echo <<<EOP
 <hr>
-<table id="footer" width="100%" style="padding:0px 10px 0px 0px;">
+<table id="footer" class="toolbar">
     <tr>
-        <td align="left">
+        <td class="lblock">
             {$q_ichi}
-            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a>
+            <a href="{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls=all">{$all_st}</a>
             {$read_navi_previous}
             {$read_navi_next}
-            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a>
+            <a href="{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a>
             {$htm['goto']}
             | {$read_footer_navi_new}
             | {$htm['dores']}
             {$htm['dsize']}
             {$htm['spd']}
         </td>
-        <td align="right">
-            {$htm['ic2navi']}
-            {$htm['p2frame']}
-            {$toolbar_right_ht}
-        </td>
-        <td align="right">
-            <a href="#header">▲</a>
-        </td>
+        <td class="rblock">{$htm['ic2navi']}{$htm['p2frame']} {$toolbar_right_ht}</td>
+        <td class="rblock"><a href="#header">▲</a></td>
     </tr>
 </table>
 {$res_form_ht_pb}

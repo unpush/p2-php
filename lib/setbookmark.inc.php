@@ -3,8 +3,6 @@
  * rep2expack - ブックマーク登録・解除
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 // {{{ setbookmark()
 
 /**

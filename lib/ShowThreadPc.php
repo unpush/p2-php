@@ -3,8 +3,6 @@
  * rep2 - スレッドを表示する クラス PC用
  */
 
-require_once P2_LIB_DIR . '/ShowThread.php';
-require_once P2_LIB_DIR . '/StrCtl.php';
 require_once P2EX_LIB_DIR . '/ExpackLoader.php';
 
 ExpackLoader::loadAAS();
@@ -516,9 +514,9 @@ EOJS;
 
         // 数字を引用レスポップアップリンク化
         if ($_conf['quote_res_view']) {
-            if (strlen($name) && $name != $this->BBS_NONAME_NAME) {
+            if (strlen($name) && $name != $this->_nanashiName) {
                 $name = preg_replace_callback(
-                    $this->getAnchorRegex('/(?:^|%prefix%)(%nums%)/'),
+                    self::getAnchorRegex('/(?:^|%prefix%)(%nums%)/'),
                     array($this, 'quote_name_callback'), $name
                 );
             }
@@ -1065,11 +1063,11 @@ EOP;
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
 
         //echo $msg;
-        if (preg_match_all($this->getAnchorRegex('/%full%/'), $msg, $out, PREG_PATTERN_ORDER)) {
+        if (preg_match_all(self::getAnchorRegex('/%full%/'), $msg, $out, PREG_PATTERN_ORDER)) {
             foreach ($out[2] as $numberq) {
-                if ($matches=preg_split($this->getAnchorRegex('/%delimiter%/'), $numberq)) {
+                if ($matches=preg_split(self::getAnchorRegex('/%delimiter%/'), $numberq)) {
                     foreach ($matches as $a_quote_res_num) {
-                        if (preg_match($this->getAnchorRegex('/%range_delimiter%/'),$a_quote_res_num)) { continue;}
+                        if (preg_match(self::getAnchorRegex('/%range_delimiter%/'),$a_quote_res_num)) { continue;}
                         $a_quote_res_num = (int) (mb_convert_kana($a_quote_res_num, 'n'));
                         $a_quote_res_idx = $a_quote_res_num - 1;
 
@@ -1226,7 +1224,7 @@ EOJS;
             return $retry ? self::$_spm_objects[$this->spmObjName] : '';
         }
 
-        $ttitle_en = rawurlencode(base64_encode($this->thread->ttitle));
+        $ttitle_en = UrlSafeBase64::encode($this->thread->ttitle);
 
         if ($_conf['expack.spm.filter_target'] == '' || $_conf['expack.spm.filter_target'] == 'read') {
             $_conf['expack.spm.filter_target'] = '_self';
@@ -1322,11 +1320,9 @@ EOJS;
 
             // HTMLポップアップ
             if ($_conf['iframe_popup'] && $is_http) {
-                // p2pm/expm 指定の場合のみ、特別に手動転送指定を追加する
-                if ($_conf['through_ime'] == 'p2pm') {
-                    $pop_url = preg_replace('/\\?(enc=1&amp;)url=/', '?$1m=1&amp;url=', $link_url);
-                } elseif ($_conf['through_ime'] == 'expm') {
-                    $pop_url = preg_replace('/(&amp;d=-?\d+)?$/', '&amp;d=-1', $link_url);
+                // *pm 指定の場合のみ、特別に手動転送指定を追加する
+                if (substr($_conf['through_ime'], -2) == 'pm') {
+                    $pop_url = P2Util::throughIme($purl[0], -1);
                 } else {
                     $pop_url = $link_url;
                 }
@@ -1342,6 +1338,7 @@ EOJS;
                 } else {
                     $brocra_checker_url = rtrim($_conf['brocra_checker_url'], '/') . '/' . $url;
                 }
+                $brocra_checker_url_orig = $brocra_checker_url;
                 // ブラクラチェッカ・ime
                 if ($_conf['through_ime']) {
                     $brocra_checker_url = P2Util::throughIme($brocra_checker_url);
@@ -1351,11 +1348,9 @@ EOJS;
                 $check_mark_suffix = ']';
                 // ブラクラチェッカ・HTMLポップアップ
                 if ($_conf['iframe_popup']) {
-                    // p2pm/expm 指定の場合のみ、特別に手動転送指定を追加する
-                    if ($_conf['through_ime'] == 'p2pm') {
-                        $brocra_pop_url = preg_replace('/\\?(enc=1&amp;)url=/', '?$1m=1&amp;url=', $brocra_checker_url);
-                    } elseif ($_conf['through_ime'] == 'expm') {
-                        $brocra_pop_url = $brocra_checker_url . '&amp;d=-1';
+                    // *pm 指定の場合のみ、特別に手動転送指定を追加する
+                    if (substr($_conf['through_ime'], -2) == 'pm') {
+                        $brocra_checker_url = P2Util::throughIme($brocra_checker_url_orig, -1);
                     } else {
                         $brocra_pop_url = $brocra_checker_url;
                     }

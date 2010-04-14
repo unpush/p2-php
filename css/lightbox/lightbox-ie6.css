@@ -1,0 +1,6 @@
+* html #lightboxOverallView,
+* html #overlay {
+	background-color: #000;
+	background-image: url(../../img/lightbox/blank.gif);
+	filter: Alpha(opacity=50);
+}

@@ -3,7 +3,7 @@
  * rep2expack - RSSリストの処理
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
+require_once P2EX_LIB_DIR . '/rss/parser.inc.php';
 
 // {{{ 変数
 
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         flock($fp, LOCK_UN);
         fclose($fp);
 
-        $_info_msg_ht .= <<<EOJS
+        $script = <<<EOJS
 <script type="text/javascript">
 //<![CDATA[
 if (parent.menu) {
@@ -46,35 +46,54 @@ if (parent.menu) {
 //]]>
 </script>\n
 EOJS;
+        P2Util::pushInfoHtml($script);
 
         unset($site, $xml, $atom, $m, $matches, $fp);
         return;
     }
-
-    $setrss  = isset($_POST['setrss'])  ? trim($_POST['setrss'])  : '';
-    $xml     = isset($_POST['xml'])     ? trim($_POST['xml'])     : '';
-    $site    = isset($_POST['site'])    ? trim($_POST['site'])    : '';
-    $site_en = isset($_POST['site_en']) ? trim($_POST['site_en']) : '';
-    $atom    = empty($_POST['atom']) ? 0 : 1;
-} else {
-    $setrss  = isset($_POST['setrss'])  ? trim($_GET['setrss'])  : '';
-    $xml     = isset($_POST['xml'])     ? trim($_GET['xml'])     : '';
-    $site    = isset($_POST['site'])    ? trim($_GET['site'])    : '';
-    $site_en = isset($_POST['site_en']) ? trim($_GET['site_en']) : '';
-    $atom    = empty($_GET['atom']) ? 0 : 1;
 }
+
+$setrss  = isset($_REQUEST['setrss'])  ? trim($_REQUEST['setrss'])  : '';
+$xml     = isset($_REQUEST['xml'])     ? trim($_REQUEST['xml'])     : '';
+$site    = isset($_REQUEST['site'])    ? trim($_REQUEST['site'])    : '';
+$site_en = isset($_REQUEST['site_en']) ? trim($_REQUEST['site_en']) : '';
+$atom    = empty($_REQUEST['atom'])    ? 0 : 1;
+
+// feedスキームをhttpスキームで置換
+$xml = preg_replace('|^feed://|', 'http://', $xml);
+
 // RSSのタイトル設定
 if ($site === '') {
     if ($site_en !== '') {
-        $site = base64_decode($site_en);
+        $site = UrlSafeBase64::decode($site_en);
     } else {
+        $purl = @parse_url($xml);
+        if (is_array($purl)) {
+            if (array_key_exists('host', $purl)) {
+                $site .= $purl['host'];
+            }
+            if (array_key_exists('path', $purl)) {
+                $site .= '.' . basename($purl['path']);
+            }
+            if (array_key_exists('query', $purl)) {
+                $site .= '?' . $purl['query'];
+            }
+        }
         $site = basename($xml);
+
+        $rss = p2GetRSS($xml);
+        if ($rss instanceof XML_RSS) {
+            $channelInfo = $rss->getChannelInfo();
+            if (is_array($channelInfo) && array_key_exists('title', $channelInfo)) {
+                $site = mb_convert_encoding($channelInfo['title'], 'CP932', 'UTF-8,CP51932,CP932,ASCII');
+            }
+        }
     }
 }
 
 // ログに記録する変数を最低限のサニタイズ
 $xml = preg_replace_callback('/\\s/', 'rawurlencode', $xml);
-$site = preg_replace('/\\s/', ' ', $site);
+$site = preg_replace('/\\s+/', ' ', $site);
 $site = htmlspecialchars($site, ENT_QUOTES);
 
 // }}}

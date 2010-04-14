@@ -4,7 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/dele.inc.php';
 
 $_login->authorize(); // ユーザ認証
@@ -78,7 +77,7 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
     if (!function_exists('setFav')) {
         include P2_LIB_DIR . '/setfav.inc.php';
     }
-    $ttitle = is_string($ttitle_en) ? base64_decode($ttitle_en) : null;
+    $ttitle = is_string($ttitle_en) ? UrlSafeBase64::decode($ttitle_en) : null;
     if (isset($_GET['setnum'])) {
         setFav($host, $bbs, $key, $_GET['setfav'], $ttitle, $_GET['setnum']);
     } else {
@@ -122,19 +121,19 @@ $hc['itaj'] = $aThread->itaj;
 
 if (!$aThread->ttitle) {
     if (isset($ttitle_en)) {
-        $aThread->setTtitle(base64_decode($ttitle_en));
+        $aThread->setTtitle(UrlSafeBase64::decode($ttitle_en));
     } else {
         $aThread->setTitleFromLocal();
     }
 }
 if (!$ttitle_en) {
     if ($aThread->ttitle) {
-        $ttitle_en = base64_encode($aThread->ttitle);
+        $ttitle_en = UrlSafeBase64::encode($aThread->ttitle);
         //$ttitle_urlen = rawurlencode($ttitle_en);
     }
 }
 if ($ttitle_en) {
-    $ttitle_en_q = '&amp;ttitle_en=' . rawurlencode($ttitle_en);
+    $ttitle_en_q = '&amp;ttitle_en=' . $ttitle_en;
 } else {
     $ttitle_en_q = '';
 }
@@ -206,6 +205,7 @@ EOP;
 // {{{ palace チェック
 
 // 殿堂入りスレリスト 読込
+$isPalace = false;
 if ($pallines = FileCtl::file_read_lines($_conf['palace_idx'], FILE_IGNORE_NEW_LINES)) {
     foreach ($pallines as $l) {
         $palarray = explode('<>', $l);
@@ -267,6 +267,8 @@ EOP;
 // ログありなしフラグセット
 if (file_exists($aThread->keydat) or file_exists($aThread->keyidx)) {
     $existLog = true;
+} else {
+    $existLog = false;
 }
 
 //=================================================================
@@ -288,7 +290,7 @@ if (P2Util::isHost2chs($aThread->host)) {
 }
 
 
-if (!is_null($title_msg)) {
+if (isset($title_msg)) {
     $hc['title'] = $title_msg;
 } else {
     $hc['title'] = "info - {$hc['ttitle_name']}";
@@ -317,7 +319,7 @@ if (!$_conf['ktai']) {
     <link rel="stylesheet" type="text/css" href="css.php?css=info&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
-    if ($_GET['popup'] == 2) {
+    if (isset($_GET['popup']) && $_GET['popup'] == 2) {
         echo <<<EOSCRIPT
     <script type="text/javascript" src="js/closetimer.js?{$_conf['p2_version_id']}"></script>\n
 EOSCRIPT;
@@ -331,8 +333,7 @@ echo <<<EOP
 <body{$body_at}>
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 echo "<p>\n";
 echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?{$common_q}{$_conf['k_at_a']}\"{$target_read_at}>{$hd['ttitle_name']}</a></b>\n";
@@ -347,6 +348,8 @@ if ($_conf['ktai']) {
 
 if (checkRecent($aThread->host, $aThread->bbs, $aThread->key) or checkResHist($aThread->host, $aThread->bbs, $aThread->key)) {
     $offrec_ht = " / [<a href=\"info.php?{$common_q}&amp;offrec=true{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}\" title=\"このスレを「最近読んだスレ」と「書き込み履歴」から外します\">履歴から外す</a>]";
+} else {
+    $offrec_ht = '';
 }
 
 if (!$_conf['ktai']) {
@@ -401,7 +404,7 @@ if (!$_conf['ktai']) {
 
 if (!$_conf['ktai']) {
     if (!empty($info_msg)) {
-        echo "<span class=\"infomsg\">".$info_msg."</span>\n";
+        echo "<span class=\"info-msg\">{$info_msg}</span>\n";
     } else {
         echo "　\n";
     }

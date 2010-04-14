@@ -14,7 +14,7 @@ body{
 	background-color:#ccc;
 }
 
-p.infomsg{
+p.info-msg{
 	color:#369;
 }
 

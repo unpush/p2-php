@@ -4,12 +4,13 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_CONF_DIR . '/conf_user_def.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
+$csrfid = P2Util::getCsrfId(__FILE__);
+
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
-    if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
+    if (!isset($_POST['csrfid']) or $_POST['csrfid'] != $csrfid) {
         p2die('不正なポストです');
     }
 }
@@ -19,8 +20,11 @@ define('P2_EDIT_CONF_USER_LONGTEXT',    1);
 define('P2_EDIT_CONF_USER_HIDDEN',      2);
 define('P2_EDIT_CONF_USER_DISABLED',    4);
 define('P2_EDIT_CONF_USER_SKIPPED',     8);
+define('P2_EDIT_CONF_USER_PASSWORD',   16);
 define('P2_EDIT_CONF_FILE_ADMIN',    1024);
 define('P2_EDIT_CONF_FILE_ADMIN_EX', 2048);
+
+include P2_CONF_DIR . '/conf_user_def.inc.php';
 
 //=====================================================================
 // 前処理
@@ -42,7 +46,7 @@ if (!empty($_POST['submit_save'])) {
     applyRules();
 
     // ポストされた値 > 現在の値 > デフォルト値 の順で新しい設定を作成する
-    $conf_save = array('.' => P2_VERSION_ID);
+    $conf_save = array('.' => $_conf['p2expack']);
     foreach ($conf_user_def as $k => $v) {
         if (array_key_exists($k, $_POST['conf_edit'])) {
             $conf_save[$k] = $_POST['conf_edit'][$k];
@@ -56,9 +60,9 @@ if (!empty($_POST['submit_save'])) {
     // シリアライズして保存
     FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
     if (FileCtl::file_write_contents($_conf['conf_user_file'], serialize($conf_save)) === false) {
-        $_info_msg_ht .= "<p>×設定を更新保存できませんでした</p>";
+        P2Util::pushInfoHtml('<p>×設定を更新保存できませんでした</p>');
     } else {
-        $_info_msg_ht .= "<p>○設定を更新保存しました</p>";
+        P2Util::pushInfoHtml('<p>○設定を更新保存しました</p>');
         // 変更があれば、内部データも更新しておく
         $_conf = array_merge($_conf, $conf_user_def, $conf_save);
     }
@@ -70,7 +74,7 @@ if (!empty($_POST['submit_save'])) {
 
 } elseif (!empty($_POST['submit_default'])) {
     if (file_exists($_conf['conf_user_file']) and unlink($_conf['conf_user_file'])) {
-        $_info_msg_ht .= "<p>○設定をデフォルトに戻しました</p>";
+        P2Util::pushInfoHtml('<p>○設定をデフォルトに戻しました</p>');
         // 変更があれば、内部データも更新しておく
         $_conf = array_merge($_conf, $conf_user_def);
         if (is_array($conf_save)) {
@@ -83,19 +87,49 @@ if (!empty($_POST['submit_save'])) {
 // {{{ 携帯で表示するグループ
 
 if ($_conf['ktai']) {
-    if (isset($_POST['edit_conf_user_group_en'])) {
-        $selected_group = base64_decode($_POST['edit_conf_user_group_en']);
-    } elseif (isset($_POST['edit_conf_user_group'])) {
-        $selected_group = $_POST['edit_conf_user_group'];
-    } elseif (isset($_GET['edit_conf_user_group_en'])) {
-        $selected_group = base64_decode($_GET['edit_conf_user_group_en']);
-    } elseif (isset($_GET['edit_conf_user_group'])) {
-        $selected_group = $_GET['edit_conf_user_group'];
+    if (isset($_REQUEST['edit_conf_user_group_en'])) {
+        $selected_group = UrlSafeBase64::decode($_REQUEST['edit_conf_user_group_en']);
+    } elseif (isset($_REQUEST['edit_conf_user_group'])) {
+        $selected_group = $_REQUEST['edit_conf_user_group'];
     } else {
         $selected_group = null;
     }
 } else {
     $selected_group = 'all';
+    if (isset($_REQUEST['active_tab1'])) {
+        $active_tab1 = $_REQUEST['active_tab1'];
+        $active_tab1_ht = htmlspecialchars($active_tab1, ENT_QUOTES);
+        $active_tab1_js = "'" . StrCtl::toJavaScript($active_tab1) . "'";
+    } else {
+        $active_tab1 = null;
+        $active_tab1_ht = '';
+        $active_tab1_js = 'null';
+    }
+    if (isset($_REQUEST['active_tab2'])) {
+        $active_tab2 = $_REQUEST['active_tab2'];
+        $active_tab2_ht = htmlspecialchars($active_tab2, ENT_QUOTES);
+        $active_tab2_js = "'" . StrCtl::toJavaScript($active_tab2) . "'";
+    } else {
+        $active_tab2 = null;
+        $active_tab2_ht = '';
+        $active_tab2_js = 'null';
+    }
+    $parent_tabs_js = "['" . implode("','", array(
+        StrCtl::toJavaScript('rep2基本設定'),
+        StrCtl::toJavaScript('携帯端末設定'),
+        StrCtl::toJavaScript('拡張パック設定'),
+    )) . "']";
+    $active_tab_hidden_ht = <<<EOP
+<input type="hidden" id="active_tab1" name="active_tab1" value="{$active_tab1_ht}">
+<input type="hidden" id="active_tab2" name="active_tab2" value="{$active_tab2_ht}">
+<script type="text/javascript">
+// <![CDATA[
+_EDIT_CONF_USER_JS_PARENT_TABS = $parent_tabs_js;
+_EDIT_CONF_USER_JS_ACTIVE_TAB1 = $active_tab1_js;
+_EDIT_CONF_USER_JS_ACTIVE_TAB2 = $active_tab2_js;
+// ]]>
+</script>
+EOP;
 }
 
 $groups = array();
@@ -107,8 +141,6 @@ $keep_old = false;
 // プリント設定
 //=====================================================================
 $ptitle = 'ユーザ設定編集';
-
-$csrfid = P2Util::getCsrfId();
 
 $me = P2Util::getMyUrl();
 
@@ -162,8 +194,7 @@ EOP;
 }
 
 // 情報メッセージ表示
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 echo <<<EOP
 <form id="edit_conf_user_form" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
@@ -172,6 +203,7 @@ EOP;
 
 // PC用表示
 if (!$_conf['ktai']) {
+    echo $active_tab_hidden_ht;
     echo <<<EOP
 <div class="tabber">
 <div class="tabbertab" title="rep2基本設定">
@@ -186,9 +218,9 @@ EOP;
 }
 
 // {{{ rep2基本設定
-// {{{ be.2ch.net アカウント
+// {{{ 'be/p2'
 
-$groupname = 'be.2ch.net アカウント';
+$groupname = 'be/p2';
 $groups[] = $groupname;
 $flags = getGroupShowFlags($groupname);
 if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
@@ -197,6 +229,9 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $conflist = array(
         array('be_2ch_code', '<a href="http://be.2ch.net/" target="_blank">be.2ch.net</a>の認証コード(パスワードではない)', P2_EDIT_CONF_USER_LONGTEXT),
         array('be_2ch_mail', 'be.2ch.netの登録メールアドレス', P2_EDIT_CONF_USER_LONGTEXT),
+        array('p2_2ch_mail', '<a href="http://p2.2ch.net/" target="_blank">p2.2ch.net</a>の登録メールアドレス', P2_EDIT_CONF_USER_LONGTEXT),
+        array('p2_2ch_pass', 'p2.2ch.netのログインパスワード', P2_EDIT_CONF_USER_LONGTEXT | P2_EDIT_CONF_USER_PASSWORD),
+        array('p2_2ch_ignore_cip', ' p2.2ch.net Cookie認証時にIPアドレスの同一性をチェック'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -246,10 +281,6 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('cmp_dayres_midoku', '勢いソート時に新着レスのあるスレを優先'),
         array('cmp_title_norm', 'タイトルソート時に全角半角・大文字小文字を無視'),
         array('viewall_kitoku', '既得スレは表示件数に関わらず表示'),
-
-        array('sb_ttitle_max_len', 'スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
-        array('sb_ttitle_trim_len', 'スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
-        array('sb_ttitle_trim_pos', 'スレッドタイトルを切り詰める位置'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -350,7 +381,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('rct_rec_num', '最近読んだスレの記録数'),
         array('res_hist_rec_num', '書き込み履歴の記録数'),
         array('res_write_rec', '書き込み内容ログを記録'),
-        array('through_ime', '外部URLジャンプする際に通すゲート'),
+        array('through_ime', '外部URLジャンプする際に通すゲート<br>「直接」でもCookieが使えない端末では gate.php を通す'),
+        array('through_ime_http_only', ' HTTPSでアクセスしているときは外部URLゲートを通さない<br>(最近のWebブラウザの多くは https → http の遷移でRefererを送出しませんが、<br>「HTTPSでは直」にする場合は、お使いのブラウザの仕様を確認してください)'),
         array('ime_manual_ext', 'ゲートで自動転送しない拡張子（カンマ区切りで、拡張子の前のピリオドは不要）'),
         array('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加'),
         array('merge_favita', 'お気に板のスレ一覧をまとめて表示 (お気に板の数によっては処理に時間がかかる)'),
@@ -363,9 +395,9 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('brocra_checker_query', 'ブラクラチェッカのクエリー (空の場合、PATH_INFOでURLを渡す)'),
         array('enable_exfilter', 'フィルタリングでAND/OR検索を可能にする'),
         array('proxy_use', 'プロキシを利用'), 
-        array('proxy_host', 'プロキシホスト ex)&quot;127.0.0.1&quot;, &quot;www.p2proxy.com&quot;'), 
+        array('proxy_host', 'プロキシホスト ex)&quot;127.0.0.1&quot;, &quot;p2proxy.example&quot;'), 
         array('proxy_port', 'プロキシポート ex)&quot;8080&quot;'), 
-        array('precede_openssl', '●ログインを、まずはopensslで試みる<br>(PHP 4.3.0以降で、OpenSSLが静的にリンクされている必要がある)'),
+        array('precede_openssl', '●ログインを、まずはopensslで試みる<br>(OpenSSLが静的にリンクされている必要がある)'),
         array('precede_phpcurl', 'curlを使う時、コマンドライン版とPHP関数版どちらを優先するか'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
@@ -645,24 +677,6 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 }
 
 // }}}
-// {{{ expack - Google検索
-
-$groupname = 'Google検索';
-$groups[] = $groupname;
-$flags = getGroupShowFlags($groupname, 'expack.google.enabled');
-if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
-    $keep_old = true;
-} else {
-    $conflist = array(
-        array('expack.google.key', 'Google Web APIs の登録キー', P2_EDIT_CONF_USER_LONGTEXT),
-        //array('expack.google.recent_num', '検索履歴を記録する数（記録しない:0）'),
-        array('expack.google.recent2_num', 'サーチボックスに検索履歴を記録する数、Safari専用 (記録しない:0)'),
-        array('expack.google.force_pear', 'SOAP エクステンション が利用可能なときも PEAR の SOAP パッケージを使う'),
-    );
-    printEditConfGroupHtml($groupname, $conflist, $flags);
-}
-
-// }}}
 // {{{ expack - AAS
 
 $groupname = 'AAS';
@@ -723,7 +737,7 @@ EOP;
 // 携帯用表示
 } else {
     if (!empty($selected_group)) {
-        $group_en = htmlspecialchars(base64_encode($selected_group));
+        $group_en = UrlSafeBase64::encode($selected_group);
         echo "<input type=\"hidden\" name=\"edit_conf_user_group_en\" value=\"{$group_en}\">";
         echo $htm['form_submit'];
     }
@@ -754,7 +768,7 @@ EOP;
             }
         }
         $group_ht = htmlspecialchars($groupname, ENT_QUOTES);
-        $group_en = htmlspecialchars(base64_encode($groupname));
+        $group_en = UrlSafeBase64::encode($groupname);
         $selected = ($selected_group == $groupname) ? ' selected' : '';
         echo "<option value=\"{$group_en}\"{$selected}>{$group_ht}</option>";
     }
@@ -1439,8 +1453,9 @@ function getEditConfHtml($name, $description_ht, $flags)
         } else {
             $input_size_at = '';
         }
+        $input_type = ($flags & P2_EDIT_CONF_USER_PASSWORD) ? 'password' : 'text';
         $form_ht = <<<EOP
-<input type="text" name="conf_edit[{$name}]" value="{$name_view}"{$input_size_at}>
+<input type="{$input_type}" name="conf_edit[{$name}]" value="{$name_view}"{$input_size_at}>
 EOP;
         if (is_string($conf_user_def[$name])) {
             $def_views[$name] = htmlspecialchars($conf_user_def[$name], ENT_QUOTES);

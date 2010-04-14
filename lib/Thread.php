@@ -1,5 +1,4 @@
 <?php
-require_once P2_LIB_DIR . '/FileCtl.php';
 
 // {{{ Thread
 
@@ -210,37 +209,36 @@ class Thread
                 $tt_max_len = $_conf['mobile.sb_ttitle_max_len'];
                 $tt_trim_len = $_conf['mobile.sb_ttitle_trim_len'];
                 $tt_trim_pos = $_conf['mobile.sb_ttitle_trim_pos'];
-            } else {
-                $tt_max_len = $_conf['sb_ttitle_max_len'];
-                $tt_trim_len = $_conf['sb_ttitle_trim_len'];
-                $tt_trim_pos = $_conf['sb_ttitle_trim_pos'];
-            }
 
-            $ttitle_hc = $this->getTtitleHc();
-            $ttitle_len = strlen($ttitle_hc);
+                $ttitle_hc = $this->getTtitleHc();
+                $ttitle_len = strlen($ttitle_hc);
 
-            if ($tt_max_len > 0 && $ttitle_len > $tt_max_len && $ttitle_len > $tt_trim_len) {
-                switch ($tt_trim_pos) {
-                case -1:
-                    $a_ttitle = '... ';
-                    $a_ttitle .= mb_strcut($ttitle_hc, $ttitle_len - $tt_trim_len);
-                    break;
-                case 0:
-                    $trim_len = floor($tt_trim_len / 2);
-                    $a_ttitle = mb_strcut($ttitle_hc, 0, $trim_len);
-                    $a_ttitle .= ' ... ';
-                    $a_ttitle .= mb_strcut($ttitle_hc, $ttitle_len - $trim_len);
-                    break;
-                case 1:
-                default:
-                    $a_ttitle = mb_strcut($ttitle_hc, 0, $tt_trim_len);
-                    $a_ttitle .= ' ...';
+                if ($tt_max_len > 0 && $ttitle_len > $tt_max_len && $ttitle_len > $tt_trim_len) {
+                    switch ($tt_trim_pos) {
+                    case -1:
+                        $a_ttitle = '... ';
+                        $a_ttitle .= mb_strcut($ttitle_hc, $ttitle_len - $tt_trim_len);
+                        break;
+                    case 0:
+                        $trim_len = floor($tt_trim_len / 2);
+                        $a_ttitle = mb_strcut($ttitle_hc, 0, $trim_len);
+                        $a_ttitle .= ' ... ';
+                        $a_ttitle .= mb_strcut($ttitle_hc, $ttitle_len - $trim_len);
+                        break;
+                    case 1:
+                    default:
+                        $a_ttitle = mb_strcut($ttitle_hc, 0, $tt_trim_len);
+                        $a_ttitle .= ' ...';
+                    }
+                    $this->_ttitle_ht = htmlspecialchars($a_ttitle, ENT_QUOTES, 'Shift_JIS', false);
+                } else {
+                    $this->_ttitle_ht = $this->getTtitleHd();
                 }
-                $this->_ttitle_ht = htmlspecialchars($a_ttitle, ENT_QUOTES);
             } else {
                 $this->_ttitle_ht = $this->getTtitleHd();
             }
         }
+
         return $this->_ttitle_ht;
     }
 

@@ -39,12 +39,7 @@ if ($id <= 0 || $rank > 5 || ($rank < -1 && !($remove && $rank == -5))) {
 }
 
 // ƒ‰ƒCƒuƒ‰ƒŠ“Ç‚İ‚İ
-require_once 'PEAR.php';
-require_once 'DB.php';
-require_once 'DB/DataObject.php';
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 
 // }}}
 // {{{ execute
@@ -69,20 +64,16 @@ if ($finder->find(1)) {
     }
 
     if ($remove) {
-        global $_info_msg_ht;
-        require_once P2EX_LIB_DIR . '/ic2/managedb.inc.php';
+        $orig_info_msg_ht = P2Util::getInfoHtml();
 
-        $orig_info_msg_ht = $_info_msg_ht;
-        $_info_msg_ht = '';
-
-        $removed_files = manageDB_remove(array($finder->id), $rank < 0);
-        if ($code != 0 && $_info_msg_ht === '') {
+        $removed_files = IC2_DatabaseManager::remove(array($finder->id), $rank < 0);
+        if ($code != 0 && !P2Util::hasInfoHtml()) {
             $code = 1;
         } else {
             $code = 0;
         }
 
-        $_info_msg_ht = $orig_info_msg_ht;
+        P2Util::pushInfoHtml($orig_info_msg_ht);
     }
 }
 

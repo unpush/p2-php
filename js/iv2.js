@@ -177,6 +177,20 @@ function setRank(itemId, rank)
 }
 
 // }}}
+// {{{ p2BindReady()
+
+p2BindReady(function(){
+    var toolbar = document.getElementById('toolbar');
+    var toolbarHeight = getCurrentStyle(toolbar).height;
+    if (toolbarHeight == 'auto') {
+        toolbarHeight = toolbar.clientHeight;
+    } else {
+        toolbarHeight = parsePixels(toolbarHeight);
+    }
+    document.getElementById('header').style.height = toolbarHeight + 'px';
+}, null);
+
+// }}}
 
 /*
  * Local Variables:

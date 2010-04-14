@@ -3,11 +3,6 @@
  * rep2expack - ImageCache2
  */
 
-require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
-
 // {{{ IC2_Thumbnailer
 
 class IC2_Thumbnailer
@@ -57,7 +52,6 @@ class IC2_Thumbnailer
     );
     // @var array $mimemap, MIMEタイプと拡張子の対応表
     public $mimemap = array('image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif');
-    public $windows;        // @var bool    サーバOSがWindowsか否か
 
     // }}}
     // {{{ constructor
@@ -80,14 +74,12 @@ class IC2_Thumbnailer
             $this->intermd = false;
         }
 
-        $this->windows = (bool)P2_OS_WINDOWS;
-
         // 設定
         $this->ini = ic2_loadconfig();
 
         // データベースに接続
         $icdb = new IC2_DataObject_Images;
-        $this->db = &$icdb->getDatabaseConnection();
+        $this->db = $icdb->getDatabaseConnection();
         if (DB::isError($this->db)) {
             $this->error($this->db->getMessage());
         }
@@ -119,7 +111,7 @@ class IC2_Thumbnailer
                 $this->driver = 'imagemagick';
             case 'imagemagick': // ImageMagick の convert コマンド
                 $searchpath = $this->ini['General']['magick'];
-                if (!findexec('convert', $searchpath)) {
+                if (!ic2_findexec('convert', $searchpath)) {
                     $this->error('ImageMagickが使えません。');
                 }
                 if ($searchpath) {
@@ -291,16 +283,6 @@ class IC2_Thumbnailer
 
         // イメージドライバにサムネイル作成処理をさせる
         $convertorClass = 'Thumbnailer_' . ucfirst(strtolower($this->driver));
-        if ($convertorClass == 'Thumbnailer_Imagick') {
-            if (!class_exists('Imagick', false)) {
-                $convertorClass = 'Thumbnailer_Imagick09';
-            }
-        }
-
-        if (!class_exists($convertorClass, false)) {
-            require dirname(__FILE__) . DIRECTORY_SEPARATOR .
-                    str_replace('_', DIRECTORY_SEPARATOR, $convertorClass) . '.php';
-        }
 
         $convertor = new $convertorClass();
         $convertor->setBgColor($this->bgcolor[0], $this->bgcolor[1], $this->bgcolor[2]);
@@ -512,7 +494,7 @@ class IC2_Thumbnailer
         }
         $sql = 'SELECT MAX(' . $this->db->quoteIdentifier('id') . ') + 1 FROM '
              . $this->db->quoteIdentifier($this->ini['General']['table']) . ';';
-        $nextid = &$this->db->getOne($sql);
+        $nextid = $this->db->getOne($sql);
         if (DB::isError($nextid) || !$nextid) {
             $nextid = 1;
         }

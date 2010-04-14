@@ -40,7 +40,7 @@ if ($_conf['expack.tgrep.recent_num'] > 0) {
 <li>2つ目以降のｷｰﾜｰﾄﾞで頭に&quot;-&quot;をつけると､それを含まないものが抽出されます｡</li>
 <li>&quot; または &#39; で囲まれた部分はｽﾍﾟｰｽが入っていても一つのｷｰﾜｰﾄﾞとして扱います｡</li>
 <li>ｷｰﾜｰﾄﾞの全角半角､大文字小文字は無視されます｡</li>
-<li>ﾃﾞｰﾀﾍﾞｰｽの更新頻度は3時間に1回で､ﾚｽ数･勢い･活発さは更新時点での値です｡</li>
+<li>ﾃﾞｰﾀﾍﾞｰｽの更新頻度は1時間に1回で､ﾚｽ数･勢い･活発さは更新時点での値です｡</li>
 </uL>
 <?php } ?>
 <?php if ($errors) { ?>
@@ -73,11 +73,10 @@ if ($_conf['expack.tgrep.recent_num'] > 0) {
 <!-- ThreadList and Pager -->
 <div><a href="#bottom" align="right" title="下へ"<?php echo $_conf['k_accesskey_at']['bottom']; ?>><?php echo $_conf['k_accesskey_st']['bottom']; ?>▼</a></div>
 <?php
-require_once P2_LIB_DIR . '/Thread.php';
 foreach ($threads as $o => $t) {
     $new = '';
     $turl = sprintf('%s?host=%s&amp;bbs=%s&amp;key=%d', $_conf['read_php'], $t->host, $t->bbs, $t->tkey);
-    $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, rawurlencode(base64_encode($t->ita)), $htm['query_en']);
+    $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, UrlSafeBase64::encode($t->ita), $htm['query_en']);
     $aThread = new Thread;
     $aThread->setThreadPathInfo($t->host, $t->bbs, $t->tkey);
     if ($aThread->getThreadInfoFromIdx() && $aThread->isKitoku()) {

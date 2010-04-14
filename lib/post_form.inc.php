@@ -13,6 +13,10 @@ if (!isset($readnew_hidden_ht)) {
     $readnew_hidden_ht = '';
 }
 
+// ŒöŽ®p2‚ðŽg‚Á‚½ƒXƒŒ—§‚Ä‚Í–¢ŽÀ‘• (P2Client.php)
+if ($newthread_hidden_ht !== '') {
+    $htm['p2res'] = '';
+}
 
 if ($_conf['ktai']) {
     $htm['k_br'] = '<br>';
@@ -25,7 +29,7 @@ if ($_conf['ktai']) {
     if ($_conf['iphone']) {
         $htm['options'] .= <<<EOP
 <div style="text-align:right;">
-<!-- <input type="checkbox" onclick="iutil.toggleAutocorrect('MESSAGE', this.checked);"><span onclick="iutil.checkPrev(this);">autocorrect</span> -->
+<!-- <input type="checkbox" id="autocorrect" onclick="iutil.toggleAutocorrect('MESSAGE', this.checked);"><label for="autocorrect">autocorrect</label> -->
 <input type="button" onclick="iutil.shrinkTextarea('MESSAGE');iutil.shrinkTextarea('MESSAGE');" value="|">
 <input type="button" onclick="iutil.expandTextarea('MESSAGE');" value="{">
 </div>
@@ -108,7 +112,8 @@ $htm['post_form'] = <<<EOP
 {$htm['block_submit']}
 {$htm['table_break2']}
 <input id="kakiko_submit" type="submit" name="submit" value="{$submit_value}"{$htm['kaiko_set_hidden_js']}{$htm['submit_extra_at']}>
-{$htm['be2ch']}
+{$htm['beres']}
+{$htm['p2res']}
 {$htm['table_end']}
 {$htm['k_br']}{$savedraft}
 

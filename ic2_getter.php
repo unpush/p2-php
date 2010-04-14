@@ -18,26 +18,32 @@ if (!$_conf['expack.ic2.enabled']) {
 // }}}
 // {{{ 初期化
 
-// conf.inc.phpで一括stripslashes()しているけど、HTML_QuickFormでも独自にstripslashes()するので。
-// バグの温床となる可能性も否定できない・・・
-if (get_magic_quotes_gpc()) {
-    $_GET = array_map('addslashes_r', $_GET);
-    $_POST = array_map('addslashes_r', $_POST);
-    $_REQUEST = array_map('addslashes_r', $_REQUEST);
-}
-
 // ライブラリ読み込み
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
 require_once 'HTML/Template/Flexy.php';
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
-require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
+require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 
 // ポップアップウインドウ？
-$isPopUp = empty($_GET['popup']) ? 0 : 1;
-
+if (empty($_GET['popup'])) {
+    $isPopUp = 0;
+    $autoClose = -1;
+} else {
+    $isPopUp = 1;
+    if (array_key_exists('close', $_GET) && is_numeric($_GET['close'])) {
+        $autoClose = (float)$_GET['close'] * 1000.0;
+        if ($autoClose > 0.0) {
+            $autoClose = (int)$autoClose;
+            if ($autoClose == 0) {
+                $autoClose = 1;
+            }
+        } else {
+            $autoClose = -1;
+        }
+    } else {
+        $autoClose = -1;
+    }
+}
 
 // }}}
 // {{{ config
@@ -55,6 +61,7 @@ $qf_defaults = array(
     'to'    => 'to',
     'padding' => '',
     'popup'   => $isPopUp,
+    'close'   => $autoClose,
 );
 
 // フォームの固定値
@@ -103,6 +110,7 @@ $qfe = array();
 // 隠し要素
 $qfe['detect_hint'] = $qf->addElement('hidden', '_hint');
 $qfe['popup'] = $qf->addElement('hidden', 'popup');
+$qfe['close'] = $qf->addElement('hidden', 'close');
 
 // URLと連番設定
 $qfe['uri']     = $qf->addElement('text', 'uri', 'URL', $_attr_uri);
@@ -161,7 +169,7 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
     // URLを検証
     $purl = @parse_url($params['uri']);
     if (!$purl || !preg_match('/^(https?)$/', $purl['scheme']) || empty($purl['host']) || empty($purl['path'])) {
-        $_info_msg_ht .= '<p>エラー: 不正なURL</p>';
+        P2Util::pushInfoHtml('<p>エラー: 不正なURL</p>');
         $execDL = FALSE;
         $isError = TRUE;
     }
@@ -195,14 +203,14 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
         // プレースホルダとユーザ指定パラメータ
         if (strpos($params['uri'], '%s') !== false && !preg_match($serial_pattern, $params['uri'], $from_to)) {
             if (strpos(preg_replace('/%s/', ' ', $params['uri'], 1), '%s') !== false) {
-                $_info_msg_ht .= '<p>エラー: URLに含められるプレースホルダは一つだけです。</p>';
+                P2Util::pushInfoHtml('<p>エラー: URLに含められるプレースホルダは一つだけです。</p>');
                 $execDL = FALSE;
                 $isError = TRUE;
             } elseif (preg_match('/\\D/', $params['from']) || strlen($params['from']) == 0 ||
                       preg_match('/\\D/', $params['to'])   || strlen($params['to'])   == 0 ||
                       preg_match('/\\D/', $params['padding'])
             ) {
-                $_info_msg_ht .= '<p>エラー: 連番パラメータに誤りがあります。</p>';
+                P2Util::pushInfoHtml('<p>エラー: 連番パラメータに誤りがあります。</p>');
                 $execDL = FALSE;
                 $isError = TRUE;
             } else {
@@ -220,7 +228,7 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
         } elseif (preg_match($serial_pattern, $params['uri'], $from_to) && strpos($params['uri'], '%s') === false) {
             $params['uri'] = preg_replace($serial_pattern, '%s', $params['uri'], 1);
             if (preg_match($serial_pattern, $params['uri'])) {
-                $_info_msg_ht .= '<p>エラー: URLに含められる連番パターンは一つだけです。</p>';
+                P2Util::pushInfoHtml('<p>エラー: URLに含められる連番パターンは一つだけです。</p>');
                 $execDL = FALSE;
                 $isError = TRUE;
             } else {
@@ -238,14 +246,14 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
 
         // どちらも無いか、両方がある
         } else {
-            $_info_msg_ht .= '<p>エラー: URLに連番のプレースホルダ(<samp>%s</samp>)またはパターン(<samp>[from-to]</samp>)が含まれていないか、両方が含まれています。</p>';
+            P2Util::pushInfoHtml('<p>エラー: URLに連番のプレースホルダ(<samp>%s</samp>)またはパターン(<samp>[from-to]</samp>)が含まれていないか、両方が含まれています。</p>');
             $execDL = FALSE;
             $isError = TRUE;
         }
 
         // 範囲を検証
         if (isset($serial) && $serial['from'] >= $serial['to']) {
-            $_info_msg_ht .= '<p>エラー: 連番の終りの番号は始まりの番号より大きくないといけません。</p>';
+            P2Util::pushInfoHtml('<p>エラー: 連番の終りの番号は始まりの番号より大きくないといけません。</p>');
             $execDL = FALSE;
             $isError = TRUE;
             $serial = NULL;
@@ -254,7 +262,7 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
     // 連番なし
     } else {
         if (strpos($params['uri'], '%s') !== false || preg_match($serial_pattern, $params['uri'], $from_to)) {
-            $_info_msg_ht .= '<p>エラー: 連番にチェックが入っていませんが、URLに連番ダウンロード用の文字列が含まれています。</p>';
+            P2Util::pushInfoHtml('<p>エラー: 連番にチェックが入っていませんが、URLに連番ダウンロード用の文字列が含まれています。</p>');
             $execDL = FALSE;
             $isError = TRUE;
         }
@@ -372,10 +380,28 @@ $r = new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
 $qf->accept($r);
 $qfObj = $r->toObject();
 
+// 動的JavaScript
+$js = $qf->getValidationScript();
+$js .= <<<EOS
+<script type="text/javascript">
+// <![CDATA[
+function ic2g_onload()
+{
+\tsetWinTitle();\n
+EOS;
+if ($execDL && $autoClose > 0) {
+    $js .= "\twindow.setTimeout('window.close();', $autoClose);\n";
+}
+$js .= <<<EOS
+}
+// ]]>
+</script>
+EOS;
+
 // 変数をAssign
-$flexy->setData('info_msg', $_info_msg_ht);
+$flexy->setData('info_msg', P2Util::getInfoHtml());
 $flexy->setData('STYLE', $STYLE);
-$flexy->setData('js', $qf->getValidationScript());
+$flexy->setData('js', $js);
 $flexy->setData('get', $qfObj);
 
 // ページを表示

@@ -1,13 +1,18 @@
-/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
-/* mi: charset=Shift_JIS */
+/*
+ * rep2expack - tGrepメニューを操作するためのJavaScript
+ */
 
-/* p2 - tGrepメニューを操作するためのJavaScript */
+// {{{ GLOBALS
+
+var tGrep = {};
+
+// }}}
+// {{{ execRequest()
 
 /**
  * XmlHttpRequestを実行
  */
-function tGrepExecRequest(uri, menuId)
-{
+tGrep.execRequest = function (uri, menuId) {
 	var req = getXmlHttp();
 	if (!req) {
 		alert('XMLHttp not available.');
@@ -16,7 +21,7 @@ function tGrepExecRequest(uri, menuId)
 
 	var receiver = document.getElementById(menuId);
 	if (!receiver) {
-		alert('replaceMenuItem() Error: A target element not exists.');
+		alert('tGrep.execRequest() Error: The target element does not exist.');
 		return false;
 	}
 	receiver.innerHTML = 'Now Loading...';
@@ -33,60 +38,97 @@ function tGrepExecRequest(uri, menuId)
 	}
 
 	return false;
-}
+};
+
+// }}}
+// {{{ appendListInput()
 
 /**
  * ユーザからの入力をリストに追加する
  */
-function tGrepAppendListInput(file, menuId)
-{
+tGrep.appendListInput = function (file, menuId) {
 	var query = window.prompt('キーワードを入力してください', '');
 	if (query !== null && query.length > 0) {
-		query = encodeURIComponent(query);
-		tGrepAppendListItem(file, menuId, query);
+		query = encodeURIComponent(query) + '&_hint=' + encodeURIComponent('◎◇');
+		tGrep.appendListItem(file, menuId, query);
 		if (parent.frames['subject'] && window.confirm('このキーワードで検索しますか？')) {
 			parent.frames['subject'].location.href = 'tgrepc.php?Q=' + query;
 		}
 	}
 	return false;
-}
+};
+
+// }}}
+// {{{ appendListItem()
 
 /**
  * リストに追加する
  */
-function tGrepAppendListItem(file, menuId, query)
-{
+tGrep.appendListItem = function (file, menuId, query) {
 	var uri = 'tgrepctl.php?file=' + file + '&query=' + query;
-	tGrepExecRequest(uri, menuId);
+	tGrep.execRequest(uri, menuId);
 	return false;
-}
+};
+
+// }}}
+// {{{ removeListItem()
 
 /**
  * リストから削除する
  */
-function tGrepRemoveListItem(file, menuId, query)
-{
+tGrep.removeListItem = function (file, menuId, query) {
 	var uri = 'tgrepctl.php?file=' + file + '&query=' + query + '&purge=true';
-	tGrepExecRequest(uri, menuId);
+	tGrep.execRequest(uri, menuId);
 	return false;
-}
+};
+
+// }}}
+// {{{ clearList()
 
 /**
  * リストをクリアする
  */
-function tGrepClearList(file, menuId)
-{
+tGrep.clearList = function (file, menuId) {
 	var uri = 'tgrepctl.php?file=' + file + '&clear=all';
-	tGrepExecRequest(uri, menuId);
+	tGrep.execRequest(uri, menuId);
 	return false;
-}
+};
+
+// }}}
+// {{{ updateList()
 
 /**
  * リストを更新する
  */
-function tGrepUpdateList(file, menuId)
-{
+tGrep.updateList = function (file, menuId) {
 	var uri = 'tgrepctl.php?file=' + file;
-	tGrepExecRequest(uri, menuId);
+	tGrep.execRequest(uri, menuId);
 	return false;
-}
+};
+
+// }}}
+// {{{ 互換関数
+
+(function () {
+	var f, n, p;
+	for (p in tGrep) {
+		f = tGrep[p];
+		if (typeof f === 'function') {
+			n = 'tGrep' + p.charAt(0).toUpperCase() + p.substring(1);
+			window[n] = f;
+		}
+	}
+})();
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

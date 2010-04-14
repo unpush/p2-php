@@ -67,7 +67,7 @@ if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
         'automaticSerialization' => true,
     );
     if (!is_dir($cache_options['cacheDir'])) {
-        FileCtl::mkdir_for($cache_options['cacheDir'] . '__dummy__');
+        FileCtl::mkdirRecursive($cache_options['cacheDir']);
     }
     $cache = new Cache_Lite($cache_options);
     $cache_id_result = md5($query);
@@ -122,7 +122,7 @@ if ($query) {
     }
 
     $errors = (isset($search_result['errors'])) ? $search_result['errors'] : null;
-    $threads = $search_result['threads'];
+    $threads = (isset($search_result['threads'])) ? $search_result['threads'] : null;
     $profile = $search_profile['profile'];
     $modified = strtotime($search_profile['modified']);
     if ($errors) {

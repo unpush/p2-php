@@ -5,27 +5,6 @@
 
 require_once 'Pager/Pager.php';
 
-// {{{ ResArticle
-
-/**
- * レス記事のクラス
- */
-class ResArticle
-{
-    public $name;
-    public $mail;
-    public $daytime;
-    public $msg;
-    public $ttitle;
-    public $host;
-    public $bbs;
-    public $itaj;
-    public $key;
-    public $resnum;
-    public $order; // 記事番号
-}
-
-// }}}
 // {{{ ResHist
 
 /**
@@ -116,8 +95,6 @@ class ResHist
     {
         global $_conf, $STYLE;
 
-        $sid_q = (defined('SID')) ? '&amp;' . strip_tags(SID) : '';
-
         // Pager 準備
         $perPage = 100;
         $params = array(
@@ -160,10 +137,10 @@ class ResHist
                     $footer_q = "#r{$lf}";
                 }
                 $time = time();
-                $href_ht = $_conf['read_php'] . "?host=" . $a_res->host . "&amp;bbs=" . $a_res->bbs . "&amp;key=" . $a_res->key . $ls_q . "{$_conf['k_at_a']}&amp;nt={$time}{$footer_q}";
+                $href_ht = "{$_conf['read_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}{$ls_q}{$_conf['k_at_a']}&amp;nt={$time}{$footer_q}";
             }
             $info_view_ht = <<<EOP
-        <a href="info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}{$_conf['k_at_a']}" target="_self" onclick="return OpenSubWin('info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}&amp;popup=1{$sid_q}',{$STYLE['info_pop_size']},0,0)">情報</a>
+        <a href="info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}{$_conf['k_at_a']}" target="_self" onclick="return OpenSubWin('info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}&amp;popup=1',{$STYLE['info_pop_size']},0,0)">情報</a>
 EOP;
 
             $res_ht = "<div class=\"res\">\n";

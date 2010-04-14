@@ -30,14 +30,14 @@ $fontconfig_types = array(
     'other'     => 'その他',
 );
 $fontconfig_params = array('fontfamily', 'fontfamily_bold', 'fontweight_bold', 'fontstyle_bold', 'fontfamily_aa', 'fontsize', 'menu_fontsize', 'sb_fontsize', 'read_fontsize', 'respop_fontsize', 'infowin_fontsize', 'form_fontsize');
-$fontconfig_weights = array('', 'normal', 'bold', 'lighter', 'bolder'/*, '100', '200', '300', '400', '500', '600', '700', '800', '900'*/);
-$fontconfig_styles = array('', 'normal', 'italic', 'oblique');
-$fontconfig_sizes = array('' => '', '6px', '8px', '9px', '10px', '11px', '12px', '13px', '14px', '16px', '18px', '21px', '24px');
+$fontconfig_weights = array('normal', 'bold', 'lighter', 'bolder'/*, '100', '200', '300', '400', '500', '600', '700', '800', '900'*/);
+$fontconfig_styles = array('normal', 'italic', 'oblique');
+$fontconfig_sizes = array('6px', '8px', '9px', '10px', '11px', '12px', '13px', '14px', '16px', '18px', '21px', '24px');
 
 $controllerObject = (object)array(
     'fontconfig_types' => $fontconfig_types,
     'fontconfig_params' => $fontconfig_params,
-    'skindata' => fontconfig_load_skin_setting(),
+    'skindata' => p2_fontconfig_load_skin_setting(),
     'safari' => 0,
     'mac' => false,
 );
@@ -48,7 +48,6 @@ if (file_exists($_conf['expack.skin.fontconfig_path'])) {
         $current_fontconfig = array('enabled' => false, 'custom' => array());
     }
 } else {
-    require_once P2_LIB_DIR . '/FileCtl.php';
     FileCtl::make_datafile($_conf['expack.skin.fontconfig_path'], $_conf['expack.skin.fontconfig_perm']);
     $current_fontconfig = array('enabled' => false, 'custom' => array());
 }
@@ -58,7 +57,7 @@ $updated_fontconfig = array('enabled' => false, 'custom' => array());
 // Mac はブラウザによって文字のレンダリング結果が大きく変わり
 // その種類もそこそこ多いので現在のブラウザにマッチしないものを隠す
 $ft = &$controllerObject->fontconfig_types;
-$type = fontconfig_detect_agent();
+$type = p2_fontconfig_detect_agent();
 switch ($type) {
     case 'safari3':
         $controllerObject->safari = 3;
@@ -87,7 +86,7 @@ switch ($type) {
 // }}}
 
 if (!is_dir($_conf['compile_dir'])) {
-    FileCtl::mkdir_for($_conf['compile_dir'] . '/__dummy__');
+    FileCtl::mkdirRecursive($_conf['compile_dir']);
 }
 
 // テンプレートをコンパイル
@@ -124,7 +123,9 @@ foreach ($fontconfig_params as $pname) {
             if (!isset($elements[$newElemName])) {
                 $elements[$newElemName] = clone $elements[$elemName];
             }
-            if (!is_array($updated_fontconfig['custom'][$tname])) {
+            if (!array_key_exists($tname, $updated_fontconfig['custom']) ||
+                !is_array($updated_fontconfig['custom'][$tname]))
+            {
                 $updated_fontconfig['custom'][$tname] = array();
             }
             if (isset($_POST[$pname][$tname])) {
@@ -136,19 +137,31 @@ foreach ($fontconfig_params as $pname) {
             }
             if ($elements[$newElemName]->tag == 'select') {
                 if (strpos($pname, 'fontweight') !== false) {
-                    $elements[$newElemName]->setOptions(array_combine($fontconfig_weights, $fontconfig_weights));
-                    if (!in_array($value, $fontconfig_weights)) {
-                        $elements[$newElemName]->setOptions(array($value => $value));
+                    $option_values = $fontconfig_weights;
+                    $option_labels = $fontconfig_weights;
+                    array_unshift($option_values, '');
+                    array_unshift($option_labels, 'inherit');
+                    $elements[$newElemName]->setOptions(array_combine($option_values, $option_labels));
+                    if ($value !== '' && !in_array($value, $fontconfig_weights)) {
+                        $elements[$newElemName]->setOptions(array($value, $value));
                     }
                 } else if (strpos($pname, 'fontstyle') !== false) {
-                    $elements[$newElemName]->setOptions(array_combine($fontconfig_styles, $fontconfig_styles));
-                    if (!in_array($value, $fontconfig_styles)) {
-                        $elements[$newElemName]->setOptions(array($value => $value));
+                    $option_values = $fontconfig_styles;
+                    $option_labels = $fontconfig_styles;
+                    array_unshift($option_values, '');
+                    array_unshift($option_labels, 'inherit');
+                    $elements[$newElemName]->setOptions(array_combine($option_values, $option_labels));
+                    if ($value !== '' && !in_array($value, $fontconfig_styles)) {
+                        $elements[$newElemName]->setOptions(array($value, $value));
                     }
                 } else if (strpos($pname, 'fontsize') !== false) {
-                    $elements[$newElemName]->setOptions(array_combine($fontconfig_sizes, $fontconfig_sizes));
-                    if (!in_array($value, $fontconfig_sizes)) {
-                        $elements[$newElemName]->setOptions(array($value => $value));
+                    $option_values = $fontconfig_sizes;
+                    $option_labels = $fontconfig_sizes;
+                    array_unshift($option_values, '');
+                    array_unshift($option_labels, 'inherit');
+                    $elements[$newElemName]->setOptions(array_combine($option_values, $option_labels));
+                    if ($value !== '' && !in_array($value, $fontconfig_sizes)) {
+                        $elements[$newElemName]->setOptions(array($value, $value));
                     }
                 }
             }
@@ -183,7 +196,7 @@ foreach ($STYLE as $K => $V) {
     }
 }
 if ($updated_fontconfig['enabled']) {
-    fontconfig_apply_custom();
+    p2_fontconfig_apply_custom();
 } else {
     $skin_en = preg_replace('/&amp;_=[^&]*/', '', $skin_en) . '&amp;_=' . rawurlencode($skin_uniq);
 }
@@ -194,12 +207,12 @@ $controllerObject->p2vid = P2_VERSION_ID;
 // 出力
 $flexy->outputObject($controllerObject, $elements);
 
-// {{{ fontconfig_load_skin_setting()
+// {{{ p2_fontconfig_load_skin_setting()
 
 /**
  * カスタム設定で上書きされていないスキン設定を読み込む
  */
-function fontconfig_load_skin_setting()
+function p2_fontconfig_load_skin_setting()
 {
     global $_conf, $STYLE;
 
@@ -208,17 +221,17 @@ function fontconfig_load_skin_setting()
     $fontfamily = (isset($STYLE['fontfamily.orig']))
         ? $STYLE['fontfamily.orig']
         : ((isset($STYLE['fontfamily'])) ? $STYLE['fontfamily'] : '');
-    $skindata['fontfamily'] = fontconfig_implode_fonts($fontfamily);
+    $skindata['fontfamily'] = p2_fontconfig_implode_fonts($fontfamily);
 
     $fontfamily_bold = (isset($STYLE['fontfamily_bold.orig']))
         ? $STYLE['fontfamily_bold.orig']
         : ((isset($STYLE['fontfamily_bold'])) ? $STYLE['fontfamily_bold'] : '');
-    $skindata['fontfamily_bold'] = fontconfig_implode_fonts($fontfamily_bold);
+    $skindata['fontfamily_bold'] = p2_fontconfig_implode_fonts($fontfamily_bold);
 
     $fontfamily_aa = (isset($_conf['expack.am.fontfamily.orig']))
         ? $_conf['expack.am.fontfamily.orig']
         : ((isset($_conf['expack.am.fontfamily'])) ? $_conf['expack.am.fontfamily'] : '');
-    $skindata['fontfamily_aa'] = fontconfig_implode_fonts($fontfamily_aa);
+    $skindata['fontfamily_aa'] = p2_fontconfig_implode_fonts($fontfamily_aa);
 
     $normal = ($skindata['fontfamily_bold'] == '') ? '' : 'normal';
 
@@ -236,20 +249,20 @@ function fontconfig_load_skin_setting()
 }
 
 // }}}
-// {{{ fontconfig_implode_fonts()
+// {{{ p2_fontconfig_implode_fonts()
 
-function fontconfig_implode_fonts($fonts)
+function p2_fontconfig_implode_fonts($fonts)
 {
     if (!is_array($fonts)) {
         $fonts = explode(',', (string)$fonts);
     }
-    return '"' . implode('","', array_map('fontconfig_trim', $fonts)) . '"';
+    return '"' . implode('","', array_map('p2_fontconfig_trim', $fonts)) . '"';
 }
 
 // }}}
-// {{{ fontconfig_trim()
+// {{{ p2_fontconfig_trim()
 
-function fontconfig_trim($str)
+function p2_fontconfig_trim($str)
 {
     return trim($str, " \r\n\t\x0B\"'" . P2_NULLBYTE);
 }

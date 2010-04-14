@@ -6,9 +6,6 @@
  * menu.php, menu_side.php より読み込まれる
  */
 
-require_once P2_LIB_DIR . '/BrdCtl.php';
-require_once P2_LIB_DIR . '/ShowBrdMenuPc.php';
-
 $_login->authorize(); //ユーザ認証
 
 //==============================================================
@@ -133,8 +130,7 @@ echo <<<EOP
 <body>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
 if (!empty($sidebar)) {
     echo <<<EOP
@@ -156,13 +152,6 @@ EOP;
 <div id="c_search">\n
 EOP;
 
-if ($_conf['expack.google.enabled'] && $_conf['expack.google.key'] && file_exists($_conf['expack.google.wsdl'])) {
-    $google_search_enabled = TRUE;
-} else {
-    $google_search_enabled = FALSE;
-}
-
-
 if ($_conf['input_type_search']) {
 // {{{ <input type="search">を使う
 
@@ -180,15 +169,6 @@ EOP;
         {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
-    // Google検索
-    if ($google_search_enabled) {
-        echo <<<EOP
-    <form method="GET" action="gsearch.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form">
-        <input type="search" name="q" value="" size="16" autosave="rep2.expack.search.google" results="{$_conf['expack.google.recent2_num']}" placeholder="Google検索">
-        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
-    </form><br>\n
-EOP;
-    }
 
 // }}}
 } else {
@@ -208,15 +188,6 @@ EOP;
         {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
-    // Google検索
-    if ($google_search_enabled) {
-        echo <<<EOP
-    <form method="GET" action="gsearch.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form" style="white-space:nowrap">
-        <input type="text" name="q" value="" size="12"><input type="submit" value="G">
-        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
-    </form><br>\n
-EOP;
-    }
 
 // }}}
 }
@@ -276,10 +247,9 @@ EOP;
 if ($_conf['enable_menu_new'] == 1 && $_GET['new']) {
     // 並列ダウンロードの設定
     if ($_conf['expack.use_pecl_http'] == 1) {
-        require_once P2_LIB_DIR . '/P2HttpExt.php';
+        P2HttpExt::activate();
         $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
     } elseif ($_conf['expack.use_pecl_http'] == 2) {
-        require_once P2_CLI_DIR . '/P2CommandRunner.php';
         $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
     }
 
@@ -357,8 +327,9 @@ EOP;
 // ■ImageCache2
 //==============================================================
 if ($_conf['expack.ic2.enabled']) {
-    require_once P2EX_LIB_DIR . '/ic2/Switch.php';
-
+    if (!class_exists('IC2_Switch', false)) {
+        include P2EX_LIB_DIR . '/ic2/Switch.php';
+    }
     if (IC2_Switch::get()) {
         $ic2sw = array('inline', 'none');
     } else {
@@ -430,15 +401,14 @@ EOP;
     }
     $msg_ht .= '</p>';
 
-    $_info_msg_ht .= $msg_ht;
+    P2Util::pushInfoHtml($msg_ht);
 } else {
     $match_cates = null;
 }
 
 // }}}
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 if ($_conf['menu_hide_brds'] && !$GLOBALS['ita_mikke']['num']) {
     $brd_menus_style = ' style="display:none"';

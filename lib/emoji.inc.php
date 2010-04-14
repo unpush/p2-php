@@ -3,8 +3,6 @@
  * rep2expack - ŠG•¶Žš
  */
 
-require_once 'Net/UserAgent/Mobile.php';
-
 // {{{ p2_get_emoji()
 
 /**

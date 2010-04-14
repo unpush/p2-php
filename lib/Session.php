@@ -36,6 +36,11 @@ $GLOBALS['_SESS_VERSION'] = 1; // セッションのバージョン（全ての稼動途中セッショ
  */
 class Session
 {
+    // {{{ static properties
+
+    static public $_session_started = false;
+
+    // }}}
     // {{{ properties
 
     public $sess_array = '_sess_array';
@@ -48,13 +53,40 @@ class Session
      *
      * ここでPHPの標準セッションがスタートする
      */
-    public function __construct($session_name = NULL, $session_id = NULL)
+    public function __construct($session_name = null, $session_id = null, $use_cookies = true)
     {
-        session_cache_limiter('none'); // キャッシュ制御なし
+        $this->setCookieHttpOnly();
 
-        if ($session_name) { session_name($session_name); }
-        if ($session_id)   { session_id($session_id); }
+        // キャッシュ制御なし
+        session_cache_limiter('none');
+
+        // セッション名およびセッションIDを設定
+        if ($session_name) {
+            session_name($session_name);
+        }
+        if ($session_id) {
+            session_id($session_id);
+        }
+
+        // Cookie使用の可否に応じてiniディレクティブを変更
+        if ($use_cookies) {
+            ini_set('session.use_cookies', 1);
+            ini_set('session.use_only_cookies', 1);
+        } else {
+            ini_set('session.use_cookies', 0);
+            ini_set('session.use_only_cookies', 0);
+        }
+
+        // セッションデータを初期化する
         session_start();
+        self::$_session_started = true;
+
+        // Cookieが使用できず、session.use_trans_sidがOffの場合
+        if (!$use_cookies && !ini_get('session.use_trans_sid')) {
+            $snm = session_name();
+            $sid = session_id();
+            output_add_rewrite_var($snm, $sid);
+        }
 
         /*
         Expires: Thu, 19 Nov 1981 08:52:00 GMT
@@ -278,16 +310,19 @@ class Session
 
         // セッションの初期化
         // session_name("something")を使用している場合は特にこれを忘れないように!
-        session_start();
+        if (!self::$_session_started) {
+            session_start();
+        }
 
         // セッション変数を全て解除する
         $_SESSION = array();
 
         // セッションを切断するにはセッションクッキーも削除する。
-        // Note: セッション情報だけでなくセッションを破壊する。
-        if (isset($_COOKIE[session_name()])) {
-           unset($_COOKIE[session_name()]);
-           setcookie(session_name(), '', time() - 42000);
+        $session_name = session_name();
+        if (isset($_COOKIE[$session_name])) {
+           //setcookie($session_name, '', time() - 42000);
+           P2Util::unsetCookie($session_name);
+           unset($_COOKIE[$session_name]);
         }
 
         // 最終的に、セッションを破壊する
@@ -302,6 +337,29 @@ class Session
         if (file_exists($session_file)) {
             unlink($session_file);
         }
+    }
+
+    // }}}
+    // {{{ setCookieHttpOnly()
+
+    /**
+     * セッションのsetcookieにHttpOnlyを指定する
+     * http://msdn2.microsoft.com/ja-jp/library/system.web.httpcookie.httponly(VS.80).aspx
+     *
+     * @param   void
+     * @return  void
+     */
+    private function setCookieHttpOnly()
+    {
+        $ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null;
+
+        // Mac IEは、動作不良を起こすらしいっぽいので対象から外す。（そもそも対応もしていない）
+        // Mozilla/4.0 (compatible; MSIE 5.16; Mac_PowerPC)
+        if (preg_match('/MSIE \d\\.\d+; Mac/', $ua)) {
+            return;
+        }
+
+        ini_set('session.cookie_httponly', true);
     }
 
     // }}}

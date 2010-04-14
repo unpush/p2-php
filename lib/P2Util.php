@@ -1,8 +1,5 @@
 <?php
 
-require_once P2_LIB_DIR . '/DataPhp.php';
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 // {{{ P2Util
 
 /**
@@ -56,15 +53,197 @@ class P2Util
      */
     static private $_hostIsJbbsShitaraba = array();
 
+    /**
+     * P2Imeオブジェクト
+     *
+     * @var P2Ime
+     */
+    static private $_ime = null;
+
+    /**
+     * P2Imeで自動転送しない拡張子のリスト
+     *
+     * @var array
+     */
+    static private $_imeMenualExtensions = null;
+
+    // }}}
+    // {{{ getMyHost()
+
+    /**
+     * ポート番号を削ったホスト名を取得する
+     *
+     * @param   void
+     * @return  string|null
+     */
+    static public function getMyHost()
+    {
+        if (!isset($_SERVER['HTTP_HOST'])) {
+            return null;
+        }
+        return preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']);
+    }
+
+    // }}}
+    // {{{ getCookieDomain()
+
+    /**
+     * @param   void
+     * @return  string
+     */
+    static public function getCookieDomain()
+    {
+        return '';
+    }
+
+    // }}}
+    // {{{ encodeCookieName()
+
+    /**
+     * @param   string $key
+     * @return  string
+     */
+    static private function encodeCookieName($key)
+    {
+        // 配列指定用に、[]だけそのまま残して、URLエンコードをかける
+        return $key_urlen = preg_replace_callback(
+            '/[^\\[\\]]+/',
+            array(__CLASS__, 'rawurlencodeCallback'),
+            $key
+        );
+    }
+
+    // }}}
+    // {{{ setCookie()
+
+    /**
+     * setcookie() では、auで必要なmax ageが設定されないので、こちらを利用する
+     *
+     * @access  public
+     * @param   string  $key
+     * @param   string  $value
+     * @param   int     $expires
+     * @param   string  $path
+     * @param   string  $domain
+     * @param   boolean $secure
+     * @param   boolean $httponly
+     * @return  boolean
+     */
+    static public function setCookie($key, $value = '', $expires = null, $path = '', $domain = null, $secure = false, $httponly = true)
+    {
+        if (is_null($domain)) {
+            $domain = self::getCookieDomain();
+        }
+        is_null($expires) and $expires = time() + 60 * 60 * 24 * 365;
+
+        if (headers_sent()) {
+            return false;
+        }
+
+        // Mac IEは、動作不良を起こすらしいっぽいので、httponlyの対象から外す。（そもそも対応もしていない）
+        // MAC IE5.1  Mozilla/4.0 (compatible; MSIE 5.16; Mac_PowerPC)
+        if (preg_match('/MSIE \d\\.\d+; Mac/', geti($_SERVER['HTTP_USER_AGENT']))) {
+            $httponly = false;
+        }
+
+        // setcookie($key, $value, $expires, $path, $domain, $secure = false, $httponly = true);
+        /*
+        if (is_array($name)) {
+            list($k, $v) = each($name);
+            $name = $k . '[' . $v . ']';
+        }
+        */
+        if ($expires) {
+            $maxage = $expires - time();
+        }
+
+        header(
+            'Set-Cookie: '. self::encodeCookieName($key) . '=' . rawurlencode($value)
+                 . (empty($domain) ? '' : '; Domain=' . $domain)
+                 . (empty($expires) ? '' : '; expires=' . gmdate('D, d-M-Y H:i:s', $expires) . ' GMT')
+                 . (empty($maxage) ? '' : '; Max-Age=' . $maxage)
+                 . (empty($path) ? '' : '; Path=' . $path)
+                 . (!$secure ? '' : '; Secure')
+                 . (!$httponly ? '' : '; HttpOnly'),
+             $replace = false
+        );
+
+        return true;
+    }
+
+    // }}}
+    // {{{ unsetCookie()
+
+    /**
+     * クッキーを消去する。変数 $_COOKIE も。
+     *
+     * @param   string  $key  key, k1[k2]
+     * @param   string  $path
+     * @param   string  $domain
+     * @return  boolean
+     */
+    static public function unsetCookie($key, $path = '', $domain = null)
+    {
+        if (is_null($domain)) {
+            $domain = self::getCookieDomain();
+        }
+
+        // 配列をsetcookie()する時は、キー文字列をPHPの配列の場合のように、'' や "" でクォートしない。
+        // それらはキー文字列として認識されてしまう。['hoge']ではなく、[hoge]と指定する。
+        // setcookie()で、一時キーは[]で囲まないようにする。（無効な処理となる。） k1[k2] という表記で指定する。
+        // setcookie()では配列をまとめて削除することはできない。
+        // k1 の指定で k1[k2] は消えないので、このメソッドで対応している。
+
+        // $keyが配列として指定されていたなら
+        $cakey = null; // $_COOKIE用のキー
+        if (preg_match('/\]$/', $key)) {
+            // 最初のキーを[]で囲む
+            $cakey = preg_replace('/^([^\[]+)/', '[$1]', $key);
+            // []のキーを''で囲む
+            $cakey = preg_replace('/\[([^\[\]]+)\]/', "['$1']", $cakey);
+            //var_dump($cakey);
+        }
+
+        // 対象Cookie値が配列であれば再帰処理を行う
+        $cArray = null;
+        if ($cakey) {
+            eval("isset(\$_COOKIE{$cakey}) && is_array(\$_COOKIE{$cakey}) and \$cArray = \$_COOKIE{$cakey};");
+        } else {
+            if (isset($_COOKIE[$key]) && is_array($_COOKIE[$key])) {
+                $cArray = $_COOKIE[$key];
+            }
+        }
+        if (is_array($cArray)) {
+            foreach ($cArray as $k => $v) {
+                $keyr = "{$key}[{$k}]";
+                if (!self::unsetCookie($keyr, $path, $domain)) {
+                    return false;
+                }
+            }
+        }
+
+        if (is_array($cArray) or setcookie("$key", '', time() - 3600, $path, $domain)) {
+            if ($cakey) {
+                eval("unset(\$_COOKIE{$cakey});");
+            } else {
+                unset($_COOKIE[$key]);
+            }
+            return true;
+        }
+        return false;
+    }
+
     // }}}
     // {{{ fileDownload()
 
     /**
      *  ファイルをダウンロード保存する
      */
-    static public function fileDownload($url, $localfile, $disp_error = 1)
+    static public function fileDownload($url, $localfile,
+                                        $disp_error = true,
+                                        $trace_redirection = false)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 
@@ -75,11 +254,9 @@ class P2Util
         }
 
         // DL
-        if (!class_exists('WapRequest', false)) {
-            require P2_LIB_DIR . '/Wap.php';
-        }
         $wap_ua = new WapUserAgent();
-        $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
+        $wap_ua->setTimeout($_conf['http_conn_timeout'], $_conf['http_read_timeout']);
+        $wap_ua->setAtFsockopen(true);
         $wap_req = new WapRequest();
         $wap_req->setUrl($url);
         $wap_req->setModified($modified);
@@ -88,10 +265,26 @@ class P2Util
         }
         $wap_res = $wap_ua->request($wap_req);
 
+        // 1段階だけリダイレクトを追跡
+        if ($wap_res->isRedirect() && array_key_exists('Location', $wap_res->headers) &&
+            ($trace_redirection === true || $trace_redirection == $wap_res->code))
+        {
+            $wap_req->setUrl($wap_res->headers['Location']);
+            $wap_res = $wap_ua->request($wap_req);
+        }
+
+        // エラーメッセージを設定
         if ($wap_res->isError() && $disp_error) {
             $url_t = self::throughIme($wap_req->url);
-            $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
+            $info_msg_ht = "<p class=\"info-msg\">Error: {$wap_res->code} {$wap_res->message}<br>";
+            if ($wap_res->isRedirect() && array_key_exists('Location', $wap_res->headers)) {
+                $location = $wap_res->headers['Location'];
+                $location_ht = htmlspecialchars($location, ENT_QUOTES);
+                $location_t = self::throughIme($location);
+                $info_msg_ht .= "Location: <a href=\"{$location_t}\"{$_conf['ext_win_target_at']}>{$location_ht}</a><br>";
+            }
+            $info_msg_ht .= "rep2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</p>";
+            self::pushInfoHtml($info_msg_ht);
         }
 
         // 更新されていたら
@@ -113,34 +306,37 @@ class P2Util
      */
     static public function checkDirWritable($aDir)
     {
-        global $_info_msg_ht, $_conf;
+        global $_conf;
 
         // マルチユーザモード時は、情報メッセージを抑制している。
+        $info_msg_ht = '';
 
         if (!is_dir($aDir)) {
             /*
-            $_info_msg_ht .= '<p class="infomsg">';
-            $_info_msg_ht .= '注意: データ保存用ディレクトリがありません。<br>';
-            $_info_msg_ht .= $aDir."<br>";
+            $info_msg_ht .= '<p class="info-msg">';
+            $info_msg_ht .= '注意: データ保存用ディレクトリがありません。<br>';
+            $info_msg_ht .= $aDir."<br>";
             */
             if (is_dir(dirname(realpath($aDir))) && is_writable(dirname(realpath($aDir)))) {
-                //$_info_msg_ht .= "ディレクトリの自動作成を試みます...<br>";
+                //$info_msg_ht .= "ディレクトリの自動作成を試みます...<br>";
                 if (mkdir($aDir, $_conf['data_dir_perm'])) {
-                    //$_info_msg_ht .= "ディレクトリの自動作成が成功しました。";
+                    //$info_msg_ht .= "ディレクトリの自動作成が成功しました。";
                     chmod($aDir, $_conf['data_dir_perm']);
                 } else {
-                    //$_info_msg_ht .= "ディレクトリを自動作成できませんでした。<br>手動でディレクトリを作成し、パーミッションを設定して下さい。";
+                    //$info_msg_ht .= "ディレクトリを自動作成できませんでした。<br>手動でディレクトリを作成し、パーミッションを設定して下さい。";
                 }
             } else {
-                    //$_info_msg_ht .= "ディレクトリを作成し、パーミッションを設定して下さい。";
+                    //$info_msg_ht .= "ディレクトリを作成し、パーミッションを設定して下さい。";
             }
-            //$_info_msg_ht .= '</p>';
+            //$info_msg_ht .= '</p>';
 
         } elseif (!is_writable($aDir)) {
-            $_info_msg_ht .= '<p class="infomsg">注意: データ保存用ディレクトリに書き込み権限がありません。<br>';
-            //$_info_msg_ht .= $aDir.'<br>';
-            $_info_msg_ht .= 'ディレクトリのパーミッションを見直して下さい。</p>';
+            $info_msg_ht .= '<p class="info-msg">注意: データ保存用ディレクトリに書き込み権限がありません。<br>';
+            //$info_msg_ht .= $aDir.'<br>';
+            $info_msg_ht .= 'ディレクトリのパーミッションを見直して下さい。</p>';
         }
+
+        self::pushInfoHtml($info_msg_ht);
     }
 
     // }}}
@@ -162,7 +358,7 @@ class P2Util
 
         $cachefile = $_conf['cache_dir'] . '/' . $save_uri;
 
-        FileCtl::mkdir_for($cachefile);
+        FileCtl::mkdirFor($cachefile);
 
         return $cachefile;
     }
@@ -199,7 +395,6 @@ class P2Util
 
         // 板名Longの取得
         if (!isset($p2_setting['itaj'])) {
-            require_once P2_LIB_DIR . '/BbsMap.php';
             $itaj = BbsMap::getBbsName($host, $bbs);
             if ($itaj != $bbs) {
                 self::$_itaNames[$id] = $p2_setting['itaj'] = $itaj;
@@ -365,19 +560,52 @@ class P2Util
     }
 
     // }}}
-    // {{{ getFailedPostFilePath()
+    // {{{ pathForHost()
 
     /**
-     *  failed_post_file のパスを得る関数
+     * hostに対応する汎用のパスを返す
+     *
+     * @param string $host
+     * @param bool $with_slashes
+     * @return string
+     * @see P2Util::_p2DirOfHost()
      */
-    static public function getFailedPostFilePath($host, $bbs, $key = false)
+    static public function pathForHost($host, $with_slashes = true)
     {
-        if ($key) {
-            $filename = $key.'.failed.data.php';
-        } else {
-            $filename = 'failed.data.php';
+        $path = self::_p2DirOfHost('', $host, $with_slashes);
+        if (DIRECTORY_SEPARATOR != '/') {
+            $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
         }
-        return $failed_post_file = self::idxDirOfHostBbs($host, $bbs) . $filename;
+        if (!$with_slashes) {
+            $path = trim($path, '/');
+        }
+        return $path;
+    }
+
+    // }}}
+    // {{{ pathForHostBbs()
+
+    /**
+     * host,bbsに対応する汎用のパスを返す
+     *
+     * @param string $host
+     * @param string $bbs
+     * @param bool $with_slash
+     * @return string
+     * @see P2Util::_p2DirOfHost()
+     */
+    static public function pathForHostBbs($host, $bbs, $with_slashes = true)
+    {
+        $path = self::_p2DirOfHost('', $host, true) . $bbs;
+        if (DIRECTORY_SEPARATOR != '/') {
+            $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
+        }
+        if ($with_slashes) {
+            $path .= '/';
+        } else {
+            $path = trim($path, '/');
+        }
+        return $path;
     }
 
     // }}}
@@ -474,105 +702,39 @@ class P2Util
     }
 
     // }}}
-    // {{{ cachePathForCookie()
-
-    /**
-     * ホストからクッキーファイルパスを返す
-     */
-    static public function cachePathForCookie($host)
-    {
-        global $_conf;
-
-        $host = self::normalizeHostName($host);
-
-        if (preg_match('/[^.0-9A-Za-z.\\-_]/', $host)) {
-            if (self::isHostJbbsShitaraba($host)) {
-                if (DIRECTORY_SEPARATOR == '/') {
-                    $cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . $host;
-                } else {
-                    $cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $host);
-                }
-            } else {
-                $cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . rawurlencode($host);
-                /*
-                if (DIRECTORY_SEPARATOR == '/') {
-                    $old_cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . $host;
-                } else {
-                    $old_cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $host);
-                }
-                if (is_dir($old_cookie_host_dir)) {
-                    rename($old_cookie_host_dir, $cookie_host_dir);
-                    clearstatcache();
-                }
-                */
-            }
-        } else {
-            $cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . $host;
-        }
-        $cachefile = $cookie_host_dir . DIRECTORY_SEPARATOR . $_conf['cookie_file_name'];
-
-        FileCtl::mkdir_for($cachefile);
-
-        return $cachefile;
-    }
-
-    // }}}
     // {{{ throughIme()
 
     /**
      * 中継ゲートを通すためのURL変換
+     *
+     * @param   string  $url
+     * @param   int     $delay  負数の場合は手動転送、それ以外はゲートの仕様による
+     * @return  string
      */
-    static public function throughIme($url)
+    static public function throughIme($url, $delay = null)
     {
-        global $_conf;
-        static $manual_exts = null;
-
-        if (is_null($manual_exts)) {
-            if ($_conf['ime_manual_ext']) {
-                $manual_exts = explode(',', trim($_conf['ime_manual_ext']));
-            } else {
-                $manual_exts = array();
-            }
+        if (self::$_ime === null) {
+            self::configureIme();
         }
 
-        $url_en = rawurlencode($url);
+        return self::$_ime->through($url, $delay);
+    }
 
-        $gate = $_conf['through_ime'];
-        if ($manual_exts &&
-            false !== ($ppos = strrpos($url, '.')) &&
-            in_array(substr($url, $ppos + 1), $manual_exts) &&
-            ($gate == 'p2' || $gate == 'ex')
-        ) {
-            $gate .= 'm';
-        }
+    // }}}
+    // {{{ configureIme()
 
-        // p2imeは、enc, m, url の引数順序が固定されているので注意
-        switch ($gate) {
-        case '2ch':
-            $url_r = preg_replace('|^(\w+)://(.+)$|', '$1://ime.nu/$2', $url);
-            break;
-        case 'p2':
-        case 'p2pm':
-            $url_r = $_conf['p2ime_url'].'?enc=1&amp;url='.$url_en;
-            break;
-        case 'p2m':
-            $url_r = $_conf['p2ime_url'].'?enc=1&amp;m=1&amp;url='.$url_en;
-            break;
-        case 'ex':
-        case 'expm':
-            $url_r = $_conf['expack.ime_url'].'?u='.$url_en.'&amp;d=1';
-            break;
-        case 'exq':
-            $url_r = $_conf['expack.ime_url'].'?u='.$url_en.'&amp;d=0';
-            break;
-        case 'exm':
-            $url_r = $_conf['expack.ime_url'].'?u='.$url_en.'&amp;d=-1';
-            break;
-        default:
-            $url_r = $url;
-        }
-
-        return $url_r;
+    /**
+     * URL変換の設定をする
+     *
+     * @param   string  $type
+     * @param   array   $exceptions
+     * @param   boolean $ignoreHttp
+     * @return  void
+     * @see     P2Ime::__construct()
+     */
+    static public function configureIme($type = null, array $exceptions = null, $ignoreHttp = null)
+    {
+        self::$_ime = new P2Ime($type, $exceptions, $ignoreHttp);
     }
 
     // }}}
@@ -910,18 +1072,44 @@ class P2Util
         // 変数設定
         $date = date('Y/m/d (D) G:i:s');
 
-        // HOSTを取得
-        if (!$remoto_host = $_SERVER['REMOTE_HOST']) {
-            $remoto_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
-        }
-        if ($remoto_host == $_SERVER['REMOTE_ADDR']) {
-            $remoto_host = "";
+        // IPアドレスを取得
+        if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
+            $remote_addr = $_SERVER['REMOTE_ADDR'];
+        } else {
+            $remote_addr = '';
         }
 
-        $user = (isset($_login->user_u)) ? $_login->user_u : "";
+        // HOSTを取得
+        if (array_key_exists('REMOTE_HOST', $_SERVER)) {
+            $remote_host = $_SERVER['REMOTE_HOST'];
+        } else {
+            $remote_host = '';
+        }
+        if (!$remote_host) {
+            $remote_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+        }
+        if ($remote_host == $_SERVER['REMOTE_ADDR']) {
+            $remote_host = '';
+        }
+
+        // UAを取得
+        if (array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
+            $user_agent = $_SERVER['HTTP_USER_AGENT'];
+        } else {
+            $user_agent = '';
+        }
+
+        // リファラを取得
+        if (array_key_exists('HTTP_REFERER', $_SERVER)) {
+            $referrer = $_SERVER['HTTP_REFERER'];
+        } else {
+            $referrer = '';
+        }
+
+        $user = (isset($_login->user_u)) ? $_login->user_u : '';
 
         // 新しいログ行を設定
-        $newdata = $date."<>".$_SERVER['REMOTE_ADDR']."<>".$remoto_host."<>".$_SERVER['HTTP_USER_AGENT']."<>".$_SERVER['HTTP_REFERER']."<>".""."<>".$user;
+        $newdata = implode('<>', array($date, $remote_addr, $remote_host, $user_agent, $referrer, '', $user));
         //$newdata = htmlspecialchars($newdata, ENT_QUOTES);
 
         // まずタブを全て外して
@@ -954,9 +1142,7 @@ class P2Util
      */
     static public function isBrowserSafariGroup()
     {
-        return (strpos($_SERVER['HTTP_USER_AGENT'], 'Safari')      !== false ||
-                strpos($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit') !== false ||
-                strpos($_SERVER['HTTP_USER_AGENT'], 'Konqueror')   !== false);
+        return UA::isSafariGroup();
     }
 
     // }}}
@@ -978,8 +1164,7 @@ class P2Util
      */
     static public function isBrowserNintendoDS()
     {
-        return (strpos($_SERVER['HTTP_USER_AGENT'], 'Nitro') !== false &&
-                strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') !== false);
+        return UA::isNintendoDS();
     }
 
     // }}}
@@ -990,19 +1175,18 @@ class P2Util
      */
     static public function isBrowserPSP()
     {
-        return (strpos($_SERVER['HTTP_USER_AGENT'], 'PlayStation Portable') !== false);
+        return UA::isPSP();
     }
 
     // }}}
     // {{{ isBrowserIphone()
 
     /**
-     * ブラウザがiPhone or iPod Touchならtrueを返す
+     * ブラウザがiPhone, iPod Touch or Androidならtrueを返す
      */
     static public function isBrowserIphone()
     {
-        return (strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone') !== false ||
-                strpos($_SERVER['HTTP_USER_AGENT'], 'iPod')   !== false);
+        return UA::isIPhoneGroup();
     }
 
     // }}}
@@ -1026,10 +1210,8 @@ class P2Util
     {
         global $_conf;
 
-        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
-
         $md5_crypt_key = self::getAngoKey();
-        $crypted_login2chPW = md5_encrypt($login2chPW, $md5_crypt_key, 32);
+        $crypted_login2chPW = MD5Crypt::encrypt($login2chPW, $md5_crypt_key, 32);
         $idpw2ch_cont = <<<EOP
 <?php
 \$rec_login2chID = '{$login2chID}';
@@ -1060,8 +1242,6 @@ EOP;
     {
         global $_conf;
 
-        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
-
         if (!file_exists($_conf['idpw2ch_php'])) {
             return false;
         }
@@ -1075,7 +1255,7 @@ EOP;
         // パスを複合化
         if (!is_null($rec_login2chPW)) {
             $md5_crypt_key = self::getAngoKey();
-            $login2chPW = md5_decrypt($rec_login2chPW, $md5_crypt_key, 32);
+            $login2chPW = MD5Crypt::decrypt($rec_login2chPW, $md5_crypt_key, 32);
         }
 
         return array($rec_login2chID, $login2chPW, $rec_autoLogin2ch);
@@ -1091,7 +1271,7 @@ EOP;
     {
         global $_login;
 
-        return $_login->user . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
+        return $_login->user_u . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
     }
 
     // }}}
@@ -1100,11 +1280,16 @@ EOP;
     /**
      * getCsrfId
      */
-    static public function getCsrfId()
+    static public function getCsrfId($salt = '')
     {
         global $_login;
 
-        return md5($_login->user . $_login->pass_x . $_SERVER['HTTP_USER_AGENT']);
+        $key = $_login->user_u . $_login->pass_x . $_SERVER['HTTP_USER_AGENT'] . $salt;
+        if (array_key_exists('login_microtime', $_SESSION)) {
+            $key .= $_SESSION['login_microtime'];
+        }
+
+        return UrlSafeBase64::encode(sha1($key, true));
     }
 
     // }}}
@@ -1488,6 +1673,10 @@ ERR;
     {
         global $_info_msg_ht;
 
+        // 表示フォーマットを統一する試み
+        $html = preg_replace('!^<p>!', '<p class="info-msg">', $html);
+        $html = preg_replace('!\\b(?:re)?p2(?:　| )+(error|info)(?: *[:\\-] *)!', 'rep2 $1: ', $html);
+
         if (!isset($_info_msg_ht)) {
             $_info_msg_ht = $html;
         } else {
@@ -1509,7 +1698,7 @@ ERR;
             return;
         }
 
-        if ($_conf['ktai'] && $_conf['k_save_packet']) {
+        if ($_conf['ktai'] && $_conf['mobile.save_packet']) {
             echo mb_convert_kana($_info_msg_ht, 'rnsk');
         } else {
             echo $_info_msg_ht;
@@ -1536,6 +1725,23 @@ ERR;
         $_info_msg_ht = '';
 
         return $info_msg_ht;
+    }
+
+    // }}}
+    // {{{ hasInfoHtml()
+
+    /**
+     * @return  boolean
+     */
+    static public function hasInfoHtml()
+    {
+        global $_info_msg_ht;
+
+        if (isset($_info_msg_ht) && strlen($_info_msg_ht)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // }}}
@@ -1612,7 +1818,7 @@ ERR;
                 $key = $matches[4];
                 $ls = '';
                 $kakolog_url = $matches[1];
-                $_GET['kakolog'] = rawurlencode($kakolog_url);
+                $_GET['kakolog'] = $kakolog_url;
 
             // まちBBS - http://kanto.machi.to/bbs/read.cgi/kanto/1241815559/
             } elseif (preg_match('<^http://(\\w+\\.machi(?:bbs\\.com|\\.to))/bbs/read\\.cgi
@@ -1773,6 +1979,46 @@ ERR;
     }
 
     // }}}
+    // {{{ getP2Client()
+
+    /**
+     * P2Clientクラスのインスタンスを生成する
+     *
+     * @param void
+     * @return P2Client
+     */
+    static public function getP2Client()
+    {
+        global $_conf;
+
+        if (!is_dir($_conf['db_dir'])) {
+            FileCtl::mkdirRecursive($_conf['db_dir']);
+        }
+
+        try {
+            return new P2Client($_conf['p2_2ch_mail'], $_conf['p2_2ch_pass'],
+                                $_conf['db_dir'], (bool)$_conf['p2_2ch_ignore_cip']);
+        } catch (P2Exception $e) {
+            p2die($e->getMessage());
+        }
+    }
+
+    // }}}
+    // {{{ rawurlencodeCallback()
+
+    /**
+     * preg_replace_callback()のコールバック関数として
+     * マッチ箇所全体にrawurlencode()をかける
+     *
+     * @param   array   $m
+     * @return  string
+     */
+    static public function rawurlencodeCallback(array $m)
+    {
+        return rawurlencode($m[0]);
+    }
+
+    // }}}
     // {{{ debug()
     /*
     static public function debug()
@@ -1795,6 +2041,7 @@ ERR;
 // }}}
 
 //register_shutdown_function(array('P2Util', 'debug'));
+//register_shutdown_function(array('P2Util', 'printInfoHtml'));
 
 /*
  * Local Variables:

@@ -19,14 +19,8 @@ if (!$_conf['expack.ic2.enabled']) {
 // {{{ 初期化
 
 // ライブラリ読み込み
-require_once 'PEAR.php';
-require_once 'DB/DataObject.php';
 require_once 'HTTP/Client.php';
-require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
-require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
+require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 
 // 受け付けるMIMEタイプ
 $mimemap = array('image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif');
@@ -56,7 +50,7 @@ if (empty($id) && empty($uri) && empty($file)) {
 }
 
 if (!is_dir($_conf['tmp_dir'])) {
-    FileCtl::mkdir_for($_conf['tmp_dir'] . '/__dummy__');
+    FileCtl::mkdirRecursive($_conf['tmp_dir']);
 }
 
 if (!empty($uri)) {
@@ -250,7 +244,6 @@ if ($result) {
 }
 
 // 画像がブラックリストにあるか確認
-require_once P2EX_LIB_DIR . '/ic2/DataObject/BlackList.php';
 $blacklist = new IC2_DataObject_BlackList;
 if ($blacklist->get($uri)) {
     switch ($blacklist->type) {
@@ -271,7 +264,6 @@ if ($blacklist->get($uri)) {
 
 // 画像がエラーログにあるか確認
 if (!$force && $ini['Getter']['checkerror']) {
-    require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
     $errlog = new IC2_DataObject_Errors;
     if ($errlog->get($uri)) {
         ic2_error($errlog->errcode, '', false);
@@ -422,10 +414,7 @@ if ($ini['Getter']['virusscan']) {
     } else {
         $clamscan = 'clamscan';
     }
-    if (findexec($clamscan, $searchpath)) {
-        if ($searchpath) {
-            $clamscan = $searchpath . DIRECTORY_SEPARATOR . $clamscan;
-        }
+    if ($clamscan = ic2_findexec($clamscan, $searchpath)) {
         $scan_command = $clamscan . ' --stdout ' . escapeshellarg(realpath($tmpfile)) . '; echo $?';
         $scan_result  = @exec($scan_command, $scan_stdout, $scan_result);
         if ($scan_result == 1) {
@@ -473,8 +462,7 @@ if ($filepath && $force && $time && $size == $_size && $md5 == $_md5 && $mime ==
     ic2_finish($filepath, $thumb, $params, false);
 }
 
-$params = array('uri' => $uri, 'host' => $host, 'name' => $name, 'size' => $size, 'md5' => $md5,
-                'width' => $width, 'height' => $height, 'mime' => $mime, 'memo' => $memo);
+$params = compact('uri', 'host', 'name', 'size', 'md5', 'width', 'height', 'mime', 'memo');
 
 // ファイルサイズが上限を越えていないか確認
 ic2_checkSizeOvered($tmpfile, $params);
@@ -644,7 +632,7 @@ function ic2_checkSizeOvered($tmpfile, $params)
     } else {
         $maxsize = (int)$maxsize;
     }
-    if (0 < $maxsize && $maxsize < $conent_length) {
+    if (0 < $maxsize && $maxsize < $size) {
         $isError = true;
         $errmsg = "ファイルサイズが大きすぎます。(file:{$size}; max:{$maxsize};)";
     }
@@ -723,14 +711,6 @@ function ic2_display($path, $params)
             }
             if (!class_exists('HTML_QuickForm_Renderer_ObjectFlexy', false)) {
                 require 'HTML/QuickForm/Renderer/ObjectFlexy.php';
-            }
-
-            // conf.inc.phpで一括stripslashes()しているけど、HTML_QuickFormでも独自にstripslashes()するので。
-            // バグの温床となる可能性も否定できない・・・
-            if (get_magic_quotes_gpc()) {
-                $_GET = array_map('addslashes_r', $_GET);
-                $_POST = array_map('addslashes_r', $_POST);
-                $_REQUEST = array_map('addslashes_r', $_REQUEST);
             }
 
             if (isset($uri)) {
@@ -836,7 +816,6 @@ function ic2_display($path, $params)
             }
 
             $k_at_a = str_replace('&amp;', '&', $_conf['k_at_a']);
-            $sid_at_a = str_replace('&amp;', '&', $_conf['sid_at_a']);
             $setrank_url = "ic2.php?{$img_q}&t={$thumb}&r=0{$k_at_a}";
 
             $flexy->setData('stars', $stars);
@@ -851,7 +830,7 @@ function ic2_display($path, $params)
                     $link = $path;
                 }
                 $r = ($ini['General']['redirect'] == 1) ? 1 : 2;
-                $preview = "{$_SERVER['SCRIPT_NAME']}?o=1&r={$r}&t={$t}&{$img_q}{$k_at_a}{$sid_at_a}";
+                $preview = "{$_SERVER['SCRIPT_NAME']}?o=1&r={$r}&t={$t}&{$img_q}{$k_at_a}";
                 $flexy->setData('preview', $preview);
                 $flexy->setData('link', $link);
                 $flexy->setData('info', null);
@@ -960,7 +939,6 @@ function ic2_error($code, $optmsg = '', $write_log = true)
     }
 
     if ($write_log) {
-        require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
         $logger = new IC2_DataObject_Errors;
         $logger->uri     = isset($uri) ? $uri : (isset($id) ? $id : $file);
         $logger->errcode = $code;

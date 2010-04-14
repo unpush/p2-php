@@ -12,7 +12,7 @@ $_login->authorize(); // ユーザ認証
 //=========================================================
 
 if (!empty($GLOBALS['pref_dir_realpath_failed_msg'])) {
-    $_info_msg_ht .= '<p>'.$GLOBALS['pref_dir_realpath_failed_msg'].'</p>';
+    P2Util::pushInfoHtml('<p>' . $GLOBALS['pref_dir_realpath_failed_msg'] . '</p>');
 }
 
 $p2web_url_r = P2Util::throughIme($_conf['p2web_url']);
@@ -62,18 +62,62 @@ if (!empty($_conf['updatan_haahaa'])) {
 $htm['auth_user'] = "<p>ログインユーザ: {$_login->user_u} - " . date("Y/m/d (D) G:i") . "</p>\n";
 
 // （携帯）ログイン用URL
-$url_b = htmlspecialchars(rtrim(dirname(P2Util::getMyUrl()), '/') . '/?b=', ENT_QUOTES);
+$base_url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
+$url_b = $base_url . '?user=' . rawurlencode($_login->user_u) . '&b=';
+$url_b_ht = htmlspecialchars($url_b, ENT_QUOTES);
+
+// 携帯用ビューを開くブックマークレット
+$bookmarklet = <<<JS
+(function (u, w, v, x, y) {
+    var t;
+    if (typeof window.outerHeight === 'number') {
+        t = y + window.outerHeight;
+        if (v < t){
+            v = t;
+        }
+    }
+    t = window.open(u, '', 'width=' + w + ',height=' + v + ',' +
+        'scrollbars=yes,resizable=yes,toolbar=no,menubar=no,status=no'
+    );
+    if (t) {
+        t.resizeTo(w, v);
+        t.focus();
+        return false;
+    } else {
+        return true;
+    }
+})
+JS;
+$bookmarklet = preg_replace('/\\b(var|return|typeof) +/', '$1{%space%}', $bookmarklet);
+$bookmarklet = preg_replace('/\\s+/', '', $bookmarklet);
+$bookmarklet = str_replace('{%space%}', ' ', $bookmarklet);
+
+$bookmarklet_k = $bookmarklet . "('{$url_b}k',240,320,20,-100)";
+$bookmarklet_i = $bookmarklet . "('{$url_b}i',320,480,20,-100)";
+$bookmarklet_k_ht = htmlspecialchars($bookmarklet_k, ENT_QUOTES);
+$bookmarklet_i_ht = htmlspecialchars($bookmarklet_i, ENT_QUOTES);
+$bookmarklet_k_en = rawurlencode($bookmarklet_k);
+$bookmarklet_i_en = rawurlencode($bookmarklet_i);
 
 $htm['ktai_url'] = <<<EOT
 <table border="0" cellspacing="0" cellpadding="1">
     <tbody>
-        <tr><th>携帯用URL:</th><td><a href="{$url_b}k" target="_blank">{$url_b}k</a></td></tr>
-        <tr><th>iPhone用URL:</th><td><a href="{$url_b}i" target="_blank">{$url_b}i</a></td></tr>
+        <tr>
+            <th>携帯用URL:</th>
+            <td><a href="{$url_b_ht}k" target="_blank" onclick="return {$bookmarklet_k_ht};">{$url_b_ht}k</a></td>
+            <td>[<a href="javascript:{$bookmarklet_k_en};">bookmarklet</a>]</td>
+        </tr>
+        <tr>
+            <th>iPhone用URL:</th>
+            <td><a href="{$url_b_ht}i" target="_blank" onclick="return {$bookmarklet_i_ht};">{$url_b_ht}i</a></td>
+            <td>[<a href="javascript:{$bookmarklet_i_en};">bookmarklet</a>]</td>
+        </tr>
     </tbody>
 </table>
 EOT;
 
 // 前回のログイン情報
+$htm['log'] = '';
 $htm['last_login'] = '';
 if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
     if (($log = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
@@ -97,7 +141,7 @@ EOT;
 //=========================================================
 // HTMLプリント
 //=========================================================
-$ptitle = "rep2 - title";
+$ptitle = 'rep2 - title';
 
 echo $_conf['doctype'];
 echo <<<EOP
@@ -111,39 +155,14 @@ echo <<<EOP
     <title>{$ptitle}</title>
     <base target="read">
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=title&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-    <style type="text/css">
-    /* <![CDATA[ */
-    table caption {
-        text-align: left;
-        font-size: {$STYLE['fontsize']};
-    }
-    table th {
-        padding-right: 0.25em;
-        text-align: right;
-        vertical-align: top;
-        white-space: nowrap;
-        line-height: 100%;
-        font-weight: normal;
-        font-size: {$STYLE['fontsize']};
-    }
-    table td {
-        text-align: left;
-        vertical-align: top;
-        line-height: 100%;
-        font-size: {$STYLE['fontsize']};
-    }
-    /* ]]> */
-    </style>
 </head>
 <body>\n
 EOP;
 
 // 情報メッセージ表示
-if (!empty($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
-}
+P2Util::printInfoHtml();
 
 echo <<<EOP
 <br>
@@ -183,9 +202,9 @@ function checkUpdatan()
 
     $no_p2status_dl_flag  = false;
 
-    $ver_txt_url = $_conf['expack.web_url'] . 'expack-status2.txt';
+    $ver_txt_url = $_conf['expack.web_url'] . 'version.txt';
     $cachefile = P2Util::cacheFileForDL($ver_txt_url);
-    FileCtl::mkdir_for($cachefile);
+    FileCtl::mkdirFor($cachefile);
 
     if (file_exists($cachefile)) {
         // キャッシュの更新が指定時間以内なら

@@ -53,7 +53,7 @@ class FileCtl
 
         if (!file_exists($file)) {
             // 親ディレクトリが無ければ作る
-            self::mkdir_for($file) or p2die("cannot make parent dirs. ({$file})");
+            self::mkdirFor($file) or p2die("cannot make parent dirs. ({$file})");
             touch($file) or p2die("cannot touch. ({$file})");
             chmod($file, $perm);
         } else {
@@ -70,7 +70,7 @@ class FileCtl
     }
 
     // }}}
-    // {{{ mkdir_for()
+    // {{{ mkdirFor()
 
     /**
      * 親ディレクトリがなければ生成してパーミッションを調整する
@@ -79,7 +79,7 @@ class FileCtl
      * @param int $perm
      * @return bool
      */
-    static public function mkdir_for($apath, $perm = null)
+    static public function mkdirFor($apath, $perm = null)
     {
         global $_conf;
 
@@ -103,12 +103,57 @@ class FileCtl
             if ($i > $dir_limit) {
                 p2die("cannot mkdir. ({$parentdir})", '階層を上がり過ぎたので、ストップしました。');
             }
-            self::mkdir_for($parentdir);
+            self::mkdirFor($parentdir);
             mkdir($parentdir, $perm) or p2die("cannot mkdir. ({$parentdir})");
             chmod($parentdir, $perm);
             $i++;
         }
         return true;
+    }
+
+    // }}}
+    // {{{ mkdirRecursive()
+
+    /**
+     * ディレクトリがなければ生成してパーミッションを調整する
+     *
+     * @param string $apath
+     * @param int $perm
+     * @return bool
+     */
+    static public function mkdirRecursive($apath, $perm = null)
+    {
+        return self::mkdirFor($apath . DIRECTORY_SEPARATOR . '_', $perm);
+    }
+
+    // }}}
+    // {{{ mkdir_for()
+
+    /**
+     * mkdirFor() のエイリアス
+     *
+     * @param string $apath
+     * @param int $perm
+     * @return bool
+     */
+    static public function mkdir_for($apath, $perm = null)
+    {
+        return self::mkdirFor($apath, $perm);
+    }
+
+    // }}}
+    // {{{ mkdir_r()
+
+    /**
+     * mkdirRecursive() のエイリアス
+     *
+     * @param string $apath
+     * @param int $perm
+     * @return bool
+     */
+    static public function mkdir_r($apath, $perm = null)
+    {
+        return self::mkdirRecursive($apath, $perm);
     }
 
     // }}}
@@ -364,113 +409,6 @@ class FileCtl
         return $lines;
 
         // }}}
-    }
-
-    // }}}
-}
-
-// }}}
-// {{{ P2Lock
-
-/**
- * 簡易ロッククラス
- */
-class P2Lock
-{
-    // {{{ properties
-
-    /**
-     * ロックファイルのパス
-     *
-     * @var string
-     */
-    private $_filename;
-
-    /**
-     * ロックファイルのハンドル
-     *
-     * @var resource
-     */
-    private $_fh;
-
-    /**
-     * ロックファイルを自動で削除するかどうか
-     *
-     * @var bool
-     */
-    private $_remove;
-
-    // }}}
-    // {{{ constructor
-
-    /**
-     * コンストラクタ
-     *
-     * @param  string $name     ロック名（≒排他処理したいファイル名）
-     * @param  bool   $remove   ロックファイルを自動で削除するかどうか
-     * @param  string $suffix   ロックファイル名の接尾辞
-     */
-    public function __construct($name, $remove = true, $suffix = '.lck')
-    {
-        $this->_filename = p2_realpath($name . $suffix);
-        $this->_remove = $remove;
-
-        FileCtl::mkdir_for($this->_filename);
-
-        $this->_fh = fopen($this->_filename, 'wb');
-        if (!$this->_fh) {
-            p2die("cannot create lockfile ({$this->_filename}).");
-        }
-        if (!flock($this->_fh, LOCK_EX)) {
-            p2die("cannot get lock ({$this->_filename}).");
-        }
-    }
-
-    // }}}
-    // {{{ destructor
-
-    /**
-     * デストラクタ
-     */
-    public function __destruct()
-    {
-        if (is_resource($this->_fh)) {
-            flock($this->_fh, LOCK_UN);
-            fclose($this->_fh);
-            $this->_fh = null;
-        }
-
-        if ($this->_remove && file_exists($this->_filename)) {
-            unlink($this->_filename);
-        }
-    }
-
-    // }}}
-    // {{{ free()
-
-    /**
-     * 明示的にロックを開放する
-     */
-    public function free()
-    {
-        $this->__destruct();
-    }
-
-    // }}}
-    // {{{ remove()
-
-    /**
-     * 明示的にロックを開放し、ロックファイルを強制削除する
-     *
-     * unlink()はstat()のキャッシュを自動的にクリアするので
-     * clearstatcache()する必要はない
-     */
-    public function remove()
-    {
-        $this->__destruct();
-        if (file_exists($this->_filename)) {
-            unlink($this->_filename);
-        }
     }
 
     // }}}

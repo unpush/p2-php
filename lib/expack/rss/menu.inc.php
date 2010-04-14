@@ -49,8 +49,8 @@ function print_rss_list()
                 if (PEAR::isError($localpath)) {
                     echo "\t@" . $site . ' ' . $localpath->getMessage() . "<br>\n";
                 } else {
-                    $mtime   = file_exists($localpath) ? filemtime($localpath) : 0;
-                    $site_en = rawurlencode(base64_encode($site));
+                    $mtime = file_exists($localpath) ? filemtime($localpath) : 0;
+                    $site_en = UrlSafeBase64::encode($site);
                     $xml_en = rawurlencode($xml);
                     $rss_q = sprintf('?xml=%s&site_en=%s%s&mt=%d', $xml_en, $site_en, $atom_q, $mtime);
                     $rss_q_ht = htmlspecialchars($rss_q, ENT_QUOTES);
@@ -108,8 +108,8 @@ function print_rss_list_k()
                 if (PEAR::isError($localpath)) {
                     echo $accesskey_st . $site . ' ' . $localpath->getMessage() . "<br>\n";
                 } else {
-                    $mtime   = file_exists($localpath) ? filemtime($localpath) : 0;
-                    $site_en = rawurlencode(base64_encode($site));
+                    $mtime = file_exists($localpath) ? filemtime($localpath) : 0;
+                    $site_en = UrlSafeBase64::encode($site);
                     $xml_en = rawurlencode($xml);
                     $rss_q = sprintf('?xml=%s&site_en=%s%s&mt=%d', $xml_en, $site_en, $atom_q, $mtime);
                     $rss_q_ht = htmlspecialchars($rss_q, ENT_QUOTES);

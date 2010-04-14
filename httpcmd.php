@@ -77,7 +77,7 @@ case 'setfavita':
             include P2_LIB_DIR . '/setfavita.inc.php';
         }
         if (isset($_REQUEST['itaj_en'])) {
-            $itaj = base64_decode($_REQUEST['itaj_en']);
+            $itaj = UrlSafeBase64::decode($_REQUEST['itaj_en']);
         } elseif (isset($_REQUEST['itaj'])) {
             $itaj = $_REQUEST['itaj'];
         } else {
@@ -105,7 +105,7 @@ case 'setfav':
             include P2_LIB_DIR . '/setfav.inc.php';
         }
         if (isset($_REQUEST['ttitle_en'])) {
-            $ttitle = base64_decode($_REQUEST['ttitle_en']);
+            $ttitle = UrlSafeBase64::decode($_REQUEST['ttitle_en']);
         } elseif (isset($_REQUEST['ttitle'])) {
             $ttitle = $_REQUEST['ttitle'];
         } else {
@@ -133,7 +133,7 @@ case 'setpal':
             include P2_LIB_DIR . '/setpalace.inc.php';
         }
         if (isset($_REQUEST['ttitle_en'])) {
-            $ttitle = base64_decode($_REQUEST['ttitle_en']);
+            $ttitle = UrlSafeBase64::decode($_REQUEST['ttitle_en']);
         } elseif (isset($_REQUEST['ttitle'])) {
             $ttitle = $_REQUEST['ttitle'];
         } else {
@@ -195,7 +195,7 @@ case 'bookmark':
         }
         $set = (bool)$_REQUEST['bookmark'];
         if (isset($_REQUEST['ttitle_en'])) {
-            $ttitle = base64_decode($_REQUEST['ttitle_en']);
+            $ttitle = UrlSafeBase64::decode($_REQUEST['ttitle_en']);
         } elseif (isset($_REQUEST['ttitle'])) {
             $ttitle = $_REQUEST['ttitle'];
         } else {
@@ -235,7 +235,9 @@ case 'offline':
 
 case 'ic2':
     if (isset($_REQUEST['switch'])) {
-        require_once P2EX_LIB_DIR . '/ic2/Switch.php';
+        if (!class_exists('IC2_Switch', false)) {
+            include P2EX_LIB_DIR . '/ic2/Switch.php';
+        }
         $switch = (bool)$_REQUEST['switch'];
         if (IC2_Switch::set($switch, !empty($_REQUEST['mobile']))) {
             if ($switch) {
@@ -273,10 +275,6 @@ function httpcmd_set_readnum($host, $bbs, $key, $readnum)
         return false;
     }
 
-    if (!class_exists('Thread', false)) {
-        include P2_LIB_DIR . '/Thread.php';
-    }
-
     $aThread = new Thread();
     $aThread->setThreadPathInfo($host, $bbs, $key);
     $lines = FileCtl::file_read_lines($aThread->keyidx, FILE_IGNORE_NEW_LINES);
@@ -311,10 +309,6 @@ function httpcmd_make_offline_data($host, $bbs, $key, $from)
 {
     if (!is_numeric($from) || ($from = intval($from)) < 1) {
         return false;
-    }
-
-    if (!class_exists('ThreadRead', false)) {
-        include P2_LIB_DIR . '/ThreadRead.php';
     }
 
     $data = array();

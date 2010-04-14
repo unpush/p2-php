@@ -3,14 +3,14 @@
  * rep2expack - カスタムフォント設定用関数群
  */
 
-// {{{ fontconfig_detect_agent()
+// {{{ p2_fontconfig_detect_agent()
 
 /**
  * フォント設定用にユーザエージェントを判定する
  *
  * @return string
  */
-function fontconfig_detect_agent($ua = null)
+function p2_fontconfig_detect_agent($ua = null)
 {
     if ($ua === null) {
         $ua = $_SERVER['HTTP_USER_AGENT'];
@@ -38,14 +38,14 @@ function fontconfig_detect_agent($ua = null)
 }
 
 // }}}
-// {{{ fontconfig_apply_custom()
+// {{{ p2_fontconfig_apply_custom()
 
 /**
  * フォント設定を読み込む
  *
  * @return void
  */
-function fontconfig_apply_custom()
+function p2_fontconfig_apply_custom()
 {
     global $STYLE, $_conf, $skin_en, $skin_uniq;
 
@@ -65,7 +65,7 @@ function fontconfig_apply_custom()
             $current_fontconfig = array('enabled' => false, 'custom' => array());
         }
 
-        $type = fontconfig_detect_agent();
+        $type = p2_fontconfig_detect_agent();
 
         if ($current_fontconfig['enabled'] && is_array($current_fontconfig['custom'][$type])) {
             $skin_uniq = P2_VERSION_ID . sprintf('.%u', crc32($fontconfig_data));

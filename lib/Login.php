@@ -1,8 +1,5 @@
 <?php
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-require_once P2_LIB_DIR . '/Session.php';
-
 // {{{ Login
 
 /**
@@ -132,9 +129,12 @@ class Login
 
         // {{{ 認証チェック
 
-        if (!$this->_authCheck()) {
+        $auth_result = $this->_authCheck();
+        if (!$auth_result) {
             // ログイン失敗
-            require_once P2_LIB_DIR . '/login_first.inc.php';
+            if (!function_exists('printLoginFirst')) {
+                include P2_LIB_DIR . '/login_first.inc.php';
+            }
             printLoginFirst($this);
             exit;
         }
@@ -184,6 +184,9 @@ class Login
             // ユーザ名とパスXを更新
             $_SESSION['login_user']   = $this->user_u;
             $_SESSION['login_pass_x'] = $this->pass_x;
+            if (!array_key_exists('login_microtime', $_SESSION)) {
+                $_SESSION['login_microtime'] = microtime();
+            }
         }
 
         // }}}
@@ -194,9 +197,15 @@ class Login
 
         // }}}
 
-        // 認証後はセッションを閉じる
-        if (!defined('P2_SESSION_NO_CLOSE')) {
+        // セッションを認証以外に使わない場合は閉じる
+        if (P2_SESSION_CLOSE_AFTER_AUTHENTICATION) {
             session_write_close();
+        }
+
+        // _authCheck() が文字列を返したときは、URLと見なしてリダイレクト
+        if (is_string($auth_result)) {
+            header('Location: ' . $auth_result);
+            exit;
         }
 
         return true;
@@ -232,7 +241,7 @@ class Login
      */
     private function _authCheck()
     {
-        global $_info_msg_ht, $_conf;
+        global $_conf;
         global $_login_failed_flag;
         global $_p2session;
 
@@ -244,7 +253,7 @@ class Login
 
             // ユーザ名が違ったら、認証失敗で抜ける
             if ($this->user_u != $rec_login_user_u) {
-                $_info_msg_ht .= '<p class="infomsg">p2 error: ログインエラー</p>';
+                P2Util::pushInfoHtml('<p>p2 error: ログインエラー</p>');
 
                 // ログイン失敗ログを記録する
                 if (!empty($_conf['login_log_rec'])) {
@@ -266,7 +275,7 @@ class Login
 
             // 新規登録でなければエラー表示
             if (empty($_POST['submit_new'])) {
-                $_info_msg_ht .= '<p class="infomsg">p2 error: ログインエラー</p>';
+                P2Util::pushInfoHtml('<p>p2 error: ログインエラー</p>');
             }
 
             return false;
@@ -294,7 +303,7 @@ class Login
             // セッションが利用されているなら、セッションの妥当性チェック
             if (isset($_p2session)) {
                 if ($msg = $_p2session->checkSessionError()) {
-                    $GLOBALS['_info_msg_ht'] .= '<p>p2 error: ' . htmlspecialchars($msg) . '</p>';
+                    P2Util::pushInfoHtml('<p>p2 error: ' . htmlspecialchars($msg) . '</p>');
                     //Session::unSession();
                     // ログイン失敗
                     return false;
@@ -411,11 +420,13 @@ class Login
                 // ログインログを記録する
                 $this->logLoginSuccess();
 
-                return true;
+                // リダイレクト
+                return $_SERVER['REQUEST_URI'];
+                //return true;
 
             // フォームログイン失敗なら
             } else {
-                $_info_msg_ht .= '<p class="infomsg">p2 info: ログインできませんでした。<br>ユーザ名かパスワードが違います。</p>';
+                P2Util::pushInfoHtml('<p>p2 info: ログインできませんでした。<br>ユーザ名かパスワードが違います。</p>');
                 $_login_failed_flag = true;
 
                 // ログイン失敗ログを記録する
@@ -503,7 +514,7 @@ class Login
      */
     public function registKtaiId()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $mobile = Net_UserAgent_Mobile::singleton();
 
@@ -521,7 +532,7 @@ class Login
                     if (($UID = $mobile->getUID()) !== null) {
                         $this->_registAuth('registed_imodeid', $UID, $_conf['auth_imodeid_file']);
                     } else {
-                        $_info_msg_ht .= '<p class="infomsg">×docomo iモードIDでの認証登録はできませんでした</p>'."\n";
+                        P2Util::pushInfoHtml('<p>×docomo iモードIDでの認証登録はできませんでした</p>');
                     }
                 } else {
                     $this->_registAuthOff($_conf['auth_imodeid_file']);
@@ -540,7 +551,7 @@ class Login
                     if (($SN = $mobile->getSerialNumber()) !== null) {
                         $this->_registAuth('registed_docomo', $SN, $_conf['auth_docomo_file']);
                     } else {
-                        $_info_msg_ht .= '<p class="infomsg">×docomo 端末製造番号での認証登録はできませんでした</p>'."\n";
+                        P2Util::pushInfoHtml('<p>×docomo 端末製造番号での認証登録はできませんでした</p>');
                     }
                 } else {
                     $this->_registAuthOff($_conf['auth_docomo_file']);
@@ -563,7 +574,7 @@ class Login
                 if (($UID = $mobile->getUID()) !== null) {
                     $this->_registAuth('registed_ez', $UID, $_conf['auth_ez_file']);
                 } else {
-                    $_info_msg_ht .= '<p class="infomsg">×EZweb サブスクライバIDでの認証登録はできませんでした</p>'."\n";
+                    P2Util::pushInfoHtml('<p>×EZweb サブスクライバIDでの認証登録はできませんでした</p>');
                 }
             } else {
                 $this->_registAuthOff($_conf['auth_ez_file']);
@@ -583,7 +594,7 @@ class Login
                 if (($SN = $mobile->getSerialNumber()) !== null) {
                     $this->_registAuth('registed_jp', $SN, $_conf['auth_jp_file']);
                 } else {
-                    $_info_msg_ht .= '<p class="infomsg">×SoftBank 端末シリアル番号での認証登録はできませんでした</p>'."\n";
+                    P2Util::pushInfoHtml('<p>×SoftBank 端末シリアル番号での認証登録はできませんでした</p>');
                 }
             } else {
                 $this->_registAuthOff($_conf['auth_jp_file']);
@@ -602,7 +613,7 @@ class Login
      */
     private function _registAuth($key, $sub_id, $auth_file)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $cont = <<<EOP
 <?php
@@ -612,7 +623,7 @@ EOP;
         FileCtl::make_datafile($auth_file, $_conf['pass_perm']);
         $fp = fopen($auth_file, 'wb');
         if (!$fp) {
-            $_info_msg_ht .= "<p>Error: データを保存できませんでした。認証登録失敗。</p>";
+            P2Util::pushInfoHtml('<p>Error: データを保存できませんでした。認証登録失敗。</p>');
             return false;
         }
         flock($fp, LOCK_EX);
@@ -665,17 +676,28 @@ EOP;
 
     /**
      * cookie認証を登録/解除する
+     *
+     * @param void
+     * @return boolean
      */
     public function registCookie()
     {
+        $r = true;
+
         if (!empty($_REQUEST['ctl_regist_cookie'])) {
             if ($_REQUEST['regist_cookie'] == '1') {
-                $this->setCookieCid($this->user_u, $this->pass_x);
+                $ignore_cip = false;
+                if (!empty($_POST['ignore_cip'])) {
+                    $ignore_cip = true;
+                }
+                $r = $this->setCookieCid($this->user_u, $this->pass_x, $ignore_cip);
             } else {
                 // クッキーをクリア
-                $this->clearCookieAuth();
+                $r = $this->clearCookieAuth();
             }
         }
+
+        return $r;
     }
 
     // }}}
@@ -703,19 +725,32 @@ EOP;
     /**
      * CIDをcookieにセットする
      *
+     * @param string $user_u
+     * @param string $pass_x
+     * @param boolean|null $ignore_cip
      * @return boolean
      */
-    public function setCookieCid($user_u, $pass_x)
+    protected function setCookieCid($user_u, $pass_x, $ignore_cip = null)
     {
         global $_conf;
 
-        if ($cid = $this->makeCid($user_u, $pass_x)) {
-            $time = time() + 60*60*24 * $_conf['cid_expire_day'];
-            setcookie('cid', $cid, $time);
-            return true;
-        } else {
-            return false;
+        $time = time() + 60*60*24 * $_conf['cid_expire_day'];
+
+        if (!is_null($ignore_cip)) {
+            if ($ignore_cip) {
+                P2Util::setCookie('ignore_cip', '1', $time);
+                $_COOKIE['ignore_cip'] = '1';
+            } else {
+                P2Util::unsetCookie('ignore_cip');
+                // 念のためドメイン指定なしも
+                setcookie('ignore_cip', '', time() - 3600);
+            }
         }
+
+        if ($cid = $this->makeCid($user_u, $pass_x)) {
+            return P2Util::setCookie('cid', $cid, $time);
+        }
+        return false;
     }
 
     // }}}
@@ -732,16 +767,10 @@ EOP;
             return false;
         }
 
-        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
-
-        $key = $this->getMd5CryptKey();
-
-        $idtime = $user_u. ':'. time(). ':';
-        $pw_enc = md5($idtime . $pass_x);
-        $str = $idtime . $pw_enc;
-        $cid = md5_encrypt($str, $key, 32);
-
-        return $cid;
+        $user_time  = $user_u . ':' . time() . ':';
+        $md5_utpx = md5($user_time . $pass_x);
+        $cid_src  = $user_time . $md5_utpx;
+        return MD5Crypt::encrypt($cid_src, self::getMd5CryptPassForCid());
     }
 
     // }}}
@@ -756,19 +785,24 @@ EOP;
     {
         global $_conf;
 
-        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        $dec = MD5Crypt::decrypt($cid, self::getMd5CryptPassForCid());
 
-        $key = $this->getMd5CryptKey();
+        $cid_info = explode(':', $dec);
+        if (count($cid_info) != 3) {
+            return false;
+        }
 
-        $dec = md5_decrypt($cid, $key, 32);
-        list($user, $time, $pw_enc) = explode(':', $dec, 3);
+        list($user, $time, $md5_utpx) = $cid_info;
+        if (!strlen($user) || !$time || !$md5_utpx) {
+            return false;
+        }
 
         // 有効期限 日数
-        if (time() > $time + (86400 * $_conf['cid_expire_day'])) {
+        if (time() > $time + (60*60*24 * $_conf['cid_expire_day'])) {
             return false; // 期限切れ
-        } else {
-            return array($user, $time, $pw_enc);
         }
+
+        return $cid_info;
     }
 
     // }}}
@@ -820,17 +854,44 @@ EOP;
     }
 
     // }}}
-    // {{{ getMd5CryptKey()
+    // {{{ getMd5CryptPassForCid()
 
     /**
-     * md5_encrypt, md5_decrypt のためにクリプトキーを得る
+     * MD5Crypt::encrypt, MD5Crypt::decrypt のための password(salt) を得る
+     * （クッキーのcidの生成に利用している）
      *
-     * @return string
+     * @param   void
+     * @access  private
+     * @return  string
      */
-    public function getMd5CryptKey()
+    static private function getMd5CryptPassForCid()
     {
-        //return $_SERVER['SERVER_NAME'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_SOFTWARE'];
-        return $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
+        static $pass = null;
+
+        if ($pass !== null) {
+            return $pass;
+        }
+
+        $seed = $_SERVER['SERVER_SOFTWARE'];
+
+        // IPチェックなしの場合と
+        if (!empty($_COOKIE['ignore_cip'])) {
+            ;
+        // 携帯判定された場合は、 IPチェックなし
+        } elseif (
+            //!$_conf['cid_seed_ip'] or
+            UA::isK(geti($_SERVER['HTTP_USER_AGENT']))
+            || HostCheck::isAddressMobile()
+        ) {
+            ;
+        } else {
+            $now_ips = explode('.', $_SERVER['REMOTE_ADDR']);
+            $seed .= $now_ips[0];
+        }
+
+        $pass = md5($seed, true);
+
+        return $pass;
     }
 
     // }}}
@@ -844,11 +905,6 @@ EOP;
      */
     private function _checkIp($type)
     {
-        if (!class_exists('HostCheck', false)) {
-            require P2_LIB_DIR . '/HostCheck.php';
-        }
-
-        // PHPはクラス・メソッド・関数の大文字小文字を区別しないが...
         $method = 'isAddress' . ucfirst(strtolower($type));
         if (method_exists('HostCheck', $method)) {
             return HostCheck::$method();

@@ -6,6 +6,7 @@
 // {{{ p2Šî–{İ’è“Ç‚İ‚İ&”FØ
 
 require_once './conf/conf.inc.php';
+require_once P2EX_LIB_DIR . '/rss/parser.inc.php';
 
 $_login->authorize();
 
@@ -19,7 +20,6 @@ if ($_conf['view_forced_by_query']) {
 // •Ï”‚Ì‰Šú‰»
 //============================================================
 
-$_info_msg_ht = '';
 $channel = array();
 $items = array();
 
@@ -37,9 +37,8 @@ $xml_ht = htmlspecialchars($xml, ENT_QUOTES, 'Shift_JIS', false);
 //============================================================
 
 if ($xml) {
-    require_once P2EX_LIB_DIR . '/rss/parser.inc.php';
     $rss = p2GetRSS($xml, $atom);
-    if ($rss instanceof XML_Parser) {
+    if ($rss instanceof XML_RSS) {
         clearstatcache();
         $rss_parse_success = true;
         $xml_path = rss_get_save_path($xml);

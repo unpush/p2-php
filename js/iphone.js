@@ -38,7 +38,17 @@ var iutil = {
 		'query': null,
 		'href': null,
 		'uri': null
-	}
+	},
+	/**
+	 * ラベルクリックのコールバック関数コンテナ
+	 * @type {Object}
+	 */
+	'labelActions': {},
+	/**
+	 * accesskey属性持ちのアンカー要素コンテナ
+	 * @type {Object}
+	 */
+	'accessKeys': {}
 };
 
 // }}}
@@ -51,7 +61,7 @@ var iutil = {
  * @return void
  */
 iutil.modifyExternalLink = function(contextNode) {
-	var anchors, node, re, i, l, m;
+	var anchors, anchor, re, i, l, m;
 
 	switch (typeof contextNode) {
 		case 'string':
@@ -181,6 +191,296 @@ iutil.checkNext = function(elem, evt) {
 };
 
 // }}}
+// {{{ setLabelAction()
+
+/**
+ * for属性つきのlabel要素にクリック時のイベントハンドラを登録する
+ *
+ * iPhoneのSafariがlabel要素をサポートすればこの関数は不要になる
+ *
+ * @param {Node|String} contextNode
+ * @return void
+ */
+iutil.setLabelAction = function(contextNode) {
+	var labels, label, targetId, targetElement, i, l;
+
+	switch (typeof contextNode) {
+		case 'string':
+			contextNode = document.getElementById(contextNode);
+			break;
+		case 'undefined':
+			contextNode = document.body;
+			break;
+	}
+	if (!contextNode) {
+		return;
+	}
+
+	labels = document.evaluate('.//label[@for]',
+	                           contextNode, null,
+	                           XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	l = labels.snapshotLength;
+
+	for (i = 0; i < l; i++) {
+		label = labels.snapshotItem(i);
+		targetId = label.getAttribute('for');
+		targetElement = document.getElementById(targetId);
+		if (!targetElement) {
+			continue;
+		}
+
+		if (typeof iutil.labelActions[targetId] != 'function') {
+			if (targetElement.nodeName.toLowerCase() == 'input' &&
+				targetElement.hasAttribute('type') &&
+				targetElement.getAttribute('type').toLowerCase() == 'checkbox')
+			{
+				iutil.labelActions[targetId] = (function(element) {
+					return function(event){
+						event = event || window.event;
+						iutil.toggleChekcbox(element, event);
+						return false;
+					};
+				})(targetElement);
+			} else {
+				iutil.labelActions[targetId] = (function(element) {
+					return function(){
+						element.forcus();
+						return false;
+					};
+				})(targetElement);
+			}
+		}
+
+		label.onclick = iutil.labelActions[targetId];
+	}
+};
+
+// }}}
+// {{{ setHashScrool()
+
+/**
+ * ページ内リンクのクリックをスクロールにする
+ *
+ * あまり動きがよくなかったので封印。
+ *
+ * @param {Node|String} contextNode
+ * @return void
+ */
+iutil.setHashScrool = function(contextNode) {
+	var anchors, anchor, targetId, targetElement, i, l, expr;
+
+	switch (typeof contextNode) {
+		case 'string':
+			contextNode = document.getElementById(contextNode);
+			break;
+		case 'undefined':
+			contextNode = document.body;
+			break;
+	}
+	if (!contextNode) {
+		return;
+	}
+
+	expr = './/a[starts-with(@href, "#") and ('
+		+ '@href = "#header" or @href = "#footer" or @href = "#top" or @href = "#bottom"'
+		+ ' or contains(concat(" ", @class, " "), " button ")'
+		+ ')]';
+	anchors = document.evaluate(expr,
+	                            contextNode, null,
+	                            XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	l = anchors.snapshotLength;
+
+	for (i = 0; i < l; i++) {
+		anchor = anchors.snapshotItem(i);
+		targetId = anchor.getAttribute('href').substring(1);
+		targetElement = document.getElementById(targetId);
+		if (!targetElement) {
+			continue;
+		}
+
+		anchor.onclick = (function (element) {
+			return function (event) {
+				var from, to, d, e, f, g;
+
+				from = iutil.getPageY(event || window.event);
+				to = element.offsetTop;
+				d = to - from;
+				e = 30;
+				f = 30;
+
+				for (g = 1; g < f; g++) {
+					window.setTimeout(window.scrollTo, e * g,
+						0, from + Math.floor(d * Math.sqrt(g / f)));
+				}
+				window.setTimeout(window.scrollTo, e * g, 0, to);
+
+				return false;
+			};
+		})(targetElement);
+	}
+};
+
+// }}}
+// {{{ setAccessKeys()
+
+/**
+ * 修飾キー + [0-9*#] の組み合わせのキーバインドを登録する
+ *
+ * OS/ブラウザデフォルトキーバインドとの衝突が解決できていないので封印。
+ *
+ * @param {Node|String} contextNode
+ * @return void
+ */
+iutil.setAccessKeys = function(contextNode) {
+	var anchors, anchor, accessKey, hashKey, i, l;
+
+	switch (typeof contextNode) {
+		case 'string':
+			contextNode = document.getElementById(contextNode);
+			break;
+		case 'undefined':
+			contextNode = document.body;
+			break;
+	}
+	if (!contextNode) {
+		return;
+	}
+
+	anchors = document.evaluate('.//a[@accesskey]',
+	                            contextNode, null,
+	                            XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	l = anchors.snapshotLength;
+
+	for (i = 0; i < l; i++) {
+		anchor = anchors.snapshotItem(i);
+		accessKey = anchor.getAttribute('accesskey');
+		hashKey = 'a' + accessKey.charCodeAt(0).toString();
+		iutil.accessKeys[hashKey] = anchor;
+	}
+
+	// キー押し下げ時のイベントハンドラを追加
+	window.addEventListener('keypress', function (event) {
+		var accessKey, hashKey, keyCode, clickEvent;
+
+		event = event || window.event;
+
+		// バインドが割り当てられている修飾キーか調べる
+		if (!(event.ctrlKey || event.metaKey)) {
+			return true;
+		}
+
+		// バインドが割り当てられているキーか調べる
+		keyCode = event.keyCode;
+		if (48 <= keyCode && keyCode <= 57 && !event.shiftKey) { // [0-9]
+			accessKey = (keyCode - 48).toString();
+		// '<' を '*' にマップ
+		} else if (keyCode === 60 || (keyCode === 44 && event.shiftKey)) {
+			accessKey = '*';
+		// '>' を '#' にマップ
+		} else if (keyCode === 62 || (keyCode === 46 && event.shiftKey)) {
+			accessKey = '#';
+		} else {
+			return true;
+		}
+
+		// 操作感統一のため、アクセスキーの有無に関わらずイベントの伝播を止める
+		iutil.stopEvent(event);
+
+		// アクセスキーがあればクリックイベントを発生させる
+		hashKey = 'a' + accessKey.charCodeAt(0).toString();
+		if (typeof iutil.accessKeys[hashKey] !== 'undefined') {
+			clickEvent = document.createEvent('MouseEvents');
+			clickEvent.initMouseEvent(
+				'click', // type
+				true, // bubbles
+				true, // cancelable
+				window, // view
+				1, // detail
+				0, // screenX
+				0, // screenY
+				0, // clientX
+				0, // clientY
+				false, // ctrlKey
+				false, // altKey
+				false, // shiftKey
+				false, // metaKey
+				0, // button
+				null // relatedTarget
+			);
+			iutil.accessKeys[hashKey].dispatchEvent(clickEvent);
+		}
+
+		return false;
+	}, true);
+};
+
+// ]}}
+// {{{ showAccessKeys()
+
+/**
+ * アクセスキーの一覧を表示する
+ *
+ * @param void
+ * @return void
+ */
+iutil.showAccessKeys = function () {
+	var i, l, accessKeys, accessKey, hashKey, toolbar, button, bodyStyle;
+
+	bodyStyle = iutil.getCurrentStyle(document.body);
+
+	// ツールバー要素を作成
+	toolbar = document.createElement('div');
+	// ツールバースタイル
+	toolbar.style.width = '100%';
+	toolbar.style.margin = '0 -' + bodyStyle.paddingRight + ' 0 -' + bodyStyle.paddingLeft;
+	toolbar.style.padding = '5px !important';
+	toolbar.style.fontSize = '12px';
+	toolbar.style.lineHeight = '120%';
+	toolbar.style.color = '#fff';
+	toolbar.style.backgroundColor = '#333';
+	toolbar.style.position = 'fixed';
+	toolbar.style.bottom = '0';
+
+	// ラベル
+	toolbar.appendChild(document.createElement('span'));
+	toolbar.firstChild.appendChild(document.createTextNode('Ctrl'));
+
+	// 各アクセスキーの情報を追加
+	accessKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '<', '>'];
+	l = accessKeys.length;
+	for (i = 0; i < l; i++) {
+		accessKey = accessKeys[i];
+		hashKey = 'a' + accessKey.charCodeAt(0).toString();
+		if (typeof iutil.accessKeys[hashKey] !== 'undefined') {
+			button = document.createElement('span');
+			// ボタンスタイル
+			button.style.cursor = 'pointer';
+			button.style.display = 'inline-block';
+			button.style.marginLeft = '5px';
+			button.style.textDecoration = 'underline';
+			button.style.whiteSpace = 'nowrap';
+			// ラベル
+			button.appendChild(document.createTextNode(accessKey + ':' +
+				iutil.accessKeys[hashKey].firstChild.nodeValue));
+			// クリックイベントハンドラ
+			// アクセスキーが指定されているアンカーにイベントを転送する
+			button.addEventListener('click', (function (key) {
+				return (function (event) {
+					return iutil.accessKeys[key].dispatchEvent(event);
+				});
+			})(hashKey), false);
+			// ツールバーにボタンを追加
+			toolbar.appendChild(button);
+		}
+	}
+
+	// document.bodyに追加し、マージンを調整
+	document.body.appendChild(toolbar);
+	document.body.style.marginBottom =
+		(iutil.parsePixels(iutil.getCurrentStyle(toolbar).height) + 10) + 'px';
+};
+
+// }}}
 // {{{ adjustTextareaSize()
 
 /**
@@ -295,6 +595,9 @@ iutil.changeLinkTarget = function(expr, toggle, contextNode) {
 		case 'undefined':
 			contextNode = document.body;
 			break;
+	}
+	if (!contextNode) {
+		return;
 	}
 
 	if (typeof expr != 'string') {
@@ -921,6 +1224,18 @@ window.addEventListener('DOMContentLoaded', function(event) {
 	if (typeof window.iphone_js_no_modification === 'undefined' || !window.iphone_js_no_modification) {
 		// リンクにイベントハンドラを登録する
 		iutil.modifyExternalLink(document.body);
+
+		// labelにイベントハンドラを登録する
+		if (iutil.iphone) {
+			iutil.setLabelAction(document.body);
+			//iutil.setHashScrool(document.body);
+		}
+
+		// accesskeyをバインドする
+		//if (!iutil.iphone && typeof window.iui === 'undefined') {
+		//	iutil.setAccessKeys(document.body);
+		//	iutil.showAccessKeys();
+		//}
 
 		// textareaの幅を調整
 		iutil.adjustTextareaSize();

@@ -3,8 +3,6 @@
  * rep2 - “a“°“ü‚èŠÖŒW‚Ìˆ—
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 // {{{ setPal()
 
 /**

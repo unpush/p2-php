@@ -22,11 +22,38 @@ $_conf['idx_dir'] = "./data";       // ("./data")
 // 初期設定データ保存ディレクトリ
 $_conf['pref_dir'] = "./data";      // ("./data")
 
+// SQLite3データベース保存ディレクトリ
+$_conf['db_dir'] = "./data/db";     // ("./data/db")
 
 // 将来的には以下のようにしたい予定
 // $_conf['dat_dir']  = $_conf['data_dir'] . '/dat';
 // $_conf['idx_dir']  = $_conf['data_dir'] . '/idx';
 // $_conf['pref_dir'] = $_conf['data_dir'] . '/pref';
+
+// }}}
+// ----------------------------------------------------------------------
+// {{{ リバースプロキシ
+
+// リバースプロキシを通してアクセスする際のホスト名。
+// $_SERVER['HTTP_HOST'] を上書きし、オリジナルの値を
+// $_SERVER['X_REP2_ORIG_HTTP_HOST'] に書き込む。
+// 'auto' の場合、$_SERVER['HTTP_X_FORWARDED_HOST'] が
+// 設定されている場合だけ適用される
+$_conf['reverse_proxy_host'] = '';  // ("")
+
+// リバースプロキシを通してアクセスする際のポート番号。
+// $_SERVER['HTTP_PORT'] を上書しき、オリジナルの値を
+// $_SERVER['X_REP2_ORIG_HTTP_PORT'] に書き込む。
+// 'auto' の場合、$_SERVER['HTTP_X_FORWARDED_PORT'] が
+// 設定されている場合だけ適用される。
+$_conf['reverse_proxy_port'] = '';  // ("")
+
+// リバースプロキシを通してアクセスする際のパス。
+// $_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'], $_SERVER['PHP_SELF']
+// の前に付加される。
+// オリジナルの値は、それぞれ $_SERVER["X_REP2_ORIG_{$key}"] に書き込まれる。
+// reverse_proxy_host が無効のときは無視される。
+$_conf['reverse_proxy_path'] = '';  // ("")
 
 // }}}
 // ----------------------------------------------------------------------
@@ -60,9 +87,6 @@ $_conf['disable_res'] = 0;          // (0)
 // ----------------------------------------------------------------------
 // {{{ 各種設定
 
-// セッションを利用（する:1, しない:0, cookie認証が利用されていない時のみする:2）
-$_conf['use_session'] = 2;          // (2)
-
 // sessionデータの保存管理 (PHPデフォルト:'', p2でファイル管理:'p2')
 $_conf['session_save'] = 'p2';      // ('p2')
 
@@ -70,7 +94,14 @@ $_conf['session_save'] = 'p2';      // ('p2')
 $_conf['cid_expire_day'] = 30;      // (30)
 
 // ネットワーク接続タイムアウト時間 (秒)
+// @deprecated use $_conf['http_conn_timeout'] and $_conf['http_read_timeout']
 $_conf['fsockopen_time_limit'] = 7; // (7)
+
+// HTTP接続タイムアウト時間 (秒)
+$_conf['http_conn_timeout'] = 2; // (2)
+
+// HTTP読込タイムアウト時間 (秒)
+$_conf['http_read_timeout'] = 8; // (8)
 
 // p2の最新バージョンを自動チェック(する:1, しない:0)
 $_conf['updatan_haahaa'] = 1;       // (1)
@@ -98,6 +129,9 @@ $_conf['login_log_rec_num'] = 200;  // (200)
 
 // 前回ログイン情報を表示（する:1, しない:0）
 $_conf['last_login_log_show'] = 1;  // (1)
+
+// 新着まとめ読みのキャッシュを残す数 (無効:0, 無限:-1)
+$_conf['matome_cache_max'] = 5; // (5)
 
 // }}}
 // ----------------------------------------------------------------------
@@ -138,7 +172,7 @@ $_conf['k_accesskey'] = array(
 // ----------------------------------------------------------------------
 // {{{ 拡張パック
 
-require_once P2_CONF_DIR . '/conf_admin_ex.inc.php';
+include P2_CONF_DIR . '/conf_admin_ex.inc.php';
 
 // }}}
 

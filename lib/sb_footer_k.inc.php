@@ -7,9 +7,10 @@
 //=================================================
 //フッタプリント
 //=================================================
-$mae_ht = "";
-$tugi_ht = "";
-$bbs_q = "&amp;bbs=".$aThreadList->bbs;
+$mae_ht = '';
+$tugi_ht = '';
+$bbs_q = '&amp;bbs=' . $aThreadList->bbs;
+$host_bbs_q = 'host=' . $aThreadList->host . $bbs_q;
 
 if (!empty($GLOBALS['wakati_words'])) {
     $word_at = '&amp;method=similar&amp;word=' . rawurlencode($GLOBALS['wakati_word']);
@@ -166,7 +167,7 @@ EOP;
 // スペシャルモードでなければ、またはあぼーんリストなら
 if (!$aThreadList->spmode or $aThreadList->spmode == "taborn") {
     $dat_soko_ht = <<<EOP
- <a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko{$_conf['k_at_a']}">dat倉庫</a>
+ <a href="{$_conf['subject_php']}?{$host_bbs_q}{$norefresh_q}&amp;spmode=soko{$_conf['k_at_a']}">dat倉庫</a>
 EOP;
 } else {
     $dat_soko_ht = '';
@@ -177,7 +178,7 @@ EOP;
 
 if ($ta_num) {
     $taborn_link_ht = <<<EOP
- <a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn{$_conf['k_at_a']}">ｱﾎﾞﾝ中({$ta_num})</a>
+ <a href="{$_conf['subject_php']}?{$host_bbs_q}{$norefresh_q}&amp;spmode=taborn{$_conf['k_at_a']}">ｱﾎﾞﾝ中({$ta_num})</a>
 EOP;
 } else {
     $taborn_link_ht = '';
@@ -188,7 +189,7 @@ EOP;
 
 if (!$aThreadList->spmode) {
     $buildnewthread_ht = <<<EOP
- <a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=1{$_conf['k_at_a']}">ｽﾚ立て</a>
+ <a href="post_form.php?{$host_bbs_q}&amp;newthread=1{$_conf['k_at_a']}">ｽﾚ立て</a>
 EOP;
 } else {
     $buildnewthread_ht = '';
@@ -242,24 +243,26 @@ if (!$aThreadList->spmode || $aThreadList->spmode == "taborn" || $aThreadList->s
 $htm['change_sort'] .= '<select name="sort">';
 foreach ($sorts as $k => $v) {
     if ($GLOBALS['now_sort'] == $k) {
-        $selected = ' selected';
+        $sb_sort_selected_at = ' selected';
     } else {
-        $selected = '';
+        $sb_sort_selected_at = '';
     }
-    $htm['change_sort'] .= "<option value=\"{$k}\"{$selected}>{$v}</option>";
+    $htm['change_sort'] .= "<option value=\"{$k}\"{$sb_sort_selected_at}>{$v}</option>";
 }
 $htm['change_sort'] .= '</select>';
 
 if (!empty($_REQUEST['sb_view'])) {
-    $htm['change_sort'] .= "<input type=\"hidden\" name=\"sb_view\" value=\"" . htmlspecialchars($_REQUEST['sb_view']) . "\">";
+    $htm['change_sort'] .= '<input type="hidden" name="sb_view" value="'
+                        . htmlspecialchars($_REQUEST['sb_view']) . '">';
 }
-if ($_conf['iphone']) {
-    // iPhone (2.0.1) のSafariではlabel要素が効かない (タグで囲む、for属性ともに) のでonclickで代用する
-    $htm['change_sort'] .= ' <input type="checkbox" name="rsort" value="1">';
-    $htm['change_sort'] .= '<span onclick="iutil.checkPrev(this);">逆順</span>';
+
+if (!empty($_REQUEST['rsort'])) {
+    $sb_rsort_checked_at = ' checked';
 } else {
-    $htm['change_sort'] .= ' <label><input type="checkbox" name="rsort" value="1">逆順</label>';
+    $sb_rsort_checked_at = '';
 }
+$htm['change_sort'] .= ' <input type="checkbox" id="sb_rsort" name="rsort" value="1"'
+                    . $sb_rsort_checked_at . '><label for="sb_rsort">逆順</label>';
 $htm['change_sort'] .= ' <input type="submit" value="並び替え"></form>';
 
 // }}}
@@ -278,8 +281,15 @@ echo $taborn_link_ht;
 echo $buildnewthread_ht;
 echo '</div>';
 echo $htm['change_sort'];
-echo '<hr>';
-echo "<div class=\"center\">{$_conf['k_to_index_ht']}</div>";
+
+echo "<hr>\n<div class=\"center\">{$_conf['k_to_index_ht']}";
+if (!$aThreadList->spmode && $_conf['iphone'] && $_conf['expack.misc.use_bb2c']) {
+    $bb2c_open_uri = "beebee2seeopen://{$aThreadList->host}/{$aThreadList->bbs}/";
+    echo ' <a class="button" href="javascript:location.replace(\'';
+    echo htmlspecialchars($bb2c_open_uri, ENT_QUOTES);
+    echo '\');">BB2C</a>';
+}
+echo "</div>\n";
 
 echo '</body></html>';
 

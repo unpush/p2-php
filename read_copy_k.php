@@ -4,7 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/ThreadRead.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -42,7 +41,7 @@ if (file_exists($aThread->keydat)) {
     $aThread->readDat($aThread->keydat);
     $one = $aThread->explodeDatLine($aThread->datlines[0]);
     $ttitle = trim($one[4]);
-    $ttitle_en = rawurlencode(base64_encode($ttitle));
+    $ttitle_en = UrlSafeBase64::encode($ttitle);
     $ttitle_ht = htmlspecialchars($ttitle, ENT_QUOTES);
     $url_txt = $aThread->getMotoThread(true);
     $url_k_txt = $aThread->getMotoThread();
@@ -79,10 +78,10 @@ if (file_exists($aThread->keydat)) {
             $msg_txt = preg_replace('/ *<br[^>]*> */i', "\n", $msg_txt);
         }
     } else {
-        $_info_msg_ht .= '<p>p2 error: ﾚｽ番号の指定が変です｡</p>';
+        P2Util::pushInfoHtml('<p>p2 error: ﾚｽ番号の指定が変です｡</p>');
     }
 } else {
-    $_info_msg_ht .= '<p>p2 error: ｽﾚｯﾄﾞの指定が変です。</p>';
+    P2Util::pushInfoHtml('<p>p2 error: ｽﾚｯﾄﾞの指定が変です。</p>');
 }
 
 $msg_len = mb_strlen($msg_txt);
@@ -155,7 +154,7 @@ EOS;
 <title><?php echo $ttitle_ht; ?>/<?php echo $resid; ?></title>
 </head>
 <body<?php echo $k_color_settings; ?>>
-<?php echo $_info_msg_ht; ?>
+<?php P2Util::printInfoHtml(); ?>
 <form action="<?php echo $action_ht; ?>" method="post">
 スレ:<br>
 <input type="text" name="ttitle_txt" value="<?php echo $ttitle_ht; ?>"><br>

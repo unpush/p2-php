@@ -14,8 +14,6 @@
  * スレッド表示時のお気にスレ表示 → スレッド.idx を参照
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 // {{{ setFav()
 
 /**
@@ -40,7 +38,7 @@ function setFav($host, $bbs, $key, $setfav, $ttitle = null, $setnum = null)
     $idxfile = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
 
     // 板ディレクトリが無ければ作る
-    // FileCtl::mkdir_for($idxfile);
+    // FileCtl::mkdirFor($idxfile);
 
     // 既にidxデータがあるなら読み込む
     if ($lines = FileCtl::file_read_lines($idxfile, FILE_IGNORE_NEW_LINES)) {

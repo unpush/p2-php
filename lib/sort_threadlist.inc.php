@@ -3,8 +3,6 @@
  * rep2 - スレッドリストをソートする関数群
  */
 
-require_once P2_LIB_DIR . '/ThreadList.php';
-
 // {{{ 新着ソート
 
 /**
@@ -14,7 +12,7 @@ require_once P2_LIB_DIR . '/ThreadList.php';
  * @param   Thread $b
  * @return  int
  */
-function cmp_midoku($a, $b)
+function p2_cmp_midoku($a, $b)
 {
     if ($a->new == $b->new) {
         if (($a->unum == $b->unum) or ($a->unum < 0) && ($b->unum < 0)) {
@@ -34,7 +32,7 @@ function cmp_midoku($a, $b)
  * @param   bool $reverse
  * @return  void
  */
-function multi_cmp_midoku(ThreadList $aThreadList, $reverse = false)
+function p2_multi_cmp_midoku(ThreadList $aThreadList, $reverse = false)
 {
     $new = array();
     $unum = array();
@@ -63,7 +61,7 @@ function multi_cmp_midoku(ThreadList $aThreadList, $reverse = false)
  * @param   Thread $b
  * @return  int
  */
-function cmp_res($a, $b)
+function p2_cmp_res($a, $b)
 {
     if ($a->rescount == $b->rescount) {
         return ($a->torder > $b->torder) ? 1 : -1;
@@ -79,7 +77,7 @@ function cmp_res($a, $b)
  * @param   bool $reverse
  * @return  void
  */
-function multi_cmp_res(ThreadList $aThreadList, $reverse = false)
+function p2_multi_cmp_res(ThreadList $aThreadList, $reverse = false)
 {
     $rescount = array();
     $torder = array();
@@ -105,7 +103,7 @@ function multi_cmp_res(ThreadList $aThreadList, $reverse = false)
  * @param   Thread $b
  * @return  int
  */
-function cmp_title($a, $b)
+function p2_cmp_title($a, $b)
 {
     if ($a->ttitle == $b->ttitle) {
         return ($a->torder > $b->torder) ? 1 : -1;
@@ -121,7 +119,7 @@ function cmp_title($a, $b)
  * @param   bool $reverse
  * @return  void
  */
-function multi_cmp_title(ThreadList $aThreadList, $reverse = false)
+function p2_multi_cmp_title(ThreadList $aThreadList, $reverse = false)
 {
     $ttitle = array();
     $torder = array();
@@ -154,7 +152,7 @@ function multi_cmp_title(ThreadList $aThreadList, $reverse = false)
  * @param   Thread $b
  * @return  int
  */
-function cmp_ita($a, $b)
+function p2_cmp_ita($a, $b)
 {
     if ($a->host != $b->host) {
         return strcmp($a->host, $b->host);
@@ -174,7 +172,7 @@ function cmp_ita($a, $b)
  * @param   bool $reverse
  * @return  void
  */
-function multi_cmp_ita(ThreadList $aThreadList, $reverse = false)
+function p2_multi_cmp_ita(ThreadList $aThreadList, $reverse = false)
 {
     $host = array();
     $itaj = array();
@@ -203,7 +201,7 @@ function multi_cmp_ita(ThreadList $aThreadList, $reverse = false)
  * @param   Thread $b
  * @return  int
  */
-function cmp_fav($a, $b)
+function p2_cmp_fav($a, $b)
 {
     if ($a->fav == $b->fav) {
         return ($a->torder > $b->torder) ? 1 : -1;
@@ -219,7 +217,7 @@ function cmp_fav($a, $b)
  * @param   bool $reverse
  * @return  void
  */
-function multi_cmp_fav(ThreadList $aThreadList, $reverse = false)
+function p2_multi_cmp_fav(ThreadList $aThreadList, $reverse = false)
 {
     $fav = array();
     $torder = array();
@@ -245,7 +243,7 @@ function multi_cmp_fav(ThreadList $aThreadList, $reverse = false)
  * @param   Thread $b
  * @return  int
  */
-function cmp_dayres_midoku($a, $b)
+function p2_cmp_dayres_midoku($a, $b)
 {
     if ($a->new == $b->new) {
         if (($a->unum == $b->unum) or ($a->unum >= 1) && ($b->unum >= 1)) {
@@ -265,7 +263,7 @@ function cmp_dayres_midoku($a, $b)
  * @param   bool $reverse
  * @return  void
  */
-function multi_cmp_dayres_midoku(ThreadList $aThreadList, $reverse = false)
+function p2_multi_cmp_dayres_midoku(ThreadList $aThreadList, $reverse = false)
 {
     $new = array();
     $hasu = array();
@@ -294,7 +292,7 @@ function multi_cmp_dayres_midoku(ThreadList $aThreadList, $reverse = false)
  * @param   Thread $b
  * @return  int
  */
-function cmp_dayres($a, $b)
+function p2_cmp_dayres($a, $b)
 {
     if ($a->new == $b->new) {
         return ($a->dayres < $b->dayres) ? 1 : -1;
@@ -310,7 +308,7 @@ function cmp_dayres($a, $b)
  * @param   bool $reverse
  * @return  void
  */
-function multi_cmp_dayres(ThreadList $aThreadList, $reverse = false)
+function p2_multi_cmp_dayres(ThreadList $aThreadList, $reverse = false)
 {
     $new = array();
     $dayres = array();
@@ -332,7 +330,7 @@ function multi_cmp_dayres(ThreadList $aThreadList, $reverse = false)
 /**
  * keyソート (usortのコールバック関数)
  */
-function cmp_key($a, $b)
+function p2_cmp_key($a, $b)
 {
     return ($a->key < $b->key) ? 1 : -1;
 }
@@ -344,7 +342,7 @@ function cmp_key($a, $b)
  * @param   bool $reverse
  * @return  void
  */
-function multi_cmp_key(ThreadList $aThreadList, $reverse = false)
+function p2_multi_cmp_key(ThreadList $aThreadList, $reverse = false)
 {
     $key = array();
 
@@ -363,7 +361,7 @@ function multi_cmp_key(ThreadList $aThreadList, $reverse = false)
 /**
  * No.ソート (usortのコールバック関数)
  */
-function cmp_no($a, $b)
+function p2_cmp_no($a, $b)
 {
     return ($a->torder > $b->torder) ? 1 : -1;
 }
@@ -375,7 +373,7 @@ function cmp_no($a, $b)
  * @param   bool $reverse
  * @return  void
  */
-function multi_cmp_no(ThreadList $aThreadList, $reverse = false)
+function p2_multi_cmp_no(ThreadList $aThreadList, $reverse = false)
 {
     $torder = array();
 
@@ -394,7 +392,7 @@ function multi_cmp_no(ThreadList $aThreadList, $reverse = false)
 /**
  * 類似性ソート (usortのコールバック関数)
  */
-function cmp_similarity($a, $b)
+function p2_cmp_similarity($a, $b)
 {
     if ($a->similarity == $b->similarity) {
         return ($a->key < $b->key) ? 1 : -1;
@@ -410,7 +408,7 @@ function cmp_similarity($a, $b)
  * @param   bool $reverse
  * @return  void
  */
-function multi_cmp_similarity(ThreadList $aThreadList, $reverse = false)
+function p2_multi_cmp_similarity(ThreadList $aThreadList, $reverse = false)
 {
     $similarity = array();
     $key = array();

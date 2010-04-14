@@ -4,8 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/P2Util.php';
-require_once P2_LIB_DIR . '/Thread.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -47,7 +45,7 @@ function info_js_get_board_info($host, $bbs)
     $itaj = P2Util::getItaName($host, $bbs);
     if (!$itaj) {
         if (isset($_GET['itaj_en'])) {
-            $itaj = base64_decode($_GET['itaj_en']);
+            $itaj = UrlSafeBase64::decode($_GET['itaj_en']);
         } else {
             $itaj = $bbs;
         }
@@ -137,7 +135,7 @@ function info_js_get_thread_info($host, $bbs, $key)
     $aThread->itaj = P2Util::getItaName($host, $bbs);
     if (!$aThread->itaj) {
         if (isset($_GET['itaj_en'])) {
-            $aThread->itaj = base64_decode($_GET['itaj_en']);
+            $aThread->itaj = UrlSafeBase64::decode($_GET['itaj_en']);
         } else {
             $aThread->itaj = $bbs;
         }
@@ -147,7 +145,7 @@ function info_js_get_thread_info($host, $bbs, $key)
     // スレタイトルを取得
     if (!$aThread->ttitle) {
         if (isset($_GET['ttitle_en'])) {
-            $aThread->setTtitle(base64_decode($_GET['ttitle_en']));
+            $aThread->setTtitle(UrlSafeBase64::decode($_GET['ttitle_en']));
         } else {
             $aThread->setTitleFromLocal();
         }

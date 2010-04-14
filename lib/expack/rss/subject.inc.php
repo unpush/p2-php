@@ -32,7 +32,7 @@ if ($rss_parse_success) {
     // ツールバー共通部品
     $matomeyomi = '';
     if (rss_item_exists($items, 'content:encoded') || rss_item_exists($items, 'description')) {
-        $all_en = rawurlencode(base64_encode(base64_decode($site_en) . ' の 概要まとめ読み'));
+        $all_en = UrlSafeBase64::encode(UrlSafeBase64::decode($site_en) . ' の 概要まとめ読み');
         $matomeyomi = <<<EOP
 <a class="toolanchor" href="read_rss.php?xml={$xml_en}&amp;title_en={$all_en}&amp;num=all{$atom_q}" target="read">概要まとめ読み</a>\n
 EOP;
@@ -84,9 +84,9 @@ echo <<<EOH
     </script>
 </head>
 <body onload="setWinTitle();">
-{$_info_msg_ht}
-
 EOH;
+
+P2Util::printInfoHtml();
 
 // RSSがパースできなかったとき
 if (!$rss_parse_success) {
@@ -141,11 +141,11 @@ foreach ($items as $item) {
     $target_ht = '';
     $preview_one = '';
     // 偶数列か奇数列か
-    $r = (++$i % 2) ? 'r1' : 'r2';
+    $r = ($i % 2) ? 'r2' : 'r1';
     // 概要
     if ($description_column_ht) {
         if (isset($item['content:encoded']) || isset($item['description'])) {
-            $title_en = rawurlencode(base64_encode($item['title']));
+            $title_en = UrlSafeBase64::encode($item['title']);
             $description_ht = "<td class=\"tu\"><a class=\"thre_title\" href=\"read_rss.php?xml={$xml_en}&amp;title_en={$title_en}&amp;num={$i}{$atom_q}{$mtime_q}\" target=\"{$_conf['expack.rss.desc_target_frame']}\">●</a></td>";
         } else {
             $description_ht = "<td class=\"tu\"></td>";
@@ -180,6 +180,7 @@ foreach ($items as $item) {
     echo <<<EOP
 <tr class="{$r}">{$description_ht}<td class="tl">{$preview_one}<a id="tt{$i}" class="thre_title" href="{$link_orig}">{$item_title}</a></td>{$subject_ht}{$creator_ht}{$date_ht}</tr>\n
 EOP;
+    $i++;
 }
 
 // }}}
