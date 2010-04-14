@@ -248,12 +248,12 @@ echo <<<EOP
         }
     }
     function chTtColor(idnum){
-//        var ttid = "tt"+idnum;
+        var ttid = "tt"+idnum;
         var toid = "to"+idnum;
-//        var ttid_obj = document.getElementById(ttid);
-//        if (ttid_obj) {
-//            ttid_obj.style.color="{$STYLE['thre_title_color_v']}";
-//        }
+        var ttid_obj = document.getElementById(ttid);
+        if (ttid_obj) {
+            ttid_obj.style.color="{$STYLE['thre_title_color_v']}";
+        }
         var toid_obj = document.getElementById(toid);
         if (toid_obj) {
             toid_obj.style.color="{$STYLE['thre_title_color_v']}";
