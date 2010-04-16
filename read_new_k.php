@@ -13,6 +13,9 @@ require_once P2_LIB_DIR . '/read_new.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
+// +Wiki
+require_once P2_LIB_DIR . '/wiki/read.inc.php';
+
 // まとめよみのキャッシュ読み
 if (!empty($_GET['cview'])) {
     $cnum = (isset($_GET['cnum'])) ? intval($_GET['cnum']) : NULL;
