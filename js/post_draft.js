@@ -11,7 +11,7 @@ var autosave_interval_id = null;
 var saveDraftForm = function(form) {
 	document.getElementById('post_draft_msg').innerHTML =
 		(autosave_interval_id !== null ? 'Ž©“®' : '') + '•Û‘¶’†...';
-	post_draft(form.host.value, form.bbs.value, form.key.value, take_kakiko_data(form),
+	post_draft(form.host.value, form.bbs.value, form.key.value, form.csrfid.value, take_kakiko_data(form),
 			function(st) {
 				setTimeout(function() {
 					if (st == '1') {
@@ -32,7 +32,7 @@ var saveDraftForm = function(form) {
 			});
 };
 
-var post_draft = function(host, bbs, key, data, fin, err) {
+var post_draft = function(host, bbs, key, csrfid, data, fin, err) {
 	var req = (typeof getXmlHttp === 'undefined') ? new XMLHttpRequest() : getXmlHttp();
 	if (!req) return;
 
@@ -54,7 +54,7 @@ var post_draft = function(host, bbs, key, data, fin, err) {
 		},
 		(function() {
 			var ret = [];
-			var h = {'host' : host, 'bbs' : bbs, 'key' : key};
+			var h = {'host' : host, 'bbs' : bbs, 'key' : key, 'csrfid' : csrfid};
 			for (var i in h)
 				ret.push(i + '=' + encodeURIComponent(h[i]));
 			return ret;

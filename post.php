@@ -128,9 +128,9 @@ if (!empty($_POST['newthread'])) {
 
 if ($_POST['savedraft']) {
     // ‘‚«‚İ‚ğˆê“I‚É•Û‘¶
-    $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
-    $cont = serialize($post_cache);
-    DataPhp::writeDataPhp($failed_post_file, $cont, $_conf['res_write_perm']);
+    $post_backup_key = PostDataStore::getKeyForBackup($host, $bbs, $key, !empty($_REQUEST['newthread']));
+    PostDataStore::set($post_backup_key, $post_cache);
+    $reload = empty($_POST['from_read_new']);
     showPostMsg(false, '‰º‘‚«‚ğ•Û‘¶‚µ‚Ü‚µ‚½', $reload);
     exit;
 }
