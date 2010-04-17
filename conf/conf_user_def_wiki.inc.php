@@ -19,7 +19,7 @@ $conf_user_rules['wiki.samba_cache'] = array('emptyToDef', 'notIntExceptMinusToD
 // {{{ ■samba
 
 // NGスレッドを有効にする (する:1, しない:0)
-$conf_user_def['wiki.ng_thread'] = 1; // (1)
+$conf_user_def['wiki.ng_thread'] = 0; // (1)
 $conf_user_rad['wiki.ng_thread'] = array('1' => 'する', '0' => 'しない');
 // 携帯閲覧時、レス番号にSPMをつける (つける:1, つけない:0)
 $conf_user_def['wiki.spm.mobile'] = 1; // (0)
