@@ -1049,7 +1049,7 @@ EOP;
                     if ($inline_preview_flag) {
                         // プレビュー画像が作られているかどうかでimg要素の属性を決定
                         if (file_exists($prv_url)) {
-                            $prvw_size = explode('x', $this->inline_prvw->calc($icdb->width, $icdb->height));
+                            $prv_size = explode('x', $this->inline_prvw->calc($icdb->width, $icdb->height));
                             $img_str = "<img src=\"{$prv_url}\" width=\"{$prvw_size[0]}\" height=\"{$prvw_size[1]}\">";
                         } else {
                             $r_type = ($this->thumbnailer->ini['General']['redirect'] == 1) ? 1 : 2;
