@@ -48,7 +48,20 @@ function detectAA(blockId)
 // activeMona -- モナーフォントに切り替え、行の高さも縮める
 function activeMona(blockId)
 {
-	var amTargetObj = document.getElementById(blockId);
+	var amTargetObj = null;
+	if (typeof blockId == 'object') {
+		amTargetObj = (function (l) {
+			for (var i = 0; i < l.length; i++) {
+				for (var ii = 0; ii < l[i].childNodes.length; ii++) {
+					var n = l[i].childNodes[ii];
+					if (n.className && n.className.search(/\bmessage\b/) != -1) return n;
+				}
+			}
+			return null;
+		})([blockId.parentNode, blockId.parentNode.parentNode]);
+	} else {
+		amTargetObj = document.getElementById(blockId);
+	}
 	if (!amTargetObj) {
 		return;
 	}
