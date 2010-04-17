@@ -7,6 +7,8 @@ require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
+$csrfid = P2Util::getCsrfId(__FILE__);
+
 //=========================================================
 // 書き出し用変数
 //=========================================================
@@ -39,15 +41,22 @@ $p_htm['ktai_url'] = '携帯'.$p_str['login'].'用URL <a href="'.$url.'" target="_b
 //====================================================
 // ユーザ登録処理
 //====================================================
-if (isset($_POST['form_login_pass'])) {
+if (isset($_POST['form_new_login_pass'])) {
+    if (!isset($_POST['csrfid']) or $_POST['csrfid'] != $csrfid) {
+        p2die('不正なポストです');
+    }
+
+    $new_login_pass = $_POST['form_new_login_pass'];
 
     // 入力チェック
-    if (!preg_match('/^[0-9A-Za-z_]+$/', $_POST['form_login_pass'])) {
-        $_info_msg_ht .= "<p>rep2 error: {$p_str['password']}を半角英数字で入力して下さい。</p>";
+    if (!preg_match('/^[0-9A-Za-z_]+$/', $new_login_pass)) {
+        P2Util::pushInfoHtml("<p>rep2 error: {$p_str['password']}を半角英数字で入力して下さい。</p>");
+    } elseif ($new_login_pass != $_POST['form_new_login_pass2']) {
+        P2Util::pushInfoHtml("<p>rep2 error: {$p_str['password']} と {$p_str['password']} (確認) が一致しませんでした。</p>");
 
     // パスワード変更登録処理を行う
     } else {
-        $crypted_login_pass = sha1($_POST['form_login_pass']);
+        $crypted_login_pass = sha1($new_login_pass);
         $auth_user_cont = <<<EOP
 <?php
 \$rec_login_user_u = '{$_login->user_u}';
@@ -64,7 +73,7 @@ EOP;
         flock($fp, LOCK_UN);
         fclose($fp);
 
-        $_info_msg_ht .= '<p>○認証パスワードを変更登録しました</p>';
+        P2Util::pushInfoHtml('<p>○認証パスワードを変更登録しました</p>');
     }
 
 }
@@ -74,10 +83,10 @@ EOP;
 //====================================================
 $mobile = Net_UserAgent_Mobile::singleton();
 
+$p_htm['auth_ctl'] = '';
+
 // docomo認証
 if ($mobile->isDoCoMo()) {
-    $p_htm['auth_ctl'] = '';
-
     if (file_exists($_conf['auth_imodeid_file'])) {
         $p_htm['auth_ctl'] .= <<<EOP
 iモードID認証登録済[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_imodeid=1{$_conf['k_at_a']}">解除</a>]<br>
@@ -151,35 +160,60 @@ if (!empty($_REQUEST['check_regist_cookie'])) {
 
     if ($_login->checkUserPwWithCid($_COOKIE['cid'])) {
         if ($_REQUEST['regist_cookie'] == '1') {
-            $_info_msg_ht .= '<p>○cookie認証登録完了</p>';
+            $info_msg_ht = '<p>○cookie認証登録完了</p>';
         } else {
-            $_info_msg_ht .= '<p>×cookie認証解除失敗</p>';
+            $info_msg_ht = '<p>×cookie認証解除失敗</p>';
         }
 
     } else {
         if ($_REQUEST['regist_cookie'] == '1') {
-            $_info_msg_ht .= '<p>×cookie認証登録失敗</p>';
+            $info_msg_ht = '<p>×cookie認証登録失敗</p>';
         } else  {
-            $_info_msg_ht .= '<p>○cookie認証解除完了</p>';
+            $info_msg_ht = '<p>○cookie認証解除完了</p>';
         }
     }
+
+    P2Util::pushInfoHtml($info_msg_ht);
 }
 
 //====================================================
 // 認証ユーザ登録フォーム
 //====================================================
-$login_form_ht = <<<EOP
+if ($_conf['ktai']) {
+    $login_form_ht = <<<EOP
+<hr>
 <form id="login_change" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
     {$p_str['password']}の変更<br>
     {$_conf['k_input_ht']}
-    新しい{$p_str['password']}: <input type="password" name="form_login_pass">
-    <br>
+    <input type="hidden" name="csrfid" value="{$csrfid}">
+    新しい{$p_str['password']}:<br>
+    <input type="password" name="form_new_login_pass"><br>
+    新しい{$p_str['password']} (確認):<br>
+    <input type="password" name="form_new_login_pass2"><br>
     <input type="submit" name="submit" value="変更登録">
-</form>\n
+</form>
+<hr>
+<div class="center">{$_conf['k_to_index_ht']}</div>
 EOP;
-
-if ($_conf['ktai']) {
-    $login_form_ht = '<hr>'.$login_form_ht;
+} else {
+    $login_form_ht = <<<EOP
+<form id="login_change" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
+    {$p_str['password']}の変更<br>
+    {$_conf['k_input_ht']}
+    <input type="hidden" name="csrfid" value="{$csrfid}">
+    <table border="0">
+        <tr>
+            <td>新しい{$p_str['password']}</td>
+            <td><input type="password" name="form_new_login_pass"></td>
+        </tr>
+        <tr>
+            <td>新しい{$p_str['password']} (確認)</td>
+            <td><input type="password" name="form_new_login_pass2"></td>
+        </tr>
+    </table>
+    <input type="submit" name="submit" value="変更登録">
+</form>
+EOP;
 }
 
 //=========================================================
@@ -220,10 +254,7 @@ EOP;
 }
 
 // 情報表示
-if (!is_null($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
-}
+P2Util::printInfoHtml();
 
 echo '<p id="login_status">';
 echo <<<EOP
@@ -236,10 +267,6 @@ EOP;
 echo '</p>';
 
 echo $login_form_ht;
-
-if ($_conf['ktai']) {
-    echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
-}
 
 echo '</body></html>';
 

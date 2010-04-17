@@ -3,8 +3,7 @@
  * rep2expck - RSS‰æ‘œƒLƒƒƒbƒVƒ…
  */
 
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
-require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
+require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 
 // {{{ rss_get_image()
 

@@ -63,8 +63,6 @@ if (isset($_POST['word'])) {
 // $hashesの取得が未実装なので封印。
 /*
 if (isset($hashes) && is_array($hashes) && count($hashes)) {
-    require_once P2_LIB_DIR . '/StrCtl.php';
-
     $js = '';
     $last = array_pop($hashes);
     while (($hash = array_shift($hashes)) !== null) {
@@ -143,7 +141,7 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
 ?>
 
 <ul id="top" title="rep2" selected="true">
-<?php if ($_info_msg_ht) { ?>
+<?php if (P2Util::hasInfoHtml()) { ?>
     <li><a href="#info_msg" class="color-r">エラー</a></li>
 <?php } ?>
     <li class="group">リスト</li>
@@ -185,8 +183,10 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
 // }}}
 // {{{ エラー
 
-if ($_info_msg_ht) { 
-    echo '<div id="info_msg" class="panel" title="エラー">', $_info_msg_ht, '</div>';
+if (P2Util::hasInfoHtml()) { 
+    echo '<div id="info_msg" class="panel" title="エラー">';
+    P2Util::printInfoHtml();
+    echo '</div>';
 }
 
 // }}}
@@ -300,7 +300,7 @@ if ($_conf['expack.misc.multi_favs']) {
 
 <div id="login_info" class="panel" title="ログイン情報">
 <h2>認証ユーザ</h2>
-<p><strong><?php echo $_login->user; ?></strong> - <?php echo date('Y/m/d (D) G:i:s'); ?></p>
+<p><strong><?php echo $_login->user_u; ?></strong> - <?php echo date('Y/m/d (D) G:i:s'); ?></p>
 <?php if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) { ?>
 <h2>前回のログイン</h2>
 <pre style="word-wrap:break-word;word-break:break-all"><?php

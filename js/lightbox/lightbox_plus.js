@@ -776,6 +776,8 @@ LightBox.prototype = {
 		self._toggle_wrap(false);
 	}
 };
+
+/*
 Event.register(window,"load",function() {
 	var lightbox = new LightBox({
 		loadingimg:'img/lightbox/loading.gif',
@@ -790,6 +792,7 @@ Event.register(window,"load",function() {
 		resizable:true
 	});
 });
+*/
 
 /*
  * Local Variables:

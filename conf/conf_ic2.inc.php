@@ -14,10 +14,8 @@ $_conf['expack.ic2.general.cachedir'] = "./cache";
 //  MySQL:       "mysql://username:password@localhost:3306/database"
 //  PostgreSQL:  "pgsql://username:password@localhost:5432/database"
 //  SQLite2:     "sqlite:///./cache/imgcache.sqlite"
-//  SQLite3:     "sqlite3:///./cache/imgcache.sqlite3"
 // 注1: username,password,databaseは実際のものと読み替える。
 // 注2: MySQL,PosrgreSQLでは予めデータベースを作っておく。
-// 注3: SQlite3のサポートは実験的なもので、非推奨
 $_conf['expack.ic2.general.dsn'] = "";
 
 // DBで使うテーブル名
@@ -39,7 +37,6 @@ $_conf['expack.ic2.general.automemo'] = 1;
 // gd, imagick は PHP の拡張モジュールを利用、ImageMagick は外部コマンドを利用
 // ImageMagickのバージョンを自動判定するようになったので
 // 明示的に"ImageMagick6"を指定しなくてもよい
-// imlib2, magickwand は非推奨
 $_conf['expack.ic2.general.driver'] = "gd";
 
 // JPEG to JPEG 変換に Epeg エクステンションを使う (off:0;on:1)
@@ -66,24 +63,6 @@ $_conf['expack.ic2.general.inline'] = 1;
 $_conf['expack.ic2.general.redirect'] = 1;
 
 // }}}
-// {{{ データキャッシュ
-
-// データをキャッシュするためのテーブル名
-$_conf['expack.ic2.cache.table'] = "datacache";
-
-// キャッシュの有効期限（秒）
-// 1時間=3600
-// 1日=86400
-// 1週間=604800
-$_conf['expack.ic2.cache.expires'] = 3600;
-
-// キャッシュするデータの最大量（バイト）
-$_conf['expack.ic2.cache.highwater'] = 2048000;
-
-// キャッシュしたデータがhighwaterを超えたとき、この値まで減らす（バイト）
-$_conf['expack.ic2.cache.lowwater'] = 1536000;
-
-// }}}
 // {{{ 一覧
 
 // ページタイトル
@@ -97,8 +76,14 @@ $_conf['expack.ic2.viewer.lightbox'] = 0;
 $_conf['expack.ic2.viewer.delete_src_not_exists'] = 0;
 
 // 表示用に調整した画像情報をキャッシュ (off:0;on:1)
-// キャッシュの有効期限などは「データキャッシュ」の項で設定
 $_conf['expack.ic2.viewer.cache'] = 0;
+
+// キャッシュの有効期限（秒）
+// 1時間=3600
+// 1日=86400
+// 1週間=604800
+// 手動でクリアするまでずっと=-1
+$_conf['expack.ic2.viewer.cache_lifetime'] = 3600;
 
 // 重複画像を最初にヒットする1枚だけ表示 (off:0;on:1)
 // サブクエリに対応していないMySQL 4.1未満で有効にするとエラーが出る
@@ -152,7 +137,7 @@ $_conf['expack.ic2.manager.rows'] = 5;
 $_conf['expack.ic2.getter.title'] = "ImageCache2::Getter";
 
 // サーバに接続する際にタイムアウトするまでの時間（秒）
-$_conf['expack.ic2.getter.conn_timeout'] = 60;
+$_conf['expack.ic2.getter.conn_timeout'] = 5;
 
 // ダウンロードがタイムアウトするまでの時間（秒）
 $_conf['expack.ic2.getter.read_timeout'] = 60;

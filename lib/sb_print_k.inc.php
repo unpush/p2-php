@@ -17,7 +17,7 @@ function sb_print_k($aThreadList)
     //=================================================
 
     if (!$aThreadList->threads) {
-        if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
+        if ($aThreadList->spmode == 'fav' && $sb_view == 'shinchaku') {
             echo '<p class="empty-subject">お気にｽﾚに新着なかったぽ</p>';
         } else {
             echo '<p class="empty-subject">該当ｻﾌﾞｼﾞｪｸﾄはなかったぽ</p>';
@@ -36,17 +36,17 @@ function sb_print_k($aThreadList)
     // >>1
     if (strpos($aThreadList->bbs, 'news') !== false || $aThreadList->bbs == 'bizplus') {
         // 倉庫は除く
-        if ($aThreadList->spmode != "soko") {
+        if ($aThreadList->spmode != 'soko') {
             $only_one_bool = true;
         }
     }
 
     // 板名
-    if ($aThreadList->spmode and $aThreadList->spmode != "taborn" and $aThreadList->spmode != "soko") {
+    if ($aThreadList->spmode and $aThreadList->spmode != 'taborn' and $aThreadList->spmode != 'soko') {
         $ita_name_bool = true;
     }
 
-    $norefresh_q = "&amp;norefresh=1";
+    $norefresh_q = '&amp;norefresh=1';
 
     // ソート ==================================================
 
@@ -83,8 +83,9 @@ function sb_print_k($aThreadList)
         $anum_ht = ""; //#r1
         $htm = array('ita' => '', 'rnum' => '', 'unum' => '', 'sim' => '');
 
-        $bbs_q = "&amp;bbs=".$aThread->bbs;
-        $key_q = "&amp;key=".$aThread->key;
+        $bbs_q = '&amp;bbs=' . $aThread->bbs;
+        $key_q = '&amp;key=' . $aThread->key;
+        $host_bbs_key_q = 'host=' . $aThread->host . $bbs_q . $key_q;
         $offline_q = '';
 
         if ($aThreadList->spmode!="taborn") {
@@ -168,7 +169,7 @@ function sb_print_k($aThreadList)
         } else {
             $torder_st = $aThread->torder;
         }
-        $torder_ht = "<a id=\"to{$i}\" class=\"info\" href=\"info.php?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}\">{$torder_st}</a>";
+        $torder_ht = "<a id=\"to{$i}\" class=\"info\" href=\"info.php?{$host_bbs_key_q}{$_conf['k_at_a']}\">{$torder_st}</a>";
         */
         $torder_ht = $aThread->torder;
 
@@ -209,14 +210,14 @@ function sb_print_k($aThreadList)
             }
         }
 
-        $thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}";
+        $thre_url = "{$_conf['read_php']}?{$host_bbs_key_q}";
         if ($_conf['iphone']) {
-            $thre_url .= '&amp;ttitle_en=' . rawurlencode(base64_encode($aThread->ttitle));
+            $thre_url .= '&amp;ttitle_en=' . UrlSafeBase64::encode($aThread->ttitle);
         }
         $thre_url .= "{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
 
         // オンリー>>1
-        $onlyone_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;one=true&amp;k_continue=1{$_conf['k_at_a']}";
+        $onlyone_url = "{$_conf['read_php']}?{$host_bbs_key_q}&amp;one=true&amp;k_continue=1{$_conf['k_at_a']}";
         if ($only_one_bool) {
             $one_ht = "<a href=\"{$onlyone_url}\">&gt;&gt;1</a>";
         }

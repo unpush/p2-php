@@ -14,7 +14,7 @@
 	color: #333;
 	background-color: #eee;
 	font-size: 90%;
-	lihe-height: 100%;
+	line-height: 100%;
 	text-align: center;
 	border-bottom: 1px solid #666;
 	border-right: 1px solid #666;
@@ -24,12 +24,6 @@
 }
 #lightboxOverallView {
 	background-image: url(../../img/lightbox/overlay.png);
-}
-* html #lightboxOverallView,
-* html #overlay {
-	background-color: #000;
-	background-image: url(../../img/lightbox/blank.gif);
-	filter: Alpha(opacity=50);
 }
 #lightboxIC2Rank {
 	margin: 0;

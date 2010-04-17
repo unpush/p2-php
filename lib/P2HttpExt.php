@@ -3,12 +3,35 @@
  * rep2expack feat. pecl_http
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-require_once P2_LIB_DIR . '/P2Util.php';
+// {{{ P2HttpExt
 
-// {{{ CONSTANTS
+/**
+ * ダミークラス
+ */
+class P2HttpExt
+{
+    // {{{ constants
 
-define('P2HTTPEXT_DEBUG', 0);
+    const DEBUG = 0;
+
+    // }}}
+    // {{{ activate()
+
+    /**
+     * このファイルに含まれるクラスを利用するときは
+     * まず P2HttpExt::activate() をコールして
+     * オートローダーによりこのファイルを読み込む。
+     *
+     * @param void
+     * @return void
+     */
+    static public function activate()
+    {
+        // nothing to do
+    }
+
+    // }}}
+}
 
 // }}}
 // {{{ P2HttpCallback
@@ -220,11 +243,11 @@ class P2HttpGet extends HttpRequest
         }
 
         if (!isset($options['connecttimeout'])) {
-            $options['connecttimeout'] = $_conf['fsockopen_time_limit'];
+            $options['connecttimeout'] = $_conf['http_conn_timeout'];
         }
 
         if (!isset($options['timeout'])) {
-            $options['timeout'] = $_conf['fsockopen_time_limit'] * 2;
+            $options['timeout'] = $_conf['http_read_timeout'];
         }
 
         if (!isset($options['compress'])) {
@@ -279,7 +302,7 @@ class P2HttpGet extends HttpRequest
         if (!isset($options['lastmodified']) && file_exists($destination)) {
             $options['lastmodified'] = filemtime($destination);
         } else {
-            FileCtl::mkdir_for($destination);
+            FileCtl::mkdirFor($destination);
         }
 
         $this->_destination = $destination;
@@ -366,7 +389,7 @@ class P2HttpGet extends HttpRequest
                                     );
                 }
             }
-            if (P2HTTPEXT_DEBUG && !$this->hasError()) {
+            if (P2HttpExt::DEBUG && !$this->hasError()) {
                 $this->setError(sprintf('HTTP %d %s', $code, $this->getResponseStatus()),
                                 self::E_DEBUG
                                 );
@@ -832,17 +855,18 @@ class P2HttpRequestPool
         }
 
         if ($err !== '') {
-            $GLOBALS['_info_msg_ht'] .= "<ul class=\"errors\">{$err}</ul>\n";
+            P2Util::pushInfoHtml("<ul class=\"errors\">{$err}</ul>\n");
         }
 
-        if (P2HTTPEXT_DEBUG) {
+        if (P2HttpExt::DEBUG) {
             if ($ph = http_persistent_handles_count()) {
                 $ph_dump = str_replace('  ', ' ', print_r($ph, true));
                 $ph_dump = preg_replace('/[\\r\\n]+/', "\n", $ph_dump);
                 $ph_dump = preg_replace('/(Array|Object)\\n *\(/', '$1(', $ph_dump);
-                $GLOBALS['_info_msg_ht'] .= "<pre>Persistent Handles:\n";
-                $GLOBALS['_info_msg_ht'] .= htmlspecialchars($ph_dump, ENT_QUOTES);
-                $GLOBALS['_info_msg_ht'] .= "</pre>\n";
+                $info_msg_ht = "<pre>Persistent Handles:\n";
+                $info_msg_ht .= htmlspecialchars($ph_dump, ENT_QUOTES);
+                $info_msg_ht .= "</pre>\n";
+                P2Util::pushInfoHtml($info_msg_ht);
             }
         }
     }

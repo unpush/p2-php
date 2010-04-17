@@ -1,23 +1,5 @@
 <?php
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/BlackList.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
 
-// {{{ constants
-
-define('P2_IMAGECACHE_OK',     0);
-define('P2_IMAGECACHE_ABORN',  1);
-define('P2_IMAGECACHE_BROKEN', 2);
-define('P2_IMAGECACHE_LARGE',  3);
-define('P2_IMAGECACHE_VIRUS',  4);
-
-// }}}
-// {{{ GLOBALS
-
-$GLOBALS['_P2_GETIMAGE_CACHE'] = array();
-
-// }}}
 // {{{ IC2_DataObject_Images
 
 class IC2_DataObject_Images extends IC2_DataObject_Common

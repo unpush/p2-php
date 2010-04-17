@@ -4,7 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/StrCtl.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -19,7 +18,6 @@ if (isset($_GET['setfavita']) or isset($_POST['setfavita']) or isset($_POST['sub
 }
 // お気に板のホストを同期
 if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
-    require_once P2_LIB_DIR . '/BbsMap.php';
     BbsMap::syncBrd($_conf['favita_brd']);
 }
 
@@ -95,8 +93,7 @@ EOP;
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="top.document.title=self.document.title;"';
 echo "</head><body{$body_at}>\n";
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
 //================================================================
 // メイン部分HTML表示
@@ -118,7 +115,7 @@ if (is_array($lines)) {
         if (preg_match("/^\t?(.+?)\t(.+?)\t(.+?)\$/", $l, $matches)) {
             $id = "li{$i}";
             $okini_itas[$id]['itaj']       = $itaj = rtrim($matches[3]);
-            $okini_itas[$id]['itaj_en']    = $itaj_en = base64_encode($itaj);
+            $okini_itas[$id]['itaj_en']    = $itaj_en = UrlSafeBase64::encode($itaj);
             $okini_itas[$id]['host']       = $host = $matches[1];
             $okini_itas[$id]['bbs']        = $bbs = $matches[2];
             $okini_itas[$id]['itaj_view']  = htmlspecialchars($itaj);
@@ -287,7 +284,7 @@ if ($lines) {
     foreach ($lines as $l) {
         if (preg_match('/^\t?(.+?)\t(.+?)\t(.+?)$/', rtrim($l), $matches)) {
             $itaj       = rtrim($matches[3]);
-            $itaj_en    = rawurlencode(base64_encode($itaj));
+            $itaj_en    = UrlSafeBase64::encode($itaj);
             $host       = $matches[1];
             $bbs        = $matches[2];
             $itaj_view  = htmlspecialchars($itaj, ENT_QUOTES);

@@ -4,8 +4,8 @@
  * for subject.php
  */
 
-$bbs_q = "&amp;bbs=".$aThreadList->bbs;
-$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+$bbs_q = '&amp;bbs=' . $aThreadList->bbs;
+$host_bbs_q = 'host=' . $aThreadList->host . $bbs_q;
 
 $have_sb_footer_links = false;
 
@@ -14,7 +14,7 @@ $have_sb_footer_links = false;
 $dat_soko_ht = '';
 if(!$aThreadList->spmode or $aThreadList->spmode=="taborn"){
     $dat_soko_ht =<<<EOP
-    <a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko" target="_self">dat倉庫</a> |
+    <a href="{$_conf['subject_php']}?{$host_bbs_q}{$norefresh_q}&amp;spmode=soko" target="_self">dat倉庫</a> |
 EOP;
     $have_sb_footer_links = true;
 }
@@ -23,7 +23,7 @@ EOP;
 $taborn_link_ht = '';
 if ($ta_num) {
     $taborn_link_ht = <<<EOP
-    <a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn" target="_self">あぼーん中のスレッド (<span id="ta_num">{$ta_num}</span>)</a> |
+    <a href="{$_conf['subject_php']}?{$host_bbs_q}{$norefresh_q}&amp;spmode=taborn" target="_self">あぼーん中のスレッド (<span id="ta_num">{$ta_num}</span>)</a> |
 EOP;
     $have_sb_footer_links = true;
 }
@@ -42,10 +42,10 @@ $buildnewthread_ht = '';
 $import_dat_ht = '';
 if (!$aThreadList->spmode) {
     $buildnewthread_ht = <<<EOP
-    <a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true" target="_self" onclick="return OpenSubWin('post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)">新規スレッド作成</a>
+    <a href="post_form.php?{$host_bbs_q}&amp;newthread=true" target="_self" onclick="return OpenSubWin('post_form.php?{$host_bbs_q}&amp;newthread=true&amp;popup=1',{$STYLE['post_pop_size']},1,0)">新規スレッド作成</a>
 EOP;
     $import_dat_ht = <<<EOP
- | <a href="import.php?host={$aThreadList->host}{$bbs_q}" onclick="return OpenSubWin('import.php?host={$aThreadList->host}{$bbs_q}', 600, 380, 0, 0);" target="_self">datのインポート</a>
+ | <a href="import.php?{$host_bbs_q}" onclick="return OpenSubWin('import.php?{$host_bbs_q}', 600, 380, 0, 0);" target="_self">datのインポート</a>
 EOP;
     $have_sb_footer_links = true;
 }
@@ -82,7 +82,7 @@ if ($have_sb_footer_links) {
 // スペシャルモードでなければフォーム入力補完========================
 $ini_url_text = '';
 if (!$aThreadList->spmode) {
-    if (P2Util::isHostJbbsShitaraba($aThread->host)) { // したらば
+    if (P2Util::isHostJbbsShitaraba($aThreadList->host)) { // したらば
         $ini_url_text = "http://{$aThreadList->host}/bbs/read.cgi?BBS={$aThreadList->bbs}&KEY=";
     } elseif (P2Util::isHostMachiBbs($aThreadList->host)) { // まちBBS
         $ini_url_text = "http://{$aThreadList->host}/bbs/read.pl?BBS={$aThreadList->bbs}&KEY=";

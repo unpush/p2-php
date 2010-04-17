@@ -1,5 +1,5 @@
 <?php
-require_once P2_LIB_DIR . '/Thread.php';
+require_once P2_LIB_DIR . '/sort_threadlist.inc.php';
 
 // {{{ ThreadList
 
@@ -124,7 +124,7 @@ class ThreadList
      */
     public function readList()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('readList()');
 
@@ -133,7 +133,7 @@ class ThreadList
         // ローカルの履歴ファイル 読み込み
         case 'recent':
             if ($lines = FileCtl::file_read_lines($_conf['recent_idx'])) {
-                //$_info_msg_ht = '<p>履歴は空っぽです</p>';
+                //P2Util::pushInfoHtml('<p>履歴は空っぽです</p>');
                 //return false;
             }
             break;
@@ -141,7 +141,7 @@ class ThreadList
         // ローカルの書き込み履歴ファイル 読み込み
         case 'res_hist':
             if ($lines = FileCtl::file_read_lines($_conf['res_hist_idx'])) {
-                //$_info_msg_ht = '<p>書き込み履歴は空っぽです</p>';
+                //P2Util::pushInfoHtml('<p>書き込み履歴は空っぽです</p>');
                 //return false;
             }
             break;
@@ -149,15 +149,13 @@ class ThreadList
         //ローカルのお気にファイル 読み込み
         case 'fav':
             if ($lines = FileCtl::file_read_lines($_conf['favlist_idx'])) {
-                //$_info_msg_ht = '<p>お気にスレは空っぽです</p>';
+                //P2Util::pushInfoHtml('<p>お気にスレは空っぽです</p>');
                 //return false;
             }
             break;
 
         // お気に板をまとめて読み込み
         case 'merge_favita':
-            require_once P2_LIB_DIR . '/SubjectTxt.php';
-
             $favitas = array();
 
             if (file_exists($_conf['favita_brd'])) {
@@ -170,11 +168,10 @@ class ThreadList
 
             if (empty($_REQUEST['norefresh']) && !(empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
                 if ($_conf['expack.use_pecl_http'] == 1) {
-                    require_once P2_LIB_DIR . '/P2HttpExt.php';
+                    P2HttpExt::activate();
                     P2HttpRequestPool::fetchSubjectTxt($favitas);
                     $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
                 } elseif ($_conf['expack.use_pecl_http'] == 2) {
-                    require_once P2_CLI_DIR . '/P2CommandRunner.php';
                     if (P2CommandRunner::fetchSubjectTxt('merge_favita', $_conf)) {
                         $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
                     }
@@ -276,15 +273,14 @@ class ThreadList
         // スレの殿堂の場合  // p2_palace.idx 読み込み
         case 'palace':
             if ($lines = FileCtl::file_read_lines($_conf['palace_idx'])) {
-                // $_info_msg_ht = "<p>殿堂はがらんどうです</p>";
-                // return false;
+                //P2Util::pushInfoHtml('<p>殿堂はがらんどうです</p>');
+                //return false;
             }
             break;
 
         // オンライン上の subject.txt を読み込む（spmodeでない場合）
         default:
             if (!$this->spmode) {
-                require_once P2_LIB_DIR . '/SubjectTxt.php';
                 $aSubjectTxt = new SubjectTxt($this->host, $this->bbs);
                 $lines = $aSubjectTxt->subject_lines;
             }
@@ -325,7 +321,7 @@ class ThreadList
      */
     public function sort($mode, $reverse = false)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         if (!$this->threads) {
             return;
@@ -377,21 +373,20 @@ class ThreadList
             }
             break;
         default:
-            $_info_msg_ht .= sprintf('<p class="info-msg">ソート指定が変です。(%s)</p>',
-                                     htmlspecialchars($mode, ENT_QUOTES));
+            $info_msg_ht = sprintf('<p class="info-msg">ソート指定が変です。(%s)</p>',
+                                   htmlspecialchars($mode, ENT_QUOTES));
+            P2Util::pushInfoHtml($info_msg_ht);
         }
 
         if ($cmp) {
-            if (!function_exists($cmp)) {
-                require P2_LIB_DIR . '/sort_threadlist.inc.php';
-            }
             if ($do_benchmark) {
                 $before = microtime(true);
             }
             if ($use_multisort) {
-                $cmp = 'multi_' . $cmp;
+                $cmp = 'p2_multi_' . $cmp;
                 $cmp($this, $reverse);
             } else {
+                $cmp = 'p2_' . $cmp;
                 usort($this->threads, $cmp);
             }
         }
@@ -403,13 +398,13 @@ class ThreadList
         if ($cmp && $do_benchmark) {
             $after = microtime(true);
             $count = count($this->threads);
-            $_info_msg_ht .= sprintf(
+            P2Util::pushInfoHtml(sprintf(
                 '<p class="info-msg" style="font-family:monospace">%s(%d thread%s)%s = %0.6f sec.</p>',
                 $cmp,
                 number_format($count),
                 ($count > 1) ? 's' : '',
                 $reverse ? '+reverse' : '',
-                $after - $before);
+                $after - $before));
         }
 
         //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sort');

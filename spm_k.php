@@ -5,7 +5,6 @@
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/spm_k.inc.php';
-require_once P2_LIB_DIR . '/Thread.php';
 
 $_login->authorize(); // ÉÜÅ[ÉUîFèÿ
 
@@ -106,8 +105,7 @@ EOHEADER;
 
 echo "<body{$_conf['k_colors']}>";
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
 echo "<p><a href=\"{$thread_url}\">{$ptitle_ht}</a></p>";
 echo '<hr>';

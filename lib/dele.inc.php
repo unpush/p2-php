@@ -3,7 +3,6 @@
  * rep2 - スレッドデータ、DATを削除するための関数郡
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/setfav.inc.php';
 require_once P2_LIB_DIR . '/setpalace.inc.php';
 

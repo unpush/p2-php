@@ -5,10 +5,8 @@
 
 // {{{ p2基本設定読み込み&認証
 
-define('P2_FORCE_USE_SESSION', 1);
-define('P2_SESSION_NO_CLOSE', 1);
+define('P2_SESSION_CLOSE_AFTER_AUTHENTICATION', 0);
 define('P2_OUTPUT_XHTML', 1);
-define('P2_USE_PEAR_HACK', 1);
 
 require_once './conf/conf.inc.php';
 
@@ -45,25 +43,12 @@ if ($_conf['view_forced_by_query']) {
 // {{{ 初期化
 
 // ライブラリ読み込み
-require_once 'PEAR.php';
-require_once 'Cache.php';
-require_once 'Cache/Function.php';
-require_once 'DB.php';
-require_once 'DB/DataObject.php';
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
 require_once 'HTML/Template/Flexy.php';
 require_once 'HTML/Template/Flexy/Element.php';
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
-require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
+require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 require_once P2EX_LIB_DIR . '/ic2/QuickForm/Rules.php';
-require_once P2EX_LIB_DIR . '/ic2/EditForm.php';
-require_once P2EX_LIB_DIR . '/ic2/managedb.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/getvalidvalue.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/buildimgcell.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/Matrix.php';
 
 // }}}
 // {{{ config
@@ -187,69 +172,49 @@ $db = $icdb->getDatabaseConnection();
 $db_class = strtolower(get_class($db));
 
 if ($ini['Viewer']['cache']) {
-    // データキャッシュにはCache_Container_db(Cache 1.5.4)をハックしてMySQL以外にも対応させ、
-    // コンストラクタがDB_xxx(DB_mysqlなど)のインスタンスを受け取れるようにしたものを使う。
-    // （ファイル名・クラス名は同じで、include_pathを調整して
-    //   オリジナルのCache/Container/db.phpの代わりにする）
-    $cache_options = array(
-        'dsn'           => $ini['General']['dsn'],
-        'cache_table'   => $ini['Cache']['table'],
-        'highwater'     => (int)$ini['Cache']['highwater'],
-        'lowwater'      => (int)$ini['Cache']['lowwater'],
-        'db' => $db
-    );
-    $cache = new Cache_Function('db', $cache_options, (int)$ini['Cache']['expires']);
-    // 有効期限切れキャッシュのガーベッジコレクションなど
-    if (isset($_GET['cache_clean'])) {
-        $cache_clean = $_GET['cache_clean'];
-    } elseif (isset($_POST['cache_clean'])) {
-        $cache_clean = $_POST['cache_clean'];
+    $kvs = P2KeyValueStore::getStore($_conf['iv2_cache_db_path'],
+                                     P2KeyValueStore::CODEC_SERIALIZING);
+    $cache_lifetime = (int)$ini['Viewer']['cache_lifetime'];
+    if (array_key_exists('cache_clean', $_REQUEST)) {
+        $cache_clear = $_REQUEST['cache_clean'];
     } else {
-        $cache_clean = false;
+        $cache_clear = false;
     }
-    switch ($cache_clean) {
-        // キャッシュを全削除
-        case 'all':
-            $sql = sprintf('DELETE FROM %s', $db->quoteIdentifier($ini['Cache']['table']));
-            $result = $db->query($sql);
+    $optimize_db = false;
+
+    if ($cache_clear == 'all') {
+        $kvs->clear();
+        $optimize_db = true;
+    } elseif ($cache_clear == 'gc') {
+        $kvs->gc($cache_lifetime);
+        $optimize_db = true;
+    }
+
+    if ($optimize_db) {
+        // キャッシュをVACUUM,REINDEX
+        $kvs->optimize();
+
+        // SQLiteならVACUUMを実行
+        if ($db_class == 'db_sqlite') {
+            $result = $db->query('VACUUM');
             if (DB::isError($result)) {
                 p2die($result->getMessage());
             }
-            $vacuumdb = true;
-            break;
-        // 強制的にガーベッジコレクション
-        case 'gc':
-            $cache->garbageCollection(true);
-            $vacuumdb = true;
-            break;
-        // gc_probability(デフォルトは1)/100の確率でガーベッジコレクション
-        default:
-            // $cache->gc_probability = 1;
-            $cache->garbageCollection();
-            $vacuumdb = false;
-    }
-    // SQLiteならVACUUMを実行（PostgreSQLは普通cronでvacuumdbするのでここではしない）
-    if ($vacuumdb && $db_class == 'db_sqlite') {
-        $result = $db->query('VACUUM');
-        if (DB::isError($result)) {
-            p2die($result->getMessage());
         }
     }
-    $enable_cache = true;
+
+    $cache = new P2KeyValueStore_FunctionCache($kvs, $cache_lifetime);
+    $imageInfo_getExtraInfo = $cache->createProxy('IC2_ImageInfo::getExtraInfo');
+    $imageInfo_getExifData = $cache->createProxy('IC2_ImageInfo::getExifData');
+    $editForm_imgManager = $cache->createProxy('IC2_EditForm::imgManager');
+
+    $use_cache = true;
 } else {
-    $enable_cache = false;
+    $use_cache = false;
 }
 
 // }}}
 // {{{ prepare (Form & Template)
-
-// conf.inc.phpで一括stripslashes()しているけど、HTML_QuickFormでも独自にstripslashes()するので。
-// バグの温床となる可能性も否定できない・・・
-if (get_magic_quotes_gpc()) {
-    $_GET = array_map('addslashes_r', $_GET);
-    $_POST = array_map('addslashes_r', $_POST);
-    $_REQUEST = array_map('addslashes_r', $_REQUEST);
-}
 
 // ページ遷移用フォームを設定
 // ページ遷移はGETで行うが、画像情報の更新はPOSTで行うのでどちらでも受け入れるようにする
@@ -319,7 +284,7 @@ $_flexy_options = array(
 );
 
 if (!is_dir($_conf['compile_dir'])) {
-    FileCtl::mkdir_for($_conf['compile_dir'] . '/__dummy__');
+    FileCtl::mkdirRecursive($_conf['compile_dir']);
 }
 
 $flexy = new HTML_Template_Flexy($_flexy_options);
@@ -354,17 +319,17 @@ $flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
 // 検証
 $qf->validate();
 $sv = $qf->getSubmitValues();
-$page      = getValidValue('page',   $_defaults['page'], 'intval');
-$cols      = getValidValue('cols',   $_defaults['cols'], 'intval');
-$rows      = getValidValue('rows',   $_defaults['rows'], 'intval');
-$order     = getValidValue('order',  $_defaults['order']);
-$sort      = getValidValue('sort',   $_defaults['sort'] );
-$field     = getValidValue('field',  $_defaults['field']);
-$key       = getValidValue('key',    $_defaults['key']);
-$threshold = getValidValue('threshold', $_defaults['threshold'], 'intval');
-$compare   = getValidValue('compare',   $_defaults['compare']);
-$mode      = getValidValue('mode',      $_defaults['mode'], 'intval');
-$thumbtype = getValidValue('thumbtype', $_defaults['thumbtype'], 'intval');
+$page      = IC2_ParameterUtility::getValidValue('page',   $_defaults['page'], 'intval');
+$cols      = IC2_ParameterUtility::getValidValue('cols',   $_defaults['cols'], 'intval');
+$rows      = IC2_ParameterUtility::getValidValue('rows',   $_defaults['rows'], 'intval');
+$order     = IC2_ParameterUtility::getValidValue('order',  $_defaults['order']);
+$sort      = IC2_ParameterUtility::getValidValue('sort',   $_defaults['sort'] );
+$field     = IC2_ParameterUtility::getValidValue('field',  $_defaults['field']);
+$key       = IC2_ParameterUtility::getValidValue('key',    $_defaults['key']);
+$threshold = IC2_ParameterUtility::getValidValue('threshold', $_defaults['threshold'], 'intval');
+$compare   = IC2_ParameterUtility::getValidValue('compare',   $_defaults['compare']);
+$mode      = IC2_ParameterUtility::getValidValue('mode',      $_defaults['mode'], 'intval');
+$thumbtype = IC2_ParameterUtility::getValidValue('thumbtype', $_defaults['thumbtype'], 'intval');
 
 // サムネイル作成クラス
 $thumb = new IC2_Thumbnailer($thumbtype);
@@ -431,7 +396,7 @@ if ($_conf['ktai']) {
 $removed_files = array();
 
 // 閾値でフィルタリング
-if (!($threshold == -1 && $compate == '>=')) {
+if (!($threshold == -1 && $compare == '>=')) {
     $icdb->whereAddQuoted('rank', $compare, $threshold);
 }
 
@@ -498,14 +463,14 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
     // 一括でパラメータ変更
     case 1:
         // ランクを変更
-        $newrank = intoRange($_POST['setrank'], -1, 5);
-        manageDB_setRank($target, $newrank);
+        $newrank = IC2_ParameterUtility::intoRange($_POST['setrank'], -1, 5);
+        IC2_DatabaseManager::setRank($target, $newrank);
         // メモを追加
         if (!empty($_POST['addmemo'])) {
             $newmemo = get_magic_quotes_gpc() ? stripslashes($_POST['addmemo']) : $_POST['addmemo'];
             $newmemo = $icdb->uniform($newmemo, 'CP932');
             if ($newmemo !== '') {
-                 manageDB_addMemo($target, $newmemo);
+                 IC2_DatabaseManager::addMemo($target, $newmemo);
             }
         }
         break;
@@ -541,13 +506,14 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
 
         // 情報を更新
         if (count($updated) > 0) {
-            manageDB_update($updated);
+            IC2_DatabaseManager::update($updated);
         }
 
         // 削除（＆ブラックリスト送り）
         if (count($removed) > 0) {
             foreach ($removed as $id => $to_blacklist) {
-                $removed_files = array_merge($removed_files, manageDB_remove(array($id), $to_blacklist));
+                $removed_files = array_merge($removed_files,
+                                             IC2_DatabaseManager::remove(array($id), $to_blacklist));
             }
             if ($to_blacklist) {
                 if ($no_blacklist) {
@@ -570,7 +536,8 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
 } elseif ($mode == 1 && isset($_POST['edit_remove']) && !empty($_POST['change'])) {
     $target = array_unique(array_map('intval', $_POST['change']));
     $to_blacklist = !empty($_POST['edit_toblack']);
-    $removed_files = array_merge($removed_files, manageDB_remove($target, $to_blacklist));
+    $removed_files = array_merge($removed_files,
+                                 IC2_DatabaseManager::remove($target, $to_blacklist));
     $flexy->setData('toBlackList', $to_blacklist);
 }
 
@@ -772,7 +739,7 @@ if ($all == 0) {
             // 32400 = 9*60*60 (時差補正)
             $time2date = sprintf('floor((%s + 32400) / 86400)', $db->quoteIdentifier('time'));
         }
-        $orderBy .= sprintf('%s %s, %s ', $time2date, $sort, $db->quoteIdentifier('uri'));
+        $orderBy = sprintf('%s %s, %s ', $time2date, $sort, $db->quoteIdentifier('uri'));
         if ($order == 'date_uri') {
             $orderBy .= $sort;
         } else {
@@ -817,7 +784,7 @@ if ($all == 0) {
     } else {
         $k_backto = '';
     }
-    $sid_at_a = str_replace('&amp;', '&', $_conf['sid_at_a']);
+
     while ($icdb->fetch()) {
         // 検索結果を配列にし、レンダリング用の要素を付加
         // 配列どうしなら+演算子で要素を追加できる
@@ -839,17 +806,17 @@ if ($all == 0) {
         unset($img['rank'], $img['memo']);
 
         // 表示用変数を設定
-        if ($enable_cache) {
-            $add = $cache->call('ic2_image_extra_info', $img);
+        if ($use_cache) {
+            $add = $imageInfo_getExtraInfo->invoke($img);
             if ($mode == 1) {
                 $chk = IC2_EditForm::imgChecker($img); // 比較的軽いのでキャッシュしない
                 $add += $chk;
             } elseif ($mode == 2) {
-                $mng = $cache->call('IC2_EditForm::imgManager', $img, $status);
+                $mng = $editForm_imgManager->invoke($img, $status);
                 $add += $mng;
             }
         } else {
-            $add = ic2_image_extra_info($img);
+            $add = IC2_ImageInfo::getExtraInfo($img);
             if ($mode == 1) {
                 $chk = IC2_EditForm::imgChecker($img);
                 $add += $chk;
@@ -863,7 +830,8 @@ if ($all == 0) {
             $add['thumb_k'] = $add['thumb'] = 'img/ic_removed.png';
             $add['t_width'] = $add['t_height'] = 32;
             $to_blacklist = false;
-            $removed_files = array_merge($removed_files, manageDB_remove(array($img['id'], $to_blacklist)));
+            $removed_files = array_merge($removed_files,
+                                         IC2_DatabaseManager::remove(array($img['id'], $to_blacklist)));
             $flexy->setData('toBlackList', $to_blacklist);
         } else {
             if (!file_exists($add['thumb'])) {
@@ -874,7 +842,6 @@ if ($all == 0) {
                 } else {
                     $add['thumb'] .= '&uri=' . rawurlencode($img['uri']);
                 }
-                $add['thumb'] .= $sid_at_a;
             }
             if ($_conf['ktai']) {
                 $add['thumb_k'] = 'ic2.php?r=0&t=2';
@@ -883,14 +850,18 @@ if ($all == 0) {
                 } else {
                     $add['thumb_k'] .= '&uri=' . rawurlencode($img['uri']);
                 }
-                $add['thumb_k'] .= $k_backto . $sid_at_a;
+                $add['thumb_k'] .= $k_backto;
             }
         }
         $item = array_merge($img, $add, $status);
 
         // Exif情報を取得
         if ($show_exif && file_exists($add['src']) && $img['mime'] == 'image/jpeg') {
-            $item['exif'] = $enable_cache ? $cache->call('ic2_read_exif', $add['src']) : ic2_read_exif($add['src']);
+            if ($use_cache) {
+                $item['exif'] = $imageInfo_getExifData->invoke($add['src']);
+            } else {
+                $item['exif'] = IC2_ImageInfo::getExifData($add['src']);
+            }
         } else {
             $item['exif'] = null;
         }

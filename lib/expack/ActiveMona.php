@@ -11,7 +11,7 @@ class ActiveMona
     /**
      * AA用フォント切替スイッチのフォーマット
      */
-    const MONA = '<img src="img/aa.png" width="19" height="12" alt="" class="aMonaSW" onclick="activeMona(\'%s\')">';
+    const MONA = '<img src="img/aa.png" width="19" height="12" alt="" class="aMonaSW" onclick="activeMona(this)">';
     //const MONA = '<img src="img/mona.png" width="39" height="12" alt="（´∀｀） class="aMonaSW" onclick="activeMona(\'%s\')"">';
 
     /**

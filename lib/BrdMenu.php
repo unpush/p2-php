@@ -1,7 +1,5 @@
 <?php
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 // {{{ BrdMenu
 
 /**
@@ -173,7 +171,7 @@ class BrdMenu
     */
     public function makeBrdFile($cachefile)
     {
-        global $_conf, $_info_msg_ht, $word;
+        global $_conf, $word;
 
         $p2brdfile = $cachefile.".p2.brd";
         FileCtl::make_datafile($p2brdfile, $_conf['p2_perm']);
@@ -198,85 +196,10 @@ class BrdMenu
             return $p2brdfile;
         } else {
             if (!$word) {
-                $_info_msg_ht .=  "<p>p2 エラー: {$cachefile} から板メニューを生成することはできませんでした。</p>\n";
+                P2Util::pushInfoHtml("<p>p2 error: {$cachefile} から板メニューを生成することはできませんでした。</p>");
             }
             return false;
         }
-    }
-
-    // }}}
-}
-
-// }}}
-// {{{ BrdMenuCate
-
-/**
-* ボードメニューカテゴリークラス
-*/
-class BrdMenuCate
-{
-    // {{{ properties
-
-    public $name;          // カテゴリーの名前
-    public $menuitas;      // クラスBrdMenuItaのオブジェクトを格納する配列
-    public $num;           // 格納されたBrdMenuItaオブジェクトの数
-    public $is_open;       // 開閉状態(bool)
-    public $ita_match_num; // 検索にヒットした板の数
-
-    // }}}
-    // {{{ constructor
-
-    /**
-    * コンストラクタ
-    */
-    public function __construct($name)
-    {
-        $this->num = 0;
-        $this->menuitas = array();
-        $this->ita_match_num = 0;
-
-        $this->name = $name;
-    }
-
-    // }}}
-    // {{{ addBrdMenuIta()
-
-    /**
-     * 板を追加する
-     */
-    public function addBrdMenuIta(BrdMenuIta $aBrdMenuIta)
-    {
-        $this->menuitas[] = $aBrdMenuIta;
-        $this->num++;
-    }
-
-    // }}}
-}
-
-// }}}
-// {{{ BrdMenuIta
-
-/**
-* ボードメニュー板クラス
-*/
-class BrdMenuIta
-{
-    // {{{ properties
-
-    public $host;
-    public $bbs;
-    public $itaj;    // 板名
-    public $itaj_en;    // 板名をエンコードしたもの
-    public $itaj_ht;    // HTMLで出力する板名（フィルタリングしたもの）
-
-    // }}}
-    // {{{ setItaj()
-
-    public function setItaj($itaj)
-    {
-        $this->itaj = $itaj;
-        $this->itaj_en = rawurlencode(base64_encode($this->itaj));
-        $this->itaj_ht = htmlspecialchars($this->itaj, ENT_QUOTES);
     }
 
     // }}}

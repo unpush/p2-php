@@ -6,8 +6,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/ThreadRead.php';
-require_once P2_LIB_DIR . '/ShowThreadPc.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
 
@@ -28,7 +26,7 @@ $res_filter = array();
 $res_filter['field'] = $field;
 $itaj = P2Util::getItaName($host, $bbs);
 if (!$itaj) { $itaj = $bbs; }
-$ttitle_name = base64_decode($ttitle_en);
+$ttitle_name = UrlSafeBase64::decode($ttitle_en);
 $popup_filter = 1;
 
 /**
@@ -47,7 +45,15 @@ if (isset($aThread->datlines[$resnum - 1])) {
     $msg = $resar[3];
 
     $aShowThread = new ShowThreadPc($aThread);
-    $word = $aShowThread->getFilterTarget($ares, $resnum, $name, $mail, $date_id, $msg);
+    if ($field == 'rres') {
+        $_REQUEST['field']  = 'msg';
+        $_REQUEST['method'] = 'regex';
+        $word = ShowThread::getAnchorRegex(
+            '%prefix%(.+%delimiter%)?' . $resnum . '(?!\\d|%range_delimiter%)'
+        );
+    } else {
+        $word = $aShowThread->getFilterTarget($ares, $resnum, $name, $mail, $date_id, $msg);
+    }
     if (strlen($word) == 0) {
         unset($word);
     } else {

@@ -6,8 +6,7 @@
 // {{{ p2Šî–{Ý’è“Ç‚Ýž‚Ý&”FØ
 
 require_once './conf/conf.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
-require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
+require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 
 $_login->authorize();
 

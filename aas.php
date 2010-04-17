@@ -213,7 +213,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // ƒŒƒX“Ç‚İ‚İ
 if (empty($errors) && $_SERVER['REQUEST_METHOD'] != 'POST') {
-    require_once P2_LIB_DIR . '/ThreadRead.php';
     $aThread = new ThreadRead;
     $aThread->setThreadPathInfo($host, $bbs, $key);
     if (!$aThread->readDat()) {

@@ -10,8 +10,9 @@
 	<link rel="stylesheet" type="text/css" href="css.php?css=edit_conf_user&amp;skin={skin:h}">
 	<style type="text/css">
 	table.edit_font { margin: 6px 0px; }
+	div.fieldblock { float: left; }
 	fieldset { margin: 0px 6px 6px 0px; padding: 0px 6px; }
-	legend { padding: 4px; border: solid 1px #ccc; background-color: #efefef; }
+	legend { margin: 0; padding: 4px 8px; height: 16px; overflow: hidden; border: solid 1px #ccc; background-color: #efefef; }
 	legend, th { text-align: left; font-size: {STYLE[fontsize]:h}; }
 	tr.group td { text-align: center; }
 	td.label { white-space: nowrap; text-align: right; }
@@ -41,30 +42,30 @@
 		<input type="submit" name="clear" value="デフォルトに戻す" flexy:ignore="yes">
 	</td></tr>
 </table>
-<div style="float:left">
+<div class="fieldblock">
 <fieldset flexy:ignore="yes">
-	<legend><b>現在のスキン (編集できません)</b></legend>
+	<legend><b>現在の設定 (編集できません)</b></legend>
 	<table class="edit_font" cellspacing="0">
 		<tr class="group">
-			<th colspan="4">フォント</td>
+			<th colspan="4">フォント</th>
 		</tr>
 		<tr>
 			<td class="label">標準フォント</td>
-			<td colspan="3"><input type="text" size="30" value="{skindata[fontfamily]}" readonly></td>
+			<td colspan="3"><input type="text" size="35" value="{skindata[fontfamily]}" readonly></td>
 		</tr><tr>
 			<td class="label">太字フォント</td>
-			<td colspan="3"><input type="text" size="30" value="{skindata[fontfamily_bold]}" readonly></td>
+			<td colspan="3"><input type="text" size="35" value="{skindata[fontfamily_bold]}" readonly></td>
 		</tr><tr>
 			<td class="label">太字ウェイト</td>
-			<td><select disabled><option value="{skindata[fontweight_bold]}">{skindata[fontweight_bold]}</option></select></td>
+			<td><select disabled flexy:if="skindata[fontweight_bold]"><option value="{skindata[fontweight_bold]}">{skindata[fontweight_bold]}</option></select><select disabled flexy:if="!skindata[fontweight_bold]"><option value="">default</option></select></td>
 			<td class="label">太字スタイル</td>
-			<td><select disabled><option value="{skindata[fontstyle_bold]}">{skindata[fontstyle_bold]}</option></select></td>
+			<td><select disabled flexy:if="skindata[fontstyle_bold]"><option value="{skindata[fontstyle_bold]}">{skindata[fontstyle_bold]}</option></select><select disabled  flexy:if="!skindata[fontstyle_bold]"><option value="">default</option></select></td>
 		</tr><tr>
 			<td class="label">AAフォント</td>
-			<td colspan="3"><input type="text" size="30" value="{skindata[fontfamily_aa]}" readonly></td>
+			<td colspan="3"><input type="text" size="35" value="{skindata[fontfamily_aa]}" readonly></td>
 		</tr>
 		<tr class="group">
-			<th colspan="4">文字の大きさ</td>
+			<th colspan="4">文字の大きさ</th>
 		</tr>
 		<tr>
 			<td class="label">基本</td>
@@ -82,26 +83,26 @@
 			<td class="label">ポップアップ</td>
 			<td><select disabled><option value="{skindata[respop_fontsize]}">{skindata[respop_fontsize]}</option></select></td>
 		</tr><tr>
-			<td class="label">情報ウィンドウ</td>
+			<td class="label">インフォ</td>
 			<td><select disabled><option value="{skindata[infowin_fontsize]}">{skindata[infowin_fontsize]}</option></select></td>
 			<td class="label">&nbsp;</td>
 			<td>&nbsp;</td>
 		</tr>
 	</table>
 </fieldset>
-</div><div style="float:left" flexy:foreach="fontconfig_types,type,title">
+</div><div class="fieldblock" flexy:foreach="fontconfig_types,type,title">
 <fieldset>
 	<legend><b>{title}</b></legend>
 	<table class="edit_font" cellspacing="0">
 		<tr class="group">
-			<th colspan="4">フォント</td>
+			<th colspan="4">フォント</th>
 		</tr>
 		<tr>
 			<td class="label">標準フォント</td>
-			<td colspan="3"><input type="text" flexy:nameuses="type" name="fontfamily[%s]" size="30"></td>
+			<td colspan="3"><input type="text" flexy:nameuses="type" name="fontfamily[%s]" size="35"></td>
 		</tr><tr>
 			<td class="label">太字フォント</td>
-			<td colspan="3"><input type="text" flexy:nameuses="type" name="fontfamily_bold[%s]" size="30"></td>
+			<td colspan="3"><input type="text" flexy:nameuses="type" name="fontfamily_bold[%s]" size="35"></td>
 		</tr><tr>
 			<td class="label">太字ウェイト</td>
 			<td><select flexy:nameuses="type" name="fontweight_bold[%s]"></select></td>
@@ -109,10 +110,10 @@
 			<td><select flexy:nameuses="type" name="fontstyle_bold[%s]"></select></td>
 		</tr><tr>
 			<td class="label">AAフォント</td>
-			<td colspan="3"><input type="text" flexy:nameuses="type" name="fontfamily_aa[%s]" size="30"></td>
+			<td colspan="3"><input type="text" flexy:nameuses="type" name="fontfamily_aa[%s]" size="35"></td>
 		</tr>
 		<tr class="group">
-			<th colspan="4">文字の大きさ</td>
+			<th colspan="4">文字の大きさ</th>
 		</tr>
 		<tr>
 			<td class="label">基本</td>
@@ -130,7 +131,7 @@
 			<td class="label">ポップアップ</td>
 			<td><select flexy:nameuses="type" name="respop_fontsize[%s]"></select></td>
 		</tr><tr>
-			<td class="label">情報ウィンドウ</td>
+			<td class="label">インフォ</td>
 			<td><select flexy:nameuses="type" name="infowin_fontsize[%s]"></select></td>
 			<td class="label">&nbsp;</td>
 			<td>&nbsp;</td>

@@ -28,6 +28,10 @@ $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
     'emobile'   => 0,
     // iPhone 3G
     'iphone'    => 0,
+    // jigブラウザ・jigブラウザWEB・jigアプリ・jigWEB
+    'jig'       => 0,
+    // ibisBrowserDX
+    'ibis'      => 0,
     // ユーザー設定
     'custom'    => 0,
     // ユーザー設定 (IPv6)

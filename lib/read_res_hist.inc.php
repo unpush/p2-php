@@ -3,8 +3,6 @@
  * rep2 - 書き込み履歴 のための関数群
  */
 
-require_once P2_LIB_DIR . '/DataPhp.php';
-
 // {{{ deleMsg()
 
 /**
@@ -42,7 +40,7 @@ function deleMsg($checked_hists)
         }
         $neolines = rmLine($rmnums, $reslines);
 
-        $_info_msg_ht .= "<p>p2 info: " . count($rmnums) . "件のレス記事を削除しました</p>";
+        P2Util::pushInfoHtml('<p>p2 info: ' . count($rmnums) . '件のレス記事を削除しました</p>');
     }
 
     if (is_array($neolines)) {

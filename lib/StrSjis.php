@@ -122,6 +122,64 @@ class StrSjis
     }
 
     // }}}
+    // {{{ getUnicodePattern()
+
+    /**
+     * Shift_JISの文字を含む正規表現パターンを
+     * PCREのUnicodeモード用正規表現パターンに変換する
+     *
+     * @param   string  $pattern
+     * @return  string
+     */
+    static public function toUnicodePattern($pattern)
+    {
+        $sjis_char_class_1st = '[\\x81-\\x9F\\xE0-\\xFC]';
+        $sjis_char_class_2nd = '[\\x40-\\x7E\\x80-\\xFC]';
+        $sjis_char_regex_1st = '\\\\x(8[1-9A-F]|[9E][0-9A-F]|F[0-9A-C])';
+        $sjis_char_regex_2nd = '\\\\x([45689A-E][0-9A-F]|7[0-9A-E]|F[0-9A-C])';
+
+        $pattern = preg_replace_callback("/{$sjis_char_class_1st}{$sjis_char_class_2nd}/",
+                                         array(__CLASS__, '_sjisStringToUnicodePatternCb'),
+                                         $pattern);
+        $pattern = preg_replace_callback("/{$sjis_char_regex_1st}{$sjis_char_regex_2nd}/i",
+                                         array(__CLASS__, '_sjisPatternToUnicodePatternCb'),
+                                         $pattern);
+        return $pattern;
+    }
+
+    // }}}
+    // {{{ _sjisStringToUnicodePattern()
+
+    /**
+     * Shift_JISの2バイト文字を
+     * Unicode文字にマッチする正規表現パターンに変換する
+     *
+     * @param   array   $m
+     * @return  string
+     */
+    static protected function _sjisStringToUnicodePatternCb($m)
+    {
+        $u = unpack('C2', mb_convert_encoding($m[0], 'UCS-2BE', 'SJIS-win'));
+        return sprintf('\\x{%02X%02X}', $u[1], $u[2]);
+    }
+
+    // }}}
+    // {{{ _sjisCodeToUnicodePattern()
+
+    /**
+     * Shift_JISの2バイト文字にマッチする正規表現パターンを
+     * Unicode文字にマッチする正規表現パターンに変換する
+     *
+     * @param   array   $m
+     * @return  string
+     */
+    static protected function _sjisPatternToUnicodePatternCb($m)
+    {
+        $s = pack('C2', hexdec($m[1]), hexdec($m[2]));
+        return self::_sjisStringToUnicodePatternCb(array($s));
+    }
+
+    // }}}
 }
 
 // }}}

@@ -91,7 +91,14 @@ $conf_user_def['expack.spm.filter'] = 1; // (1)
 $conf_user_rad['expack.spm.filter'] = array('1' => '表示', '0' => '非表示');
 
 // フィルタリング結果を開くフレームまたはウインドウ
-$conf_user_def['expack.spm.filter_target'] = "read"; // ("read")
+$conf_user_def['expack.spm.filter_target'] = "_popup"; // ("_popup")
+$conf_user_sel['expack.spm.filter_target'] = array(
+    '_popup'    => 'HTMLポップアップ',
+    '_blank'    => '新規ウインドウ',
+    '_self'     => '同じフレーム',
+    //'_parent' => '親フレーム',
+    //'_top'    => '同じウインドウ',
+);
 
 // }}}
 // {{{ アクティブモナー
@@ -212,24 +219,6 @@ $conf_user_def['expack.ic2.fav_auto_rank_setting'] = '1,1,2,3,4,5';
 // お気にスレの画像を自動ランク設定する場合に、キャッシュ済み画像に自動ランクを上書きするか
 $conf_user_def['expack.ic2.fav_auto_rank_override'] = 3; // (0)
 $conf_user_rad['expack.ic2.fav_auto_rank_override'] = array('1' => 'する', '2' => 'ランク0だったらする', '3' => 'ランクが上がるならする', '0' => 'しない');
-
-// }}}
-// {{{ Google検索
-
-// Google Web APIs の登録キー
-$conf_user_def['expack.google.key'] = ""; // ("")
-
-// 検索履歴を記録する数（off:0）
-//$conf_user_def['expack.google.recent_num'] = 10; // (10)
-//$conf_user_rules['expack.google.recent_num'] = array('notIntExceptMinusToDef');
-
-// サーチボックスに検索履歴を記録する数、Safari専用（off:0）
-$conf_user_def['expack.google.recent2_num'] = 10; // (10)
-$conf_user_rules['expack.google.recent2_num'] = array('notIntExceptMinusToDef');
-
-// SOAP エクステンション が利用可能なときも PEAR の SOAP パッケージを使う（0:no; 1:yes;）
-$conf_user_def['expack.google.force_pear'] = 0; // (0)
-$conf_user_rad['expack.google.force_pear'] = array('1' => 'PEAR', '0' => 'SOAPエクステンション');
 
 // }}}
 // {{{ AAS

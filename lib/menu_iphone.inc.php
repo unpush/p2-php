@@ -98,8 +98,6 @@ function menu_iphone_show_board_menu($cateid = 0)
 {
     global $_conf;
 
-    require_once P2_LIB_DIR . '/BrdCtl.php';
-
     $brd_menus = BrdCtl::read_brds();
 
     if (!$brd_menus) {
@@ -161,8 +159,6 @@ function menu_iphone_show_board_menu($cateid = 0)
 function menu_iphone_show_matched_boards($word)
 {
     global $_conf;
-
-    require_once P2_LIB_DIR . '/BrdCtl.php';
 
     $brd_menus = BrdCtl::read_brds();
 
@@ -232,7 +228,7 @@ function menu_iphone_show_favorite_boards($title, $no = null)
             if (preg_match("/^\t?(.+)\t(.+)\t(.+)\$/", $l, $matches)) {
                 $itaj = rtrim($matches[3]);
                 $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
-                $itaj_en = rawurlencode(base64_encode($itaj));
+                $itaj_en = UrlSafeBase64::encode($itaj);
                 echo "<li><a href=\"{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}",
                         "&amp;itaj_en={$itaj_en}\" target=\"_self\">{$itaj_view}</a></li>";
             }
@@ -282,8 +278,8 @@ function menu_iphone_show_feed_list($title, $no = null)
                 if (PEAR::isError($localpath)) {
                     $errors[] = array($site, $localpath->getMessage());
                 } else {
-                    $mtime   = file_exists($localpath) ? filemtime($localpath) : 0;
-                    $site_en = rawurlencode(base64_encode($site));
+                    $mtime = file_exists($localpath) ? filemtime($localpath) : 0;
+                    $site_en = UrlSafeBase64::encode($site);
                     $xml_en = rawurlencode($xml);
                     $rss_q = sprintf('?xml=%s&site_en=%s%s&mt=%d', $xml_en, $site_en, $atom_q, $mtime);
                     $rss_q_ht = htmlspecialchars($rss_q, ENT_QUOTES);

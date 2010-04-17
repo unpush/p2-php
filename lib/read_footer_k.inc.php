@@ -28,16 +28,16 @@ $htm['goto'] = kspform($aThread, ($_conf['filtering'] ? $last_hit_resnum : $aThr
 //=====================================================================
 // ƒvƒŠƒ“ƒg
 //=====================================================================
-if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
+if ($aThread->rescount or (!empty($_GET['one']) && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
     if (!$aThread->diedat) {
         if (!empty($_conf['disable_res'])) {
             $dores_ht = <<<EOP
- | <a href="{$motothre_url}"{$_conf['k_accesskey_at']['res']}{$holdhandlers_at}>{$_conf['k_accesskey_st']['res']}{$dores_st}</a>
+ | <a href="{$motothre_url}"{$_conf['k_accesskey_at']['res']}>{$_conf['k_accesskey_st']['res']}{$dores_st}</a>
 EOP;
         } else {
             $dores_ht = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['res']}{$holdhandlers_at}>{$_conf['k_accesskey_st']['res']}{$dores_st}</a>
+<a href="post_form.php?{$host_bbs_key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['res']}>{$_conf['k_accesskey_st']['res']}{$dores_st}</a>
 EOP;
         }
     } else {
@@ -75,20 +75,26 @@ EOP;
 {$htm['goto']}\n
 EOP;
     if ($diedat_msg) {
-        echo '<hr>';
-        echo $diedat_msg;
-        echo '<div>';
-        echo  $motothre_ht;
-        echo '</div>' . "\n";
+        echo "<hr>\n{$diedat_msg}<div>{$motothre_ht}</div>\n";
     }
 }
-echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
+
+echo "<hr>\n<div class=\"center\">{$_conf['k_to_index_ht']}";
+if ($_conf['iphone'] && $_conf['expack.misc.use_bb2c']) {
+    $bb2c_open_uri = str_replace('http://', 'beebee2seeopen://', $aThread->getMotoThread(true, ''));
+    echo ' <a class="button" href="javascript:location.replace(\'';
+    echo htmlspecialchars($bb2c_open_uri, ENT_QUOTES);
+    echo '\');">BB2C</a>';
+}
+echo "</div>\n";
 
 // iPhone
 if ($_conf['iphone']) {
     // ImageCache2
     if ($_conf['expack.ic2.enabled']) {
-        require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+        if (!function_exists('ic2_loadconfig')) {
+            include P2EX_LIB_DIR . '/ic2/bootstrap.php';
+        }
         $ic2conf = ic2_loadconfig();
         if ($ic2conf['Thumb1']['width'] > 80) {
             include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
@@ -98,9 +104,6 @@ if ($_conf['iphone']) {
     }
     // SPM
     if ($_conf['expack.spm.enabled']) {
-        if (!class_exists('ShowThreadK', false)) {
-            require P2_LIB_DIR . '/ShowThreadK.php';
-        }
         echo ShowThreadK::getSpmElementHtml();
     }
 }

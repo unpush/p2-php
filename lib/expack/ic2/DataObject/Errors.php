@@ -1,6 +1,4 @@
 <?php
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
 
 // {{{ IC2_DataObject_Errors
 

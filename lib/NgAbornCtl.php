@@ -13,6 +13,7 @@ $GLOBALS['ngaborns_hits'] = array(
     'aborn_msg'     => 0,
     'aborn_name'    => 0,
     'aborn_res'     => 0,
+    'aborn_thread'  => 0,
     'ng_chain'      => 0,
     'ng_freq'       => 0,
     'ng_id'         => 0,
@@ -30,73 +31,103 @@ class NgAbornCtl
 
     /**
      * あぼーん&NGワード設定を保存する
+     *
+     * @param void
+     * @return void
      */
     static public function saveNgAborns()
     {
         global $ngaborns, $ngaborns_hits;
         global $_conf;
 
-        // HITした時のみ更新する
-        if ($GLOBALS['ngaborns_hits']) {
+        $lasttime = date('Y/m/d G:i');
+        if ($_conf['ngaborn_daylimit']) {
+            $daylimit = time() - 60 * 60 * 24 * $_conf['ngaborn_daylimit'];
+        } else {
+            $daylimit = 0;
+        }
+        $errors = '';
 
-            $lasttime = date('Y/m/d G:i');
-            if ($_conf['ngaborn_daylimit']) {
-                $daylimit = time() - 60 * 60 * 24 * $_conf['ngaborn_daylimit'];
-            } else {
-                $daylimit = 0;
+        foreach ($ngaborns_hits as $code => $hits) {
+            // ヒットしなかった場合でも1/100の確率で古いデータを削除するために処理を続ける
+            if (!$hits && mt_rand(1, 100) < 100) {
+                continue;
             }
-            $errors = '';
 
-            foreach ($ngaborns_hits as $code => $v) {
+            if (isset($ngaborns[$code]) && !empty($ngaborns[$code]['data'])) {
 
-                if (isset($ngaborns[$code]) && !empty($ngaborns[$code]['data'])) {
+                // 更新時間でソートする
+                usort($ngaborns[$code]['data'], array('NgAbornCtl', 'cmpLastTime'));
 
-                    // 更新時間でソートする
-                    usort($ngaborns[$code]['data'], array('NgAbornCtl', 'cmpLastTime'));
+                $cont = '';
+                foreach ($ngaborns[$code]['data'] as $a_ngaborn) {
 
-                    $cont = '';
-                    foreach ($ngaborns[$code]['data'] as $a_ngaborn) {
-
-                        if (empty($a_ngaborn['lasttime']) || $a_ngaborn['lasttime'] == '--') {
-                            // 古いデータを削除する都合上、仮に現在の日時を付与
-                            $a_ngaborn['lasttime'] = $lasttime;
-                         } else {
-                            // 必要ならここで古いデータはスキップ（削除）する
-                            if ($daylimit > 0 && strtotime($a_ngaborn['lasttime']) < $daylimit) {
-                                continue;
-                            }
+                    if (empty($a_ngaborn['lasttime']) || $a_ngaborn['lasttime'] == '--') {
+                        // 古いデータを削除する都合上、仮に現在の日時を付与
+                        $a_ngaborn['lasttime'] = $lasttime;
+                     } else {
+                        // 必要ならここで古いデータはスキップ（削除）する
+                        if ($daylimit > 0 && strtotime($a_ngaborn['lasttime']) < $daylimit) {
+                            continue;
                         }
-
-                        $cont .= sprintf("%s\t%s\t%d\n", $a_ngaborn['cond'], $a_ngaborn['lasttime'], $a_ngaborn['hits']);
-                    } // foreach
-
-                    /*
-                    echo "<pre>";
-                    echo $cont;
-                    echo "</pre>";
-                    */
-
-                    // 書き込む
-
-                    $fp = @fopen($ngaborns[$code]['file'], 'wb');
-                    if (!$fp) {
-                        $errors .= "cannot write. ({$ngaborns[$code]['file']})\n";
-                    } else {
-                        flock($fp, LOCK_EX);
-                        fputs($fp, $cont);
-                        flock($fp, LOCK_UN);
-                        fclose($fp);
                     }
 
-                } // if
+                    $cont .= sprintf("%s\t%s\t%d\n", $a_ngaborn['cond'], $a_ngaborn['lasttime'], $a_ngaborn['hits']);
+                } // foreach
 
-            } // foreach
+                /*
+                echo "<pre>";
+                echo $cont;
+                echo "</pre>";
+                */
 
-            if ($errors != '') {
-                p2die('NGあぼーんファイルが更新できませんでした。', $errors);
-            }
+                // 書き込む
+
+                $fp = @fopen($ngaborns[$code]['file'], 'wb');
+                if (!$fp) {
+                    $errors .= "cannot write. ({$ngaborns[$code]['file']})\n";
+                } else {
+                    flock($fp, LOCK_EX);
+                    fputs($fp, $cont);
+                    flock($fp, LOCK_UN);
+                    fclose($fp);
+                }
+
+            } // if
+
+        } // foreach
+
+        if ($errors !== '') {
+            p2die('NGあぼーんファイルが更新できませんでした。', $errors);
         }
-        return true;
+    }
+
+    // }}}
+    // {{{ saveAbornThreads()
+
+    /**
+     * あぼーんスレッド設定を保存する
+     *
+     * @param array $aborn_threads
+     * @return void
+     */
+    static public function saveAbornThreads(array $aborn_threads)
+    {
+        if (array_key_exists('ngaborns', $GLOBALS)) {
+            $orig_ngaborns = $GLOBALS['ngaborns'];
+            $restore_ngaborns = true;
+        } else {
+            $restore_ngaborns = false;
+        }
+
+        $GLOBALS['ngaborns'] = array('aborn_thread' => $aborn_threads);
+        self::saveNgAborns();
+
+        if ($restore_ngaborns) {
+            $GLOBALS['ngaborns'] = $orig_ngaborns;
+        } else {
+            unset($GLOBALS['ngaborns']);
+        }
     }
 
     // }}}
@@ -121,6 +152,9 @@ class NgAbornCtl
 
     /**
      * あぼーん&NGワード設定を読み込む
+     *
+     * @param void
+     * @return array
      */
     static public function loadNgAborns()
     {
@@ -143,36 +177,51 @@ class NgAbornCtl
     }
 
     // }}}
+    // {{{ loadAbornThreads()
+
+    /**
+     * あぼーんスレッド設定を読み込む
+     *
+     * @param void
+     * @return array
+     */
+    static public function loadAbornThreads()
+    {
+        return self::_readNgAbornFromFile('p2_aborn_thread.txt');
+    }
+
+    // }}}
     // {{{ _readNgAbornFromFile()
 
     /**
      * readNgAbornFromFile
      */
-    static private function _readNgAbornFromFile($filename)
+    static protected function _readNgAbornFromFile($filename)
     {
         global $_conf;
 
-        $array = array(
-            'file' => $_conf['pref_dir'] . '/' . $filename,
-            'data' => array(),
-        );
+        $file = $_conf['pref_dir'] . '/' . $filename;
+        $data = array();
 
-        if ($lines = FileCtl::file_read_lines($array['file'])) {
+        if ($lines = FileCtl::file_read_lines($file)) {
             foreach ($lines as $l) {
                 $lar = explode("\t", trim($l));
                 if (strlen($lar[0]) == 0) {
                     continue;
                 }
                 $ar = array(
-                    'cond' => $lar[0], // 検索条件
-                    'word' => $lar[0], // 対象文字列
-                    'lasttime' => null, // 最後にHITした時間
-                    'hits' => 0, // HIT回数
+                    'cond' => $lar[0],      // 検索条件
+                    'word' => $lar[0],      // 対象文字列
+                    'lasttime' => null,     // 最後にHITした時間
+                    'hits' => 0,            // HIT回数
+                    'regex' => false,       // パターンマッチ関数
+                    'ignorecase' => false,  // 大文字小文字を無視
                 );
                 isset($lar[1]) && $ar['lasttime'] = $lar[1];
                 isset($lar[2]) && $ar['hits'] = (int) $lar[2];
+
                 if ($filename == 'p2_aborn_res.txt') {
-                    $array['data'][] = $ar;
+                    $data[] = $ar;
                     continue;
                 }
 
@@ -217,11 +266,20 @@ class NgAbornCtl
                     $ar['ignorecase'] = true;
                 }
 
-                $array['data'][] = $ar;
-            }
+                // 正規表現でないなら、エスケープされていない特殊文字をエスケープ
+                /*if (!$ar['regex']) {
+                    $ar['word'] = htmlspecialchars($ar['word'], ENT_COMPAT, 'Shift_JIS', false);
+                }*/
+                // 2chの仕様上、↑は期待通りの結果が得られないことが多いので、<>だけ実体参照にする
+                if (!$ar['regex']) {
+                    $ar['word'] = str_replace(array('<', '>'), array('&lt;', '&gt;'), $ar['word']);
+                }
 
+                $data[] = $ar;
+            }
         }
-        return $array;
+
+        return array('file' => $file, 'data' => $data);
     }
 
     // }}}

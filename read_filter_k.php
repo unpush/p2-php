@@ -13,7 +13,7 @@ $_login->authorize(); // ユーザ認証
 $host = $_GET['host'];
 $bbs  = $_GET['bbs'];
 $key  = $_GET['key'];
-$ttitle = base64_decode($_GET['ttitle_en']);
+$ttitle = UrlSafeBase64::decode($_GET['ttitle_en']);
 $ttitle_back = (isset($_SERVER['HTTP_REFERER']))
     ? '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="戻る">' . $ttitle . '</a>'
     : $ttitle;
@@ -21,8 +21,6 @@ $ttitle_back = (isset($_SERVER['HTTP_REFERER']))
 /**
  * 前回フィルタ値読み込み
  */
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 $cachefile = $_conf['pref_dir'] . '/p2_res_filter.txt';
 
 $res_filter_cont = FileCtl::file_read_contents($cachefile);
@@ -56,7 +54,7 @@ echo <<<EOF
 <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 {$_conf['extra_headers_ht']}
-<title>p2 - スレ内検索</title>
+<title>rep2 - スレ内検索</title>
 </head>
 <body{$_conf['k_colors']}>
 <p>{$ttitle_back}</p>

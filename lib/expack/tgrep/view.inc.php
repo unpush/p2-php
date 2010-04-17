@@ -29,7 +29,7 @@
         margin:1em; padding:0 0 0 2em;
     }
     div.tgrep_result {
-        margin:0; padding:2px; line-height:100%; white-space:nowrap;
+        margin:0; padding:2px 8px; line-height:100%; white-space:nowrap;
         <?php echo $htm['message_background'], $htm['message_color']; ?>
     }
     tr.tablefooter td {
@@ -39,13 +39,16 @@
     }
     /* ]]> */
     </style>
+    <script type="text/javascript" src="js/basic.js?<?php echo P2_VERSION_ID; ?>"></script>
+    <script type="text/javascript" src="js/respopup.js?<?php echo P2_VERSION_ID; ?>"></script>
+    <script type="text/javascript" src="js/motolspopup.js?<?php echo P2_VERSION_ID; ?>"></script>
     <script type="text/javascript">
     //<![CDATA[
     function setWinTitle() {
         if (top != self) {top.document.title=self.document.title;}
     }
     function sf() {
-        <?php if (strlen($htm['query']) == 0) { echo 'document.getElementById("Q").focus()'; } ?>
+        <?php if (strlen($htm['query']) == 0) { echo 'document.getElementById("Q").focus();'; } ?>
     }
     //]]>
     </script>
@@ -55,15 +58,15 @@
 <!-- Toolbar1 -->
 <table id="sbtoolbar1" class="toolbar" cellspacing="0">
 <tr>
-    <td align="left" valign="middle"><span class="itatitle" id="top"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
-    <td align="left" valign="middle">
+    <td class="toolbar-title"><span class="itatitle" id="top"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
+    <td class="toolbar-filter">
         <form id="searchForm" name="searchForm" action="<?php echo $htm['php_self']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>">
         <input id="Q" name="Q" <?php echo $htm['search_attr']; ?> />
         <input type="submit" value="検索" />
         <?php echo $_conf['detect_hint_input_xht'], $_conf['k_input_ht']; ?>
         </form>
     </td>
-    <td align="right" valign="middle"><?php if ($threads) { ?><a class="toolanchor" href="#sbtoolbar2" target="_self">▼</a><?php } else { ?>　<?php } ?></td>
+    <td class="toolbar-anchor"><?php if ($threads) { ?><a class="toolanchor" href="#sbtoolbar2" target="_self">▼</a><?php } else { ?>　<?php } ?></td>
 </tr>
 </table>
 
@@ -76,7 +79,7 @@
     <li>2つ目以降のキーワードで頭に&quot;-&quot;をつけると、それを含まないものが抽出されます。</li>
     <li>&quot; または &#39; で囲まれた部分はスペースが入っていても一つのキーワードとして扱います。</li>
     <li>キーワードの全角半角、大文字小文字は無視されます。</li>
-    <li>データベースの更新頻度は3時間に1回で、レス数・勢い・活発さは更新時点での値です。</li>
+    <li>データベースの更新頻度は1時間に1回で、レス数・勢い・活発さは更新時点での値です。</li>
 </uL>
 </div>
 <?php } ?>
@@ -109,7 +112,7 @@
 <select onchange="location.href=document.getElementById('h_subject_php').value+'?word='+document.getElementById('h_query_en').value+this.options[this.selectedIndex].value">
 <option value="">-</option>
 <?php $m = ($htm['category'] && isset($profile['categories'][$htm['category']])) ? $profile['categories'][$htm['category']]->member : null; ?>
-<?php foreach ($profile['boards'] as $n => $b) { if (!$m || in_array($n, $m)) { ?><option value="<?php printf('&amp;host=%s&amp;bbs=%s&amp;itaj_en=%s', $b->host, $b->bbs, rawurlencode(base64_encode($b->name))); ?>"><?php echo htmlspecialchars($b->name, ENT_QUOTES); ?> (<?php echo $b->hits; ?>)</option><?php } } ?>
+<?php foreach ($profile['boards'] as $n => $b) { if (!$m || in_array($n, $m)) { ?><option value="<?php printf('&amp;host=%s&amp;bbs=%s&amp;itaj_en=%s', $b->host, $b->bbs, UrlSafeBase64::encode($b->name)); ?>"><?php echo htmlspecialchars($b->name, ENT_QUOTES); ?> (<?php echo $b->hits; ?>)</option><?php } } ?>
 </select>
 </div>
 <?php } ?>
@@ -126,23 +129,21 @@
     <th class="t">板</th>
     <th class="t">Birthday</th>
     <th class="ti">勢い</th>
-    <th class="ti">活発さ</th>
 </tr>
 </thead>
 <tbody>
 <?php
 $R = true;
-require_once P2_LIB_DIR . '/Thread.php';
 foreach ($threads as $o => $t) {
     $new = '';
     $turl = sprintf('%s?host=%s&amp;bbs=%s&amp;key=%d', $_conf['read_php'], $t->host, $t->bbs, $t->tkey);
-    $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, rawurlencode(base64_encode($t->ita)), $htm['query_en']);
+    $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, UrlSafeBase64::encode($t->ita), $htm['query_en']);
     if (P2Util::isHostMachiBbs($t->host)) {
-        $ourl = sprintf('http://%s/bbs/read.pl?BBS=%s&KEY=%s', $t->host, $t->bbs, $t->tkey);
+        $ourl = sprintf('http://%s/bbs/read.cgi/%s/%s/', $t->host, $t->bbs, $t->tkey);
     } else {
         $ourl = sprintf('http://%s/test/read.cgi/%s/%s/', $t->host, $t->bbs, $t->tkey);
     }
-    $ourl = P2Util::throughIme($ourl);
+    $iurl = P2Util::throughIme($ourl);
     $aThread = new Thread;
     $aThread->setThreadPathInfo($t->host, $t->bbs, $t->tkey);
     if ($aThread->getThreadInfoFromIdx() && $aThread->isKitoku()) {
@@ -153,22 +154,21 @@ foreach ($threads as $o => $t) {
         $nnum = '';
     }
 ?>
-<tr class="<?php echo $R ? 'r1' : 'r2'; $R = !$R; ?>">
+<tr class="<?php echo $R ? 'r1 r_odd' : 'r2 r_even'; $R = !$R; ?>">
     <td class="ti"><?php echo $nnum; ?></td>
     <td class="ti"><?php echo $rnum; ?></td>
     <td class="ti"><?php echo $o; ?></td>
-    <td class="tl"><a href="<?php echo $ourl; ?>" target="read">・</a> <a href="<?php echo $turl; ?>" target="read"><?php echo $t->title; ?></a></td>
+    <td class="tl"><a href="<?php echo $ourl; ?>" class="moto_thre" onmouseover="showMotoLsPopUp(event, this, this.nextSibling.innerText)" onmouseout="hideMotoLsPopUp()" target="read">・</a><a href="<?php echo $turl; ?>" target="read"><?php echo $t->title; ?></a></td>
     <td class="t"><a href="<?php echo $burl; ?>"><?php echo $t->ita; ?></a></td>
     <td class="t"><?php echo date('y/m/d', $t->tkey); ?></td>
     <td class="ti"><?php echo round($t->dayres, 2); ?></td>
-    <td class="ti"><?php echo round($t->dratio * 100); ?>%</td>
 </tr>
 <?php } ?>
 </tbody>
 <?php if ($htm['pager']) { ?>
 <tfoot>
 <tr class="tablefooter">
-    <td colspan="8"><?php echo $htm['pager']; ?></td>
+    <td colspan="7"><?php echo $htm['pager']; ?></td>
 </tr>
 </tfoot>
 <?php } ?>
@@ -179,15 +179,15 @@ foreach ($threads as $o => $t) {
 <!-- Toolbar2 -->
 <table id="sbtoolbar2" class="toolbar" cellspacing="0">
 <tr>
-    <td align="left" valign="middle"><span class="itatitle" id="bottom"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
-    <td align="left" valign="middle">
+    <td class="toolbar-title"><span class="itatitle" id="bottom"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
+    <td class="toolbar-filter">
         <form id="searchForm2" name="searchForm2" action="<?php echo $htm['php_self']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>">
         <input id="Q2" name="Q" <?php echo $htm['search_attr']; ?> />
         <input type="submit" value="検索" />
         <?php echo $_conf['detect_hint_input_xht'], $_conf['k_input_ht']; ?>
         </form>
     </td>
-    <td align="right" valign="middle"><a class="toolanchor" href="#sbtoolbar1" target="_self">▲</a></td>
+    <td class="toolbar-anchor"><a class="toolanchor" href="#sbtoolbar1" target="_self">▲</a></td>
 </tr>
 </table>
 <?php } ?>

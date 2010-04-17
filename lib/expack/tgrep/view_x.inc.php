@@ -116,7 +116,7 @@ if (isset($_GET['ic'])) {
                         $host_en,
                         $bbs_en,
                         $t->tkey,
-                        base64_encode($ttitle_ht)
+                        UrlSafeBase64::encode($ttitle_ht)
                         );
 
         /*
@@ -124,7 +124,7 @@ if (isset($_GET['ic'])) {
                         $_conf['subject_php'],
                         $host_en,
                         $bbs_en,
-                        rawurlencode(base64_encode($t->ita)),
+                        UrlSafeBase64::encode($t->ita),
                         $htm['query_en']
                         );
         */

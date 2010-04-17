@@ -5,11 +5,11 @@
  */
 
 if ($STYLE['a_underline_none'] == 1) {
-	$cate_underline_css = '';
-	$fav_underline_css = '';
+    $cate_underline_css = '';
+    $fav_underline_css = '';
 } else {
-	$cate_underline_css = 'b.menu_cate{text-decoration:underline;}';
-	$fav_underline_css = 'span.fav{text-decoration:underline;}';
+    $cate_underline_css = 'b.menu_cate { text-decoration:underline; }';
+    $fav_underline_css = 'span.fav { text-decoration:underline; }';
 }
 
 echo <<<EOSTYLE

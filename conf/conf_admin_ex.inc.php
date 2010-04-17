@@ -17,7 +17,7 @@ $_conf['expack.php_cli_path'] = "php"; // ("php")
 // Zend Framework (Zend Gdataでも可) のlibraryディレクトリへのパス
 $_conf['expack.zf_path'] = ""; // ("")
 
-// pecl_http が利用できる場合、HttpRequestPool による並列ダウロードを有効にする
+// pecl_http が利用できる場合、HttpRequestPool による並列ダウンロードを有効にする
 // (off:0, on:1, コマンドラインで実行:2)
 $_conf['expack.use_pecl_http'] = 1; // (1)
 
@@ -108,15 +108,6 @@ $_conf['expack.ic2.enabled'] = 0; // (0)
 $_conf['expack.ic2.switch_path'] = $_conf['pref_dir'] . '/ic2_switch.txt';
 
 // }}}
-// {{{ Google検索
-
-// Google検索（off:0, on:1）
-$_conf['expack.google.enabled'] = 0; // (0)
-
-// WSDL のパス（例：/path/to/googleapi/GoogleSearch.wsdl）
-$_conf['expack.google.wsdl'] = "./conf/GoogleSearch.wsdl"; // ("./conf/GoogleSearch.wsdl")
-
-// }}}
 // {{{ AAS
 
 // AAS（off:0, on:1）
@@ -145,6 +136,9 @@ $_conf['expack.misc.favset_num'] = 5; // (5)
 
 // お気にセット名情報を記録するファイルのパス
 $_conf['expack.misc.favset_file'] = $_conf['pref_dir'] . '/p2_favset.txt';
+
+// iPhoneで板/スレをBB2Cで開くボタンを表示 (off:0, on:1)
+$_conf['expack.misc.use_bb2c'] = 0; // (0)
 
 // }}}
 

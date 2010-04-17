@@ -29,13 +29,7 @@ if (!isset($_GET['id']) && !isset($_GET['url']) && !isset($_GET['md5'])) {
 }
 
 // ÉâÉCÉuÉâÉäì«Ç›çûÇ›
-require_once 'PEAR.php';
-require_once 'DB.php';
-require_once 'DB/DataObject.php';
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
-require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
+require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 
 // }}}
 // {{{ execute

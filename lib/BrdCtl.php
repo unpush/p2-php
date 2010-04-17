@@ -1,8 +1,5 @@
 <?php
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-require_once P2_LIB_DIR . '/BrdMenu.php';
-
 // {{{ BrdCtl
 
 /**
@@ -33,8 +30,6 @@ class BrdCtl
      */
     static public function read_brd_dir()
     {
-        global $_info_msg_ht;
-
         $brd_menus = array();
         $brd_dir = './board';
 
@@ -52,7 +47,7 @@ class BrdCtl
                     $brd_menus[] = $aBrdMenu;
 
                 } else {
-                    $_info_msg_ht .= "<p>p2 error: 板リスト {$entry} が読み込めませんでした。</p>\n";
+                    P2Util::pushInfoHtml("<p>p2 error: 板リスト {$entry} が読み込めませんでした。</p>");
                 }
             }
             $cdir->close();
@@ -69,7 +64,7 @@ class BrdCtl
     */
     static public function read_brd_online()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $brd_menus = array();
         $isNewDL = false;
@@ -149,11 +144,11 @@ class BrdCtl
                     if ($aBrdMenu->num) {
                         $brd_menus[] = $aBrdMenu;
                     } else {
-                        $_info_msg_ht .=  "<p>p2 エラー: {$cache_brd} から板メニューを生成することはできませんでした。</p>\n";
+                        P2Util::pushInfoHtml("<p>p2 error: {$cache_brd} から板メニューを生成することはできませんでした。</p>");
                     }
                     unset($data, $aBrdMenu);
                 } else {
-                    $_info_msg_ht .=  "<p>p2 エラー: {$cachefile} は読み込めませんでした。</p>\n";
+                    P2Util::pushInfoHtml("<p>p2 error: {$cachefile} は読み込めませんでした。</p>");
                 }
             }
         }

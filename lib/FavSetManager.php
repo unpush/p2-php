@@ -115,7 +115,7 @@ class FavSetManager
 
         //ƒLƒƒƒbƒVƒ…‚É•Û‘¶‚·‚é
         if (!is_dir($_conf['pref_dir'])) {
-            FileCtl::mkdir_for($cache_file);
+            FileCtl::mkdirFor($cache_file);
         }
         file_put_contents($cache_file, serialize(array($_conf['favlists'], $_conf['favitas'])));
 

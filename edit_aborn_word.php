@@ -7,33 +7,35 @@ require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
-$path = isset($_REQUEST['path']) ? $_REQUEST['path'] : '';
-$path_ht = htmlspecialchars($path, ENT_QUOTES);
+$filename = isset($_REQUEST['file']) ? $_REQUEST['file'] : '';
 
+$csrfid = P2Util::getCsrfId(__FILE__ . $filename);
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
-    if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
+    if (!isset($_POST['csrfid']) or $_POST['csrfid'] != $csrfid) {
         p2die('不正なポストです');
     }
 }
 
 $writable_files = array(
-    "p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
-    "p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt",
-    "p2_aborn_be.txt", "p2_ng_be.txt", // +Wiki
-    //"p2_aborn_res.txt",
+    'p2_aborn_thread.txt' => 'あぼーんスレッドタイトル',
+    'p2_aborn_name.txt'   => 'あぼーんネーム',
+    'p2_aborn_mail.txt'   => 'あぼーんメール',
+    'p2_aborn_msg.txt'    => 'あぼーんメッセージ',
+    'p2_aborn_id.txt'     => 'あぼーんID',
+    'p2_ng_name.txt'      => 'NGネーム',
+    'p2_ng_mail.txt'      => 'NGメール',
+    'p2_ng_msg.txt'       => 'NGメッセージ',
+    'p2_ng_id.txt'        => 'NGID',
+    'p2_aborn_be.txt'     => 'あぼーんBE',
+    'p2_ng_be.txt'        => 'NGBE',
 );
 
-if ($writable_files and (!in_array(basename($path), $writable_files))) {
-    $i = 0;
-    foreach ($writable_files as $afile) {
-        if ($i != 0) {
-            $files_st .= "と";
-        }
-        $files_st .= "「".$afile."」";
-        $i++;
-    }
-    p2die(basename($_SERVER['SCRIPT_NAME']) . " 先生の書き込めるファイルは、{$files_st}だけ！");
+if (!array_key_exists($filename, $writable_files)) {
+    $files_st = implode(', ', array_keys($writable_files));
+    p2die(basename($_SERVER['SCRIPT_NAME']) . " 先生の書き込めるファイルは、{$files_st} だけ！");
 }
+
+$path = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . $filename;
 
 //=====================================================================
 // 前処理
@@ -73,9 +75,9 @@ if (!empty($_POST['submit_save'])) {
         $newdata .= $a_mode . $a_word . "\t" . $a_time . "\t" . $a_hits . "\n";
     }
     if (FileCtl::file_write_contents($path, $newdata) !== FALSE) {
-        $_info_msg_ht .= "<p>○設定を更新保存しました</p>";
+        P2Util::pushInfoHtml('<p>○設定を更新保存しました</p>');
     } else {
-        $_info_msg_ht .= "<p>×設定を更新保存できませんでした</p>";
+        P2Util::pushInfoHtml('<p>×設定を更新保存できませんでした</p>');
     }
 
 // }}}
@@ -83,9 +85,9 @@ if (!empty($_POST['submit_save'])) {
 
 } elseif (!empty($_POST['submit_default'])) {
     if (@unlink($path)) {
-        $_info_msg_ht .= "<p>○リストを空にしました</p>";
+        P2Util::pushInfoHtml('<p>○リストを空にしました</p>');
     } else {
-        $_info_msg_ht .= "<p>×リストを空にできませんでした</p>";
+        P2Util::pushInfoHtml('<p>×リストを空にできませんでした</p>');
     }
 }
 
@@ -145,11 +147,9 @@ if ($lines = FileCtl::file_read_lines($path, FILE_IGNORE_NEW_LINES)) {
 //=====================================================================
 // プリント設定
 //=====================================================================
-$ptitle_top = sprintf('あぼーん/NGワード編集 &gt; <a href="%s?path=%s">%s</a>',
-    $_SERVER['SCRIPT_NAME'], rawurlencode($path), basename($path));
+$ptitle_top = sprintf('あぼーん/NGワード編集 &gt; <a href="%s?file=%s">%s</a>',
+    $_SERVER['SCRIPT_NAME'], rawurlencode($filename), $writable_files[$filename]);
 $ptitle = strip_tags($ptitle_top);
-
-$csrfid = P2Util::getCsrfId();
 
 //=====================================================================
 // プリント
@@ -189,7 +189,7 @@ if (!$_conf['ktai']) {
 <p id="pan_menu"><a href="editpref.php">設定管理</a> &gt; {$ptitle_top}</p>\n
 EOP;
 } else {
-    echo basename($path) . "<br>";
+    echo $filename . "<br>";
 }
 
 // PC用表示
@@ -210,9 +210,12 @@ EOP;
 }
 
 // 情報メッセージ表示
-if (!empty($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
+P2Util::printInfoHtml();
+
+if ($filename == 'p2_aborn_thread.txt') {
+    $usage_ttitle = '<li>スレタイ: 「あぼーんスレッドタイトル」では不使用</li>';
+} else {
+    $usage_ttitle = '<li>スレタイ: スレッドタイトル (部分一致, 常に大文字小文字を無視)</li>';
 }
 
 $usage = <<<EOP
@@ -222,7 +225,7 @@ $usage = <<<EOP
 <li>i: 大文字小文字を無視</li>
 <li>re: 正規表現</li>
 <li>板: newsplus,software 等 (完全一致, カンマ区切り)</li>
-<li>スレタイ: スレッドタイトル (部分一致, 常に大文字小文字を無視)</li>
+{$usage_ttitle}
 </ul>
 EOP;
 if ($_conf['ktai']) {
@@ -231,7 +234,7 @@ if ($_conf['ktai']) {
 echo <<<EOP
 {$usage}
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="path" value="{$path_ht}">
+    <input type="hidden" name="file" value="{$filename}">
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
 EOP;
 

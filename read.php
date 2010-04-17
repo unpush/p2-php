@@ -5,8 +5,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/NgAbornCtl.php';
-require_once P2_LIB_DIR . '/ThreadRead.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -75,7 +73,7 @@ if (!isset($GLOBALS['word'])) {
         if ($res_filter) {
             $res_filter_cont = serialize($res_filter);
         }
-        if ($res_filter_cont && !$popup_filter) {
+        if ($res_filter_cont && empty($popup_filter)) {
             if (FileCtl::file_write_contents($cachefile, $res_filter_cont) === false) {
                 p2die('cannot write file.');
             }
@@ -112,7 +110,7 @@ if (!isset($aThread->keyidx)) {
 }
 
 // 板ディレクトリが無ければ作る
-// FileCtl::mkdir_for($aThread->keyidx);
+// FileCtl::mkdirFor($aThread->keyidx);
 
 $aThread->itaj = P2Util::getItaName($host, $bbs);
 if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
@@ -243,7 +241,6 @@ if ($_conf['ktai']) {
         $GLOBALS['filter_hits'] = NULL;
     }
 
-    require_once P2_LIB_DIR . '/ShowThreadK.php';
     $aShowThread = new ShowThreadK($aThread);
 
     if ($is_ajax) {
@@ -325,7 +322,6 @@ EOP;
 
     if ($aThread->rescount) {
         $mainhtml = '';
-        require_once P2_LIB_DIR . '/ShowThreadPc.php';
         $aShowThread = new ShowThreadPc($aThread);
 
         if ($_conf['expack.spm.enabled']) {

@@ -14,6 +14,19 @@ $conf_user_def['be_2ch_code'] = ""; // ("")
 $conf_user_def['be_2ch_mail'] = ""; // ("")
 
 // }}}
+// {{{ p2.2ch.netアカウント
+
+// p2.2ch.netの登録メールアドレス
+$conf_user_def['p2_2ch_mail'] = ""; // ("")
+
+// p2.2ch.netのログインパスワード
+$conf_user_def['p2_2ch_pass'] = ""; // ("")
+
+// p2.2ch.net Cookie認証時にIPアドレスの同一性をチェック
+$conf_user_def['p2_2ch_ignore_cip'] = 0; // (0)
+$conf_user_rad['p2_2ch_ignore_cip'] = array('0' => 'チェックする', '1' => 'チェックしない');
+
+// }}}
 // {{{ PATH
 
 // 右下部分に最初に表示されるページ。オンラインURLも可。
@@ -91,18 +104,6 @@ $conf_user_rules['mobile.sb_disp_range'] = array('emptyToDef', 'notIntExceptMinu
 // 既得スレは表示件数に関わらず表示 (する:1, しない:0)
 $conf_user_def['viewall_kitoku'] = 1; // (1)
 $conf_user_rad['viewall_kitoku'] = array('1' => 'する', '0' => 'しない');
-
-// PC閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)
-$conf_user_def['sb_ttitle_max_len'] = 0; // (0)
-$conf_user_rules['sb_ttitle_max_len'] = array('notIntExceptMinusToDef');
-
-// PC閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める
-$conf_user_def['sb_ttitle_trim_len'] = 75; // (75)
-$conf_user_rules['sb_ttitle_trim_len'] = array('emptyToDef', 'notIntExceptMinusToDef');
-
-// PC閲覧時、スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)
-$conf_user_def['sb_ttitle_trim_pos'] = 1; // (1)
-$conf_user_rad['sb_ttitle_trim_pos'] = array('-1' => '先頭', '0' => '中央', '1' => '末尾');
 
 // 携帯閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)
 $conf_user_def['mobile.sb_ttitle_max_len'] = 0; // (0)
@@ -388,14 +389,24 @@ $conf_user_rules['res_hist_rec_num'] = array('notIntExceptMinusToDef');
 $conf_user_def['res_write_rec'] = 1; // (1)
 $conf_user_rad['res_write_rec'] = array('1' => 'する', '0' => 'しない');
 
-// 外部URLジャンプする際に通すゲート。
-// （直接:"", p2 ime(自動転送):"p2", p2 ime(手動転送):"p2m", p2 ime(pのみ手動転送):"p2pm",
-//   r.p(自動転送1秒):"ex", r.p(自動転送0秒):"exq", r.p(手動転送):"exm", r.p(pのみ手動転送):"expm"）
-$conf_user_def['through_ime'] = "expm"; // ("expm") 
+// 外部URLジャンプする際に通すゲート
+// 「直接」でもCookieが使えない端末では gate.php を通す
+$conf_user_def['through_ime'] = "exm"; // ("exm") 
 $conf_user_sel['through_ime'] = array(
-    '' => '直接', 'p2' => 'p2 ime(自動転送)', 'p2m' => 'p2 ime(手動転送)', 'p2pm' => 'p2 ime(pのみ手動転送)',
-    'ex' => 'r.p(自動転送1秒)', 'exq' => 'r.p(自動転送0秒)', 'exm' => 'r.p(手動転送)', 'expm' => 'r.p(pのみ手動転送)'
+    ''       => '直接',
+    'p2'     => 'p2 ime (自動転送)',
+    'p2m'    => 'p2 ime (手動転送)',
+    'p2pm'   => 'p2 ime (pのみ手動転送)',
+    'ex'     => 'gate.php (自動転送1秒)',
+    'exq'    => 'gate.php (自動転送0秒)',
+    'exm'    => 'gate.php (手動転送)',
+    'expm'   => 'gate.php (pのみ手動転送)',
+    'google' => 'Google',
 );
+
+// HTTPSでアクセスしているときは外部URLゲートを通さない（HTTPSでは直:1, 常に通す:0）
+$conf_user_def['through_ime_http_only'] = 0; // (0)
+$conf_user_rad['through_ime_http_only'] = array('1' => 'HTTPSでは直', '0' => '常に通す');
 
 // ゲートで自動転送しない拡張子（カンマ区切りで、拡張子の前のピリオドは不要）
 $conf_user_def['ime_manual_ext'] = "exe,zip"; // ("exe,zip") 

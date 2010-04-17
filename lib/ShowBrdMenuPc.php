@@ -29,7 +29,7 @@ class ShowBrdMenuPc
      */
     public function printBrdMenu(array $categories)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         if ($categories) {
             $menu_php_ht = htmlspecialchars((isset($GLOBALS['menu_php_self'])) ? $GLOBALS['menu_php_self'] : $_SERVER['SCRIPT_NAME']);
@@ -108,11 +108,10 @@ EOP;
             // 新着数を表示する場合・まとめてプリフェッチ
             if ($_conf['enable_menu_new'] && !empty($_GET['new'])) {
                 if ($_conf['expack.use_pecl_http'] == 1) {
-                    require_once P2_LIB_DIR . '/P2HttpExt.php';
+                    P2HttpExt::activate();
                     P2HttpRequestPool::fetchSubjectTxt($favitas);
                     $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
                 } elseif ($_conf['expack.use_pecl_http'] == 2) {
-                    require_once P2_CLI_DIR . '/P2CommandRunner.php';
                     if (P2CommandRunner::fetchSubjectTxt('merge_favita', $_conf)) {
                         $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
                     }
@@ -122,7 +121,7 @@ EOP;
             foreach ($favitas as $favita) {
                 extract($favita);
                 $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
-                $itaj_en = rawurlencode(base64_encode($itaj));
+                $itaj_en = UrlSafeBase64::encode($itaj);
                 $itaj_js = addslashes($itaj_view);
 
                 $p_htm['star'] = <<<EOP

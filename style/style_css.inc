@@ -4,9 +4,10 @@
  * 全般
  */
 
-$a_underline_none_css = '';
 if ($STYLE['a_underline_none'] == 1) {
-	$a_underline_none_css = "a{text-decoration:none;}";
+    $a_underline_none_css = "a{text-decoration:none;}";
+} else {
+    $a_underline_none_css = '';
 }
 
 // ブラウザが Camino なら
@@ -29,7 +30,7 @@ input,option,select,textarea{
 EOSTYLE;
 }
 
-if ($STYLE['fontfamily_bold']) {
+if (!empty($STYLE['fontfamily_bold'])) {
 	$fontstyle_bold = empty($STYLE['fontstyle_bold']) ? 'normal' : $STYLE['fontstyle_bold'];
 	$fontweight_bold = empty($STYLE['fontweight_bold']) ? 'normal' : $STYLE['fontweight_bold'];
 	echo <<<EOSTYLE
@@ -94,6 +95,55 @@ p.info-msg {
 }
 
 EOSTYLE;
+
+// {{{ 汎用ポップアップと元スレリンクポップアップ (レスポップアップの流用)
+
+if (!isset($STYLE['respop_bgcolor']))	{ $STYLE['respop_bgcolor'] = '#ffffcc'; }
+if (!isset($STYLE['respop_background'])) { $STYLE['respop_background'] = ''; }
+$respop_background = "background:{$STYLE['respop_bgcolor']} {$STYLE['respop_background']};";
+
+if (!isset($STYLE['respop_b_style'])) { $STYLE['respop_b_style'] = 'solid'; }
+if (!isset($STYLE['respop_b_width'])) { $STYLE['respop_b_width'] = '1px';   }
+if (!isset($STYLE['respop_b_color'])) { $STYLE['respop_b_color'] = '#aa7'; }
+$respop_border = "border:{$STYLE['respop_b_style']} {$STYLE['respop_b_width']} {$STYLE['respop_b_color']};";
+
+$respop_color = '';
+if (isset($STYLE['respop_color']) && strlen($STYLE['respop_color']) > 0) {
+	$respop_color = "color:{$STYLE['respop_color']};";
+}
+
+	echo <<<EOSTYLE
+
+.popup_element {
+	position: absolute;
+	top: 0;
+	left: 0;
+	visibility: hidden; /* 普段は隠しておく*/
+	{$respop_background}
+	{$respop_border}
+	{$respop_color}
+	font-size:{$STYLE['respop_fontsize']};
+	margin: 0;
+	padding: 8px;
+	-moz-box-shadow: 4px 4px 16px #555;
+	-webkit-box-shadow: 4px 4px 16px #555;
+	box-shadow: 4px 4px 16px #555;
+}
+
+div#motols {
+	padding: 1px 2px;
+}
+
+div#motols a {
+	display: block;
+	margin: 0;
+	padding: 3px;
+	line-height: 100%;
+}
+
+EOSTYLE;
+
+// }}}
 
 // スタイルの上書き
 if (isset($MYSTYLE) && is_array($MYSTYLE)) {

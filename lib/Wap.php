@@ -37,6 +37,13 @@ class WapUserAgent
     private $_timeout = -1;
 
     /**
+     * fread() 時のタイムアウト秒
+     *
+     * @var int
+     */
+    private $_readTimeout = -1;
+
+    /**
      * fsockopen() に@演算子を付けて、エラーを抑制するならtrue
      *
      * @var bool
@@ -94,11 +101,13 @@ class WapUserAgent
      * set timeout
      *
      * @param int $timeout
+     * @param int $readTimeout
      * @return void
      */
-    public function setTimeout($timeout)
+    public function setTimeout($timeout, $readTimeout)
     {
         $this->_timeout = $timeout;
+        $this->_readTimeout = $readTimeout;
     }
 
     // }}}
@@ -228,13 +237,13 @@ class WapUserAgent
 
         // WEBサーバへ接続
         if ($this->_timeout > 0) {
-            if ($this->atFsockopen) {
+            if ($this->_atFsockopen) {
                 $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $this->_timeout);
             } else {
                 $fp = fsockopen($send_host, $send_port, $errno, $errstr, $this->_timeout);
             }
         } else {
-            if ($this->atFsockopen) {
+            if ($this->_atFsockopen) {
                 $fp = @fsockopen($send_host, $send_port, $errno, $errstr);
             } else {
                 $fp = fsockopen($send_host, $send_port, $errno, $errstr);
@@ -247,11 +256,15 @@ class WapUserAgent
             return $res;
         }
 
+        if ($this->_readTimeout > 0) {
+            stream_set_timeout($fp, $this->_readTimeout, 0);
+        }
+
         fputs($fp, $request);
         $body = '';
 
         // header response
-        while (!feof($fp)) {
+        while (!p2_stream_eof($fp, $timed_out)) {
             $l = fgets($fp,128000);
             //echo $l."<br>"; //
             // ex) HTTP/1.1 304 Not Modified
@@ -268,7 +281,7 @@ class WapUserAgent
 
         // body response
         if (!$req->onlyHeader) {
-            while (!feof($fp)) {
+            while (!p2_stream_eof($fp, $timed_out)) {
                 $body .= fread($fp, 4096);
             }
             $res->setContent($body);

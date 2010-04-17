@@ -29,11 +29,16 @@ if ($_conf['ktai']) {
 $autho_user_ht = "{$autho_user_st}: {$_login->user_u}<br>";
 
 // HOSTを取得
-if (!$hc[remoto_host] = $_SERVER['REMOTE_HOST']) {
-    $hc[remoto_host] = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+if (array_key_exists('REMOTE_HOST', $_SERVER)) {
+    $hc['remote_host'] = $_SERVER['REMOTE_HOST'];
+} else {
+    $hc['remote_host'] = '';
 }
-if ($hc[remoto_host] == $_SERVER['REMOTE_ADDR']) {
-    $hc[remoto_host] = "";
+if (!$hc['remote_host']) {
+    $hc['remote_host'] = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+}
+if ($hc['remote_host'] == $_SERVER['REMOTE_ADDR']) {
+    $hc['remote_host'] = '';
 }
 
 $hc['ua'] = $_SERVER['HTTP_USER_AGENT'];
@@ -79,33 +84,27 @@ EOP;
 }
 
 // インフォメッセージ表示
-echo $_info_msg_ht;
-$_info_msg_ht = "";
-
-echo "<ul id=\"setting_menu\">";
+P2Util::printInfoHtml();
 
 echo <<<EOP
-    <li><a href="login.php{$_conf['k_at_q']}"{$access_login_at}>rep2ログイン管理</a></li>
+<ul id="setting_menu">
+    <li><a href="login.php{$_conf['k_at_q']}">rep2ログイン管理</a></li>
+    <li><a href="login2ch.php{$_conf['k_at_q']}">2chログイン管理</a></li>
+</ul>
 EOP;
-
-echo <<<EOP
-    <li><a href="login2ch.php{$_conf['k_at_q']}"{$access_login2ch_at}>2chログイン管理</a></li>
-EOP;
-
-echo '</ul>'."\n";
 
 if ($_conf['ktai']) {
-    echo "<hr>";
+    echo '<hr>';
 }
 
-echo "<p id=\"client_status\">";
 echo <<<EOP
+<p id="client_status">
 {$autho_user_ht}
-{$client_host_st}: {$hd['remoto_host']}<br>
+{$client_host_st}: {$hd['remote_host']}<br>
 {$client_ip_st}: {$_SERVER['REMOTE_ADDR']}<br>
-{$browser_ua_st}: {$hd['ua']}<br>
+{$browser_ua_st}: {$hd['ua']}
+</p>
 EOP;
-echo "</p>\n";
 
 
 // フッタプリント===================

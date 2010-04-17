@@ -3,8 +3,6 @@
  * rep2expack - ’èŒ^•¶ŠÇ—ƒNƒ‰ƒX
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 // {{{ constants
 
 define('PRESETMANAGER_REAF_FIRST',    0);

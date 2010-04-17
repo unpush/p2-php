@@ -131,6 +131,7 @@
 	var setFavita = function(div) {
 		var toggled, req, uri, setnum;
 
+		toggled = div.getAttribute('toggled') === 'true';
 		setnum = parseInt(div.className.substring(div.className.indexOf('favita') + 6));
 		uri = 'httpcmd.php?cmd=setfavita&' + window.iutil.sliding.query + '&setnum=' + setnum;
 		if (toggled) {
@@ -139,7 +140,6 @@
 			uri += '&setfavita=0';
 		}
 
-		toggled = div.getAttribute('toggled') === 'true';
 		req = new XMLHttpRequest();
 		req.open('GET', uri, true);
 		req.onreadystatechange = generateOnToggle(req, div, toggled);
