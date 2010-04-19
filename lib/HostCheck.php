@@ -564,11 +564,10 @@ class HostCheck
         // ml7ts005v11c.pcsitebrowser.ne.jp
         $regHost = '/\.(pcsitebrowser)\.ne\.jp$/';
         
-        // @update 2009/01/18
-        // 2008年2月29日現在
+        // 2010年4月16日現在
         $bands = array(
             // PCサイトブラウザ
-            '123.108.237.240/28',
+            '123.108.237.224/27',
             '202.253.96.0/28',
         );
         return HostCheck::isAddrInBand($addr, $bands, $regHost);
