@@ -86,7 +86,7 @@ var iResPopUp = function(url, evt) {
 		return false;
 	}
 
-	_IRESPOPG.serial++
+	_IRESPOPG.serial++;
 	var popnum = _IRESPOPG.serial;
 	var popid = '_respop' + popnum;
 	var req = new XMLHttpRequest();
