@@ -176,6 +176,7 @@ class BrdMenu
         $p2brdfile = $cachefile.".p2.brd";
         FileCtl::make_datafile($p2brdfile, $_conf['p2_perm']);
         $data = FileCtl::file_read_lines($cachefile);
+        $cont = '';
         $this->setBrdMatch($cachefile); // パターンマッチ形式を登録
         $this->setBrdList($data);       // カテゴリーと板をセット
         if ($this->categories) {
