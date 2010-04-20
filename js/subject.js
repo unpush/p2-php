@@ -73,8 +73,11 @@ rep2.subject.showMotoLsPopUp = function (event, element) {
 // {{{ rep2.subject.resizeTitleCell()
 
 rep2.subject.resizeTitleCell = function () {
+	var _ = rep2.subject;
 	var w = $(window).width(), d = 0;
-	$.each($('table.threadlist tr').first().find('th'), function(){
+	var i, ss, sel, val;
+
+	$.each($('table.threadlist > thead > tr').first().find('th'), function(){
 		var self = $(this);
 		w -= self.outerWidth();
 		if (self.hasClass('tl')) {
@@ -82,18 +85,39 @@ rep2.subject.resizeTitleCell = function () {
 			d++;
 		}
 	});
-	$('table.threadlist td.tl div.el').width(w / d);
+
+	ss = document.styleSheets[_.dynamicStyleIndex];
+	sel = 'table.threadlist td.tl div.el';
+	val = 'width: ' + Math.floor(w / d) + 'px';
+
+	if (_.dynamicRuleIndex > -1) {
+		i = _.dynamicRuleIndex;
+		if (typeof ss.deleteRule !== 'undefined') {
+			ss.deleteRule(i);
+		} else if (typeof ss.removeRule !== 'undefined') {
+			ss.removeRule(i);
+		}
+	} else {
+		i = (ss.rules || ss.cssRules).length;
+		_.dynamicRuleIndex = i;
+	}
+
+	if (typeof ss.addRule !== 'undefined') {
+		ss.addRule(sel, val, i);
+	} else {
+		ss.insertRule(sel + ' { ' + val + '; }', i);
+	}
 };
 
 // }}}
 // {{{ rep2.subject.checkAll()
 
 rep2.subject.checkAll = function () {
-	var checboxes = $('.threadlist input:checkbox[name!=allbox]');
+	var checkboxes = $('.threadlist input:checkbox[name!=allbox]');
 	if ($('#allbox').attr('checked')) {
-		checboxes.attr('checked', 'checked');
+		checkboxes.attr('checked', 'checked');
 	} else {
-		checboxes.removeAttr('checked');
+		checkboxes.removeAttr('checked');
 	}
 };
 
@@ -205,12 +229,26 @@ rep2.subject.setup = function (group_number) {
 
 $(document).ready(function(){
 	var _ = rep2.subject;
+	var i, n;
+
+	_.dynamicStyleIndex = 0;
+	_.dynamicRuleIndex = -1;
+	n = document.styleSheets.length;
+	for (i = 0; i < n; i++) {
+		if (document.styleSheets[i].href.indexOf('css/blank.css') != -1) {
+			_.dynamicStyleIndex = i;
+			break;
+		}
+	}
+	if (i == n) {
+		i = 0;
+	}
 
 	_.setWindowTitle();
 	_.resizeTitleCell();
 
 	if (_.properties.threads_count > 300) {
-		var i, j, n;
+		var j;
 		i = 0;
 		n = $('table.threadlist > tbody').length;
 		while (i < n) {

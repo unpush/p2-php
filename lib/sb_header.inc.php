@@ -209,6 +209,7 @@ EOP;
 echo <<<EOP
     <title>{$ptitle_hd}</title>
     <base target="read">
+    <link rel="stylesheet" type="text/css" href="css/blank.css">
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
     <link rel="stylesheet" type="text/css" href="css.php?css=subject&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
