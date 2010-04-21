@@ -475,7 +475,7 @@ class UA
         // T-mobile G1
         // Mozilla/5.0 (Linux; U; Android 1.0; en-us; dream) AppleWebKit/525.10+ (KHTML, like Gecko) Version/3.0.4 Mobile Safari/523.12.2
         // generic‚Ædream‚ªˆÙ‚È‚é
-        if (false !== strpos('Android', $ua) && false !== strpos('WebKit', $ua)) {
+        if (false !== strpos($ua, 'Android') && false !== strpos($ua, 'WebKit')) {
             return true;
         }
         return false;
