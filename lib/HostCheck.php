@@ -481,7 +481,7 @@ class HostCheck
         //$regHost = '/^wb\d\dproxy\d\d\.ezweb\.ne\.jp$/';
         $regHost = '/\.ezweb\.ne\.jp$/';
         
-        // @updated 2010/02/08
+        // @updated 2010/04/26
         $bands = array(
             '210.230.128.224/28',
             '121.111.227.160/27',
@@ -508,6 +508,7 @@ class HostCheck
             '111.86.141.64/26',
             '111.86.141.128/26',
             '111.86.141.192/26',
+            '118.159.133.192/26',
         );
         return HostCheck::isAddrInBand($addr, $bands, $regHost);
     }
