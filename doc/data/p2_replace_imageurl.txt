@@ -243,3 +243,4 @@ http://srd\.yahoo\.co\.jp/IMG/.*/\*-(?:http(?::|%3A)(?:/|%2F){2}(.+\.(?:jpe?g|pn
 http://(?:www\.)?(picasaweb\.google\.co(?:m|\.jp)/[.\w\-]+/(?:[.\w\-]+/)*\w+#)s?(\d+)	http://$EXTRACT1/$EXTRACT2/$EXTRACT3/$EXTRACT4/$EXTRACT5/$EXTRACT6	http://$1$2	$EXTRACT	(?:id:["']$2|photoid/$2).+?http(?::|\\x3A)(?:\\x2F|/){2}(\w+\.ggpht\.com)(?:\\x2F|/)([.\w\-]+)(?:\\x2F|/)([.\w\-]+)(?:\\x2F|/)([.\w\-]+)(?:\\x2F|/)([.\w\-]+)(?:\\x2F|/)([^/"'\\\s]+\.(?:jpe?g|png|gif|bmp))
 (http://pl-loader\.net)/dl\.php\?la=pl_\d+	$1$EXTRACT1	$&	$EXTRACT	\.(/pic/\w+\.(?:jpe?g|png|gif|bmp))
 (http://pl-loader\.net)/(?:dl\.php\?la=|pic/)(\d+\.(?:jpe?g|png|gif|bmp))	$1/pic/$2	$1/dl.php?la=$2
+http://twitpic\.com/\w+	$EXTRACT	$&/full	$EXTRACT	src="(http://[^"]+)

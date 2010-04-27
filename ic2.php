@@ -335,6 +335,9 @@ if (is_string($referer)) {
 // }}}
 // {{{ head
 
+// Amazon S3 に HEADすると403になるので、HEAD省略
+if (!preg_match('{^http://s3\.amazonaws\.com/}', $uri)) {
+
 // まずはHEADでチェック
 // +Wiki:imepita対策(from Wiki)
 if (preg_match('{^http://imepita\.jp/}', $uri)) {
@@ -387,6 +390,8 @@ if (isset($head['headers']['content-length'])) {
 
 unset($client_h, $code, $head);
 
+}   // Amazon S3 に HEADすると403になるので、HEAD省略 おわり
+
 // }}}
 // {{{ get
 
@@ -395,6 +400,9 @@ $code = preg_match('{^http://imepita\.jp/}', $uri) ? $code1 : $code = $client->g
 
 if (PEAR::isError($code)) {
     ic2_error('x02', $code->getMessage());
+} elseif ($filepath && $force && $time && $code == 304) {
+// 304 Not Modified のとき
+    ic2_finish($filepath, $thumb, $params, false);
 } elseif ($code != 200) {
     ic2_error($code);
 }
