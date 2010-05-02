@@ -335,8 +335,7 @@ if (is_string($referer)) {
 // }}}
 // {{{ head
 
-// Amazon S3 に HEADすると403になるので、HEAD省略
-if (!preg_match('{^http://s3\.amazonaws\.com/}', $uri)) {
+if ($ini['Getter']['omit_head'] == 0) { // HEAD省略
 
 // まずはHEADでチェック
 // +Wiki:imepita対策(from Wiki)
@@ -390,7 +389,7 @@ if (isset($head['headers']['content-length'])) {
 
 unset($client_h, $code, $head);
 
-}   // Amazon S3 に HEADすると403になるので、HEAD省略 おわり
+}   // HEAD省略 おわり
 
 // }}}
 // {{{ get
