@@ -183,6 +183,10 @@ $_conf['expack.ic2.getter.virusscan'] = 0;
 // パスを明示的に指定する場合は、スペースがあるとウィルススキャンできないので注意
 $_conf['expack.ic2.getter.clamav'] = "";
 
+// HEADを省略するか（no:0;yes:1)
+// HEADすると403とか404になるサーバからも画像を取得したい場合
+$_conf['expack.ic2.getter.omit_head'] = 0;
+
 // }}}
 // {{{ プロキシ
 
