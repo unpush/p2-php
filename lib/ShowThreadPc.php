@@ -1118,6 +1118,7 @@ EOP;
         } else {
             $this->_quote_check_depth++;
         }
+        if ($res_num == 0) { $res_num = 1; }
 
         $quote_res_nums = array();
         $quote_to = $this->get_quote_to();
@@ -1951,11 +1952,8 @@ EOP;
     // }}}
 
     public function get_quotebacks_json() {
-        if ($this->_quote_from === null) {
-            $this->_make_quote_from();  // 被レスデータ集計
-        }
         $ret = array();
-        foreach ($this->_quote_from as $resnum => $quote_from) {
+        foreach ($this->get_quote_from() as $resnum => $quote_from) {
             if (!$quote_from) continue;
             if ($resnum != 1 && ($resnum < $this->thread->resrange['start'] || $resnum > $this->thread->resrange['to'])) continue;
             $tmp = array();
