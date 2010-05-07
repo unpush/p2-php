@@ -1115,6 +1115,7 @@ EOP;
         } else {
             $this->_quote_check_depth++;
         }
+        if ($res_num == 0) { $res_num = 1; }
 
         $quote_res_nums = array();
         $quote_to = $this->get_quote_to();
