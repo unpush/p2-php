@@ -363,6 +363,9 @@ EOJS;
         $rpop = '';
         $this->_quote_check_depth = 0;
         $quote_res_nums = $this->checkQuoteResNums(0, '1', '');
+        if (array_search(1, $quote_res_nums) === false) {
+            $quote_res_nums[] = 1;
+        }
 
         foreach ($quote_res_nums as $rnv) {
             if (!isset($this->_quote_res_nums_done[$rnv])) {
@@ -1019,7 +1022,7 @@ EOP;
     {
         global $_conf;
         if ($_conf['backlink_list'] > 0 || $_conf['backlink_block'] > 0) {
-            return $this->checkQuoteResNumsFromSummary($res_num);
+            return $this->checkQuoteResNumsFromSummary($res_num == 0 ? 1 : $res_num);
         }
 
         // 再帰リミッタ
