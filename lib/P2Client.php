@@ -16,9 +16,8 @@ class P2Client
     const COOKIE_STORE_NAME = 'p2_2ch_net_cookies.sqlite3';
 
     /**
-     * 公式p2のURIと各エントリポイント
+     * 各エントリポイントの名前
      */
-    const P2_ROOT_URI = 'http://p2.2ch.net/p2/';
     const SCRIPT_NAME_READ = 'read.php';
     const SCRIPT_NAME_POST = 'post.php';
     const SCRIPT_NAME_INFO = 'info.php';
@@ -69,6 +68,13 @@ class P2Client
     // {{{ properties
 
     /**
+     * 公式p2のルートURI
+     *
+     * @var string
+     */
+    private $_rootUri;
+
+    /**
      * p2.2ch.net/モリタポ ログインID (メールアドレス)
      *
      * @var string
@@ -116,14 +122,24 @@ class P2Client
     /**
      * コンストラクタ
      *
+     * @param string $rootUri
      * @param string $loginId
      * @param string $loginPass
      * @param string $cookieSaveDir
      * @param bool $ignoreCookieAddr
      * @throws P2Exception
      */
-    public function __construct($loginId, $loginPass, $cookieSaveDir, $ignoreCookieAddr = false)
+    public function __construct($rootUri,
+                                $loginId,
+                                $loginPass,
+                                $cookieSaveDir,
+                                $ignoreCookieAddr = false)
     {
+        if (!preg_match('!^https?://.+/$!', $rootUri)) {
+            throw new Exception('Invalid root URI was given.');
+        }
+        $this->_rootUri = $rootUri;
+
         try {
             $cookieSavePath = $cookieSaveDir . DIRECTORY_SEPARATOR . self::COOKIE_STORE_NAME;
             $cookieStore = P2KeyValueStore::getStore($cookieSavePath,
@@ -185,7 +201,7 @@ class P2Client
                           &$response = null)
     {
         if ($uri === null) {
-            $uri = self::P2_ROOT_URI;
+            $uri = $this->_rootUri;
         }
 
         if ($dom === null) {
@@ -237,7 +253,7 @@ class P2Client
     public function readThread($host, $bbs, $key, $ls = '1', &$response = null)
     {
         $getData = $this->setupGetData($host, $bbs, $key, $ls);
-        $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_READ;
+        $uri = $this->_rootUri . self::SCRIPT_NAME_READ;
         $response = $this->httpGet($uri, $getData, true);
         $dom = new P2DOM($response['body']);
 
@@ -291,14 +307,14 @@ class P2Client
         $result = $dom->query($expression);
         if (($result instanceof DOMNodeList) && $result->length > 0) {
             $anchor = $result->item(0);
-            $uri = self::P2_ROOT_URI
+            $uri = $this->_rootUri
                  . strstr($anchor->getAttribute('href'), self::SCRIPT_NAME_READ);
             $response = $this->httpGet($uri);
         }
 
         // datを取得する。
         $getData = $this->setupGetData($host, $bbs, $key);
-        $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_DAT;
+        $uri = $this->_rootUri . self::SCRIPT_NAME_DAT;
         $response = $this->httpGet($uri, $getData, true);
 
         if (strpos($response['body'], self::NEEDLE_DAT_NO_DAT) !== false) {
@@ -354,7 +370,7 @@ class P2Client
         }
 
         // POST実行。
-        $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_POST;
+        $uri = $this->_rootUri . self::SCRIPT_NAME_POST;
         $response = $this->httpPost($uri, $postData, true);
 
         // Cookie確認の場合は再POST。

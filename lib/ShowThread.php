@@ -3,6 +3,8 @@
  * rep2- スレッドを表示する クラス
  */
 
+$GLOBALS['last_hit_resnum'] = null;
+
 // {{{ ShowThread
 
 abstract class ShowThread

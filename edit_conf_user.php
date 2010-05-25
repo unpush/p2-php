@@ -229,8 +229,9 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $conflist = array(
         array('be_2ch_code', '<a href="http://be.2ch.net/" target="_blank">be.2ch.net</a>の認証コード(パスワードではない)', P2_EDIT_CONF_USER_LONGTEXT),
         array('be_2ch_mail', 'be.2ch.netの登録メールアドレス', P2_EDIT_CONF_USER_LONGTEXT),
-        array('p2_2ch_mail', '<a href="http://p2.2ch.net/" target="_blank">p2.2ch.net</a>の登録メールアドレス', P2_EDIT_CONF_USER_LONGTEXT),
-        array('p2_2ch_pass', 'p2.2ch.netのログインパスワード', P2_EDIT_CONF_USER_LONGTEXT | P2_EDIT_CONF_USER_PASSWORD),
+        array('p2_2ch_host', '公式p2 (<a href="http://p2.2ch.net/" target="_blank">p2.2ch.net</a>) で割り当てられているサーバー', P2_EDIT_CONF_USER_LONGTEXT),
+        array('p2_2ch_mail', '公式p2の登録メールアドレス', P2_EDIT_CONF_USER_LONGTEXT),
+        array('p2_2ch_pass', '公式p2のログインパスワード', P2_EDIT_CONF_USER_LONGTEXT | P2_EDIT_CONF_USER_PASSWORD),
         array('p2_2ch_ignore_cip', ' p2.2ch.net Cookie認証時にIPアドレスの同一性をチェック'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
@@ -807,13 +808,39 @@ function applyRules()
 {
     global $conf_user_rules, $conf_user_def;
 
-    if (is_array($conf_user_rules)) {
-        foreach ($conf_user_rules as $k => $v) {
-            if (isset($_POST['conf_edit'][$k])) {
-                $def = isset($conf_user_def[$k]) ? $conf_user_def[$k] : null;
-                foreach ($v as $func) {
-                    $_POST['conf_edit'][$k] = call_user_func($func, $_POST['conf_edit'][$k], $def);
+    if (!array_key_exists('conf_edit', $_POST) || !is_array($_POST['conf_edit'])) {
+        return;
+    }
+
+    foreach ($conf_user_rules as $key => $rules ) {
+        if (array_key_exists($key, $_POST['conf_edit'])) {
+            $default = array_key_exists($key, $conf_user_def) ? $conf_user_def[$key] : null;
+            $value = $_POST['conf_edit'][$key];
+
+            if ($value !== $default) {
+                foreach ($rules as $rule) {
+                    if (is_string($rule)) {
+                        if (strncmp($rule, '/', 1) === 0) {
+                            if (!preg_match($rule, $value)) {
+                                $value = $default;
+                            }
+                        } elseif (strncmp($rule, '!/', 2) === 0) {
+                            if (preg_match(substr($rule, 1), $value)) {
+                                $value = $default;
+                            }
+                        } else {
+                            $value = call_user_func($rule, $value, $default);
+                        }
+                    } else {
+                        $value = call_user_func($rule, $value, $default);
+                    }
+
+                    if ($value === $default) {
+                        break;
+                    }
                 }
+
+                $_POST['conf_edit'][$key] = $value;
             }
         }
     }
