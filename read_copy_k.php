@@ -28,7 +28,7 @@ $resid = $_GET['copy'];
 $quote = !empty($_GET['inyou']);
 
 if (isset($_SERVER['HTTP_REFERER'])) {
-    $back_link = '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="–ß‚é">' . –ß‚é . '</a> ';
+    $back_link = '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="–ß‚é">–ß‚é</a> ';
 }
 
 //=================================================
