@@ -16,6 +16,10 @@ $conf_user_def['be_2ch_mail'] = ""; // ("")
 // }}}
 // {{{ p2.2ch.netアカウント
 
+// p2.2ch.netのサーバー
+$conf_user_def['p2_2ch_host'] = "w1.p2.2ch.net"; // ("w1.p2.2ch.net")
+$conf_user_rules['p2_2ch_host'] = array('/^(?:w\\d+\\.)?p2\\.2ch\\.net$/');
+
 // p2.2ch.netの登録メールアドレス
 $conf_user_def['p2_2ch_mail'] = ""; // ("")
 
