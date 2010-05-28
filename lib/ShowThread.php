@@ -1111,6 +1111,7 @@ EOP;
 
         // ƒgƒŠƒbƒv‚ğœ‹
         $name = preg_replace('/(Ÿ.*)/', '', $name, 1);
+        $name = strip_tags($name);
 
         /*
         //if (preg_match('/[0-9]+/', $name, $m)) {
@@ -1118,7 +1119,7 @@ EOP;
         }
          */
 
-        if (preg_match_all(self::getAnchorRegex('/(?:^|%prefix%|%delimiter%)(%a_num%)/'), $name, $matches)) {
+        if (preg_match_all(self::getAnchorRegex('/(?:^|%prefix%)(%nums%)/'), $name, $matches)) {
             foreach ($matches[1] as $a_quote_res_num) {
                 $quote_res_nums[] = (int)mb_convert_kana($a_quote_res_num, 'n');
             }
