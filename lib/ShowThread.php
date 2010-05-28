@@ -1098,7 +1098,7 @@ EOP;
         }
          */
 
-        if (preg_match_all(self::getAnchorRegex('/(?:^|%prefix%|%delimiter%)(%a_num%)/'), $name, $matches)) {
+        if (preg_match_all(self::getAnchorRegex('/(?:^|%prefix%)(%nums%)/'), $name, $matches)) {
             foreach ($matches[1] as $a_quote_res_num) {
                 $quote_res_nums[] = (int)mb_convert_kana($a_quote_res_num, 'n');
             }
