@@ -1091,6 +1091,7 @@ EOP;
 
         // ƒgƒŠƒbƒv‚ğœ‹
         $name = preg_replace('/(Ÿ.*)/', '', $name, 1);
+        $name = strip_tags($name);
 
         /*
         //if (preg_match('/[0-9]+/', $name, $m)) {
