@@ -245,3 +245,4 @@ http://(?:www\.)?(picasaweb\.google\.co(?:m|\.jp)/[.\w\-]+/(?:[.\w\-]+/)*\w+#)s?
 (http://pl-loader\.net)/(?:dl\.php\?la=|pic/)(\d+\.(?:jpe?g|png|gif|bmp))	$1/pic/$2	$1/dl.php?la=$2
 http://twitpic\.com/\w+	$EXTRACT	$&/full	$EXTRACT	src="(http://[^"]+)
 http://skm\.vip2ch\.com/-/hirame/([^/]+\.(?:jpe?g|png|gif|bmp))	http://skm.vip2ch.com/hirame/$1
+http://loda\.jp/\w+/\?id=\w+\.(?:jpe?g|png|gif|bmp)	$&
