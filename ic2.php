@@ -335,19 +335,25 @@ if (is_string($referer)) {
 // }}}
 // {{{ head
 
+$retry = 0;
 if ($ini['Getter']['omit_head'] == 0) { // HEAD省略
 
 // まずはHEADでチェック
-// +Wiki:imepita対策(from Wiki)
-if (preg_match('{^http://imepita\.jp/}', $uri)) {
-    while (($code = $client->get($uri)) == 403) {
-        sleep(5);
-        $code = $client->get($uri);
-    }
-    $code1 = $code;
-    $client_h = clone $client;
+$client_h = clone $client;
+if ($ini['Getter']['retry_regex'] &&
+    strlen(trim($ini['Getter']['retry_regex'])) > 0 &&
+    intval($ini['Getter']['retry_max']) > 0 &&
+    preg_match($ini['Getter']['retry_regex'], $uri))
+{
+    do {
+        $code = $client_h->head($uri);
+        if ($code != 403) {
+            break;
+        }
+        $retry++;
+        sleep($ini['Getter']['retry_interval']);
+    } while ($retry < intval($ini['Getter']['retry_max']));
 } else {
-    $client_h = clone $client;
     $code = $client_h->head($uri);
 }
 if (PEAR::isError($code)) {
@@ -395,7 +401,22 @@ unset($client_h, $code, $head);
 // {{{ get
 
 // ダウンロード
-$code = preg_match('{^http://imepita\.jp/}', $uri) ? $code1 : $code = $client->get($uri);
+if ($ini['Getter']['retry_regex'] &&
+    strlen(trim($ini['Getter']['retry_regex'])) > 0 &&
+    intval($ini['Getter']['retry_max']) > 0 &&
+    preg_match($ini['Getter']['retry_regex'], $uri))
+{
+    do {
+        $code = $client->get($uri);
+        if ($code != 403) {
+            break;
+        }
+        $retry++;
+        sleep($ini['Getter']['retry_interval']);
+    } while ($retry < intval($ini['Getter']['retry_max']));
+} else {
+    $code = $client->get($uri);
+}
 
 if (PEAR::isError($code)) {
     ic2_error('x02', $code->getMessage());

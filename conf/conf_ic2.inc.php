@@ -174,6 +174,16 @@ $_conf['expack.ic2.getter.clamav'] = "";
 // HEADすると403とか404になるサーバからも画像を取得したい場合
 $_conf['expack.ic2.getter.omit_head'] = 0;
 
+// リトライ
+// リトライを行うURLの正規表現
+$_conf['expack.ic2.getter.retry_regex'] = '{^http://imepita\.jp/}';
+
+// リトライの最大回数
+$_conf['expack.ic2.getter.retry_max'] = 5;
+
+// リトライの間隔(秒)
+$_conf['expack.ic2.getter.retry_interval'] = 5;
+
 // }}}
 // {{{ プロキシ
 
