@@ -44,6 +44,11 @@ class ReplaceImageURLCtl
         $path = $_conf['pref_dir'].'/'.$this->filename;
         if ($lines = @file($path)) {
             foreach ($lines as $l) {
+                if (substr($l, 0, 1) === ';' || substr($l, 0, 1) === "'" ||
+                    substr($l, 0, 1) === '#' || substr($l, 0, 2) === '//') {
+                    //"#" ";" "'" "//"から始まる行はコメント
+                    continue;
+                }
                 $lar = explode("\t", trim($l));
                 if (strlen($lar[0]) == 0 || count($lar) < 2) {
                     continue;
