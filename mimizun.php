@@ -31,8 +31,29 @@ if ($_GET['img']) {
     exit;
 } else {
     if ($mimizun->isEnable()) {
-        $mimizun->id = $_GET['id'];
-        //header('Location: ' . html_entity_decode(P2Util::throughIme($mimizun->getIDURL())));
+        $id = '';
+        if ($_GET['id']) {
+            $id = $_GET['id'];
+        } else if ($_GET['key'] && $_GET['resnum']) {
+            $aThread = new ThreadRead;
+            $aThread->setThreadPathInfo($_GET['host'], $_GET['bbs'], $_GET['key']);
+            $aThread->readDat();
+            $resnum = $_GET['resnum'];
+            if (isset($aThread->datlines[$resnum - 1])) {
+                $ares = $aThread->datlines[$resnum - 1];
+                $resar = $aThread->explodeDatLine($ares);
+                $m = array();
+                if (preg_match('<(ID: ?| )([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$)>', $resar[2], $m)) {
+                    $id = $m[2];
+                }
+            }
+        }
+        if ($id) {
+            $mimizun->id = $id;
+        } else {
+            P2Util::printSimpleHtml('‰½‚©‚ª‘«‚è‚È‚¢‚æ‚¤‚Å‚·B');
+            exit();
+        }
         $_ime = new P2Ime();
         $url = $_ime->through($mimizun->getIDURL(), null, false);
         header('Location: ' . $url);

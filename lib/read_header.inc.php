@@ -275,6 +275,13 @@ if ($_conf['expack.editor.savedraft'] != '0') {
     <script type="text/javascript" src="js/post_draft.js?{$_conf['p2_version_id']}"></script>
 EOP;
 }
+if ($_conf['wiki.idsearch.spm.mimizun.enabled'] ||
+    $_conf['wiki.idsearch.spm.hissi.enabled'] ||
+    $_conf['wiki.idsearch.spm.stalker.enabled']) {
+    echo <<<EOP
+    <script type="text/javascript" src="js/idtool.js?{$_conf['p2_version_id']}"></script>
+EOP;
+}
 
 $onload_script = '';
 

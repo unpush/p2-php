@@ -351,6 +351,43 @@ EOP;
             // レンダリングさせる
             echo $mainhtml;
         }
+
+        // 外部ツール
+        $pluswiki_js = '';
+        if ($_conf['wiki.idsearch.spm.mimizun.enabled']) {
+            require_once './plugin/mimizun/mimizun.class.php';
+            $mimizun = new mimizun();
+            $mimizun->host = $aThread->host;
+            $mimizun->bbs  = $aThread->bbs;
+            if ($mimizun->isEnable())
+                $pluswiki_js .= "WikiTools.addMimizun({$aShowThread->spmObjName});";
+        }
+        if ($_conf['wiki.idsearch.spm.hissi.enabled']) {
+            require_once './plugin/hissi/hissi.class.php';
+            $hissi = new hissi();
+            $hissi->host = $aThread->host;
+            $hissi->bbs  = $aThread->bbs;
+            if ($hissi->isEnable())
+                $pluswiki_js .= "WikiTools.addHissi({$aShowThread->spmObjName});";
+        }
+        if ($_conf['wiki.idsearch.spm.stalker.enabled']) {
+            require_once './plugin/stalker/stalker.class.php';
+            $stalker = new stalker();
+            $stalker->host = $aThread->host;
+            $stalker->bbs  = $aThread->bbs;
+            if ($stalker->isEnable())
+                $pluswiki_js .= "WikiTools.addStalker({$aShowThread->spmObjName});";
+        }
+        if ($pluswiki_js) {
+            echo <<<EOP
+<script type="text/javascript">
+//<![CDATA[
+{$pluswiki_js}
+//]]>
+</script>
+EOP;
+        }
+
     } else if ($aThread->diedat && count($aThread->datochi_residuums) > 0) {
         require_once P2_LIB_DIR . '/ShowThreadPc.php';
         $aShowThread = new ShowThreadPc($aThread);

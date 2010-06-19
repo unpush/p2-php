@@ -18,6 +18,22 @@ $conf_user_sel['wiki.replaceimageurl.extract_cache'] = array(
 
 // }}}
 
+// {{{ ■IDサーチ
+
+// スマートポップアップメニューでみみずんID検索をするか
+$conf_user_def['wiki.idsearch.spm.mimizun.enabled'] = 1; // (1)
+$conf_user_rad['wiki.idsearch.spm.mimizun.enabled'] = array('1' => 'する', '0' => 'しない');
+
+// スマートポップアップメニューで必死チェッカーID検索をするか
+$conf_user_def['wiki.idsearch.spm.hissi.enabled'] = 1; // (1)
+$conf_user_rad['wiki.idsearch.spm.hissi.enabled'] = array('1' => 'する', '0' => 'しない');
+
+// スマートポップアップメニューでIDストーカーID検索をするか
+$conf_user_def['wiki.idsearch.spm.stalker.enabled'] = 0; // (0)
+$conf_user_rad['wiki.idsearch.spm.stalker.enabled'] = array('1' => 'する', '0' => 'しない');
+
+// }}}
+
 // {{{ ■samba
 
 // sambaタイマーを利用 (する:1, しない:0)

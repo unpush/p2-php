@@ -738,6 +738,10 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $conflist = array(
         '画像置換URL',
         array('wiki.replaceimageurl.extract_cache', '画像置換URLのEXTRACTキャッシュ制御'),
+        'スマートポップアップメニュー外部ツール',
+        array('wiki.idsearch.spm.mimizun.enabled', 'みみずんID検索'),
+        array('wiki.idsearch.spm.hissi.enabled', '必死チェッカーID検索'),
+        array('wiki.idsearch.spm.stalker.enabled', 'IDストーカーID検索'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

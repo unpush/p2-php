@@ -216,6 +216,14 @@ window.setWindowOnLoad(ic2_setcount_new);
 EOHEADER;
 }
 
+if ($_conf['wiki.idsearch.spm.mimizun.enabled'] ||
+    $_conf['wiki.idsearch.spm.hissi.enabled'] ||
+    $_conf['wiki.idsearch.spm.stalker.enabled']) {
+    echo <<<EOP
+    <script type="text/javascript" src="js/idtool.js?{$_conf['p2_version_id']}"></script>
+EOP;
+}
+
 // pageLoaded()が他のJavaScriptでも定義されたロード時のイベントハンドラとかぶらないようにする。
 // 古いブラウザでDOMContentLoadedと同等のタイミングにはこだわらない。
 // rep2はフレーム前提なのでjQuery.bindReady()のような技は使えない（ぽい）。
@@ -562,6 +570,42 @@ EOP;
         // IDカラーリング
         if ($_conf['coloredid.enable'] > 0 && $_conf['coloredid.click'] > 0) {
             $read_header_ht .= $aShowThread->getIdColorJs();
+        }
+
+        // 外部ツール
+        $pluswiki_js = '';
+        if ($_conf['wiki.idsearch.spm.mimizun.enabled']) {
+            require_once './plugin/mimizun/mimizun.class.php';
+            $mimizun = new mimizun();
+            $mimizun->host = $aThread->host;
+            $mimizun->bbs  = $aThread->bbs;
+            if ($mimizun->isEnable())
+                $pluswiki_js .= "WikiTools.addMimizun({$aShowThread->spmObjName});";
+        }
+        if ($_conf['wiki.idsearch.spm.hissi.enabled']) {
+            require_once './plugin/hissi/hissi.class.php';
+            $hissi = new hissi();
+            $hissi->host = $aThread->host;
+            $hissi->bbs  = $aThread->bbs;
+            if ($hissi->isEnable())
+                $pluswiki_js .= "WikiTools.addHissi({$aShowThread->spmObjName});";
+        }
+        if ($_conf['wiki.idsearch.spm.stalker.enabled']) {
+            require_once './plugin/stalker/stalker.class.php';
+            $stalker = new stalker();
+            $stalker->host = $aThread->host;
+            $stalker->bbs  = $aThread->bbs;
+            if ($stalker->isEnable())
+                $pluswiki_js .= "WikiTools.addStalker({$aShowThread->spmObjName});";
+        }
+        if ($pluswiki_js) {
+            $read_header_ht .= <<<EOP
+<script type="text/javascript">
+//<![CDATA[
+{$pluswiki_js}
+//]]>
+</script>
+EOP;
         }
 
         unset($aShowThread);
