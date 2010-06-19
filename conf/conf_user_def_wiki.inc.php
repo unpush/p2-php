@@ -5,6 +5,19 @@
     このファイルはデフォルト値の設定なので、特に変更する必要はありません
 */
 
+// {{{ ■画像置換URL
+
+// 画像置換URLのEXTRACTキャッシュ制御(初回キャッシュを使用:1, 指定のものは確認:2, 置換成功したURLは次回も確認:3, 毎回確認:0)
+$conf_user_def['wiki.replaceimageurl.extract_cache'] = 1; // (1)
+$conf_user_sel['wiki.replaceimageurl.extract_cache'] = array(
+    '1' => '初回キャッシュを使用',
+    '2' => '指定のものは確認',
+    '3' => '置換成功したURLは次回も確認',
+    '0' => '毎回確認',
+);
+
+// }}}
+
 // {{{ ■samba
 
 // sambaタイマーを利用 (する:1, しない:0)

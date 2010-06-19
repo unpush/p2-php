@@ -24,6 +24,8 @@ class ReplaceImageURLCtl
 
     // 全エラーをキャッシュして無視する(永続化はしないので今回リクエストのみ）
     var $extractErrors = array();
+    // 全replaceImageURLをキャッシュする(永続化はしないので今回リクエストのみ）
+    var $onlineCache = array();
 
     function clear() {
         global $_conf;
@@ -56,9 +58,10 @@ class ReplaceImageURLCtl
                 $ar = array(
                     'match'   => $lar[0], // 対象文字列
                     'replace' => $lar[1], // 置換文字列
-                    'referer' => $lar[2], // 置換文字列
-                    'extract' => $lar[3], // 置換文字列
-                    'source'  => $lar[4], // 置換文字列
+                    'referer' => $lar[2], // リファラ
+                    'extract' => $lar[3], // EXTRACT
+                    'source'  => $lar[4], // EXTRACT正規表現
+                    'recheck'  => $lar[5], // EXTRACTしたページを次回もチェックしたいか
                 );
 
                 $this->data[] = $ar;
@@ -88,6 +91,7 @@ class ReplaceImageURLCtl
             $a[2] = strtr(trim($na_info['referer'], "\t\r\n"), "\t\r\n", "   ");
             $a[3] = strtr(trim($na_info['extract'], "\t\r\n"), "\t\r\n", "   ");
             $a[4] = strtr(trim($na_info['source'] , "\t\r\n"), "\t\r\n", "   ");
+            $a[5] = strtr(trim($na_info['recheck'] ,"\t\r\n"), "\t\r\n", "   ");
             if ($na_info['del'] || ($a[0] === '' || $a[1] === '')) {
                 continue;
             }
@@ -113,20 +117,31 @@ class ReplaceImageURLCtl
         return $this->cacheData;
     }
 
-    function addCache($key, $data) {
+    function storeCache($key, $data) {
         global $_conf;
 
         if ($this->cacheData[$key]) {
-            return false;   // ここはあまり通過しないでしょう
+            // overwrite the cache file
+            $this->cacheData[$key] = $data;
+            $body = '';
+            foreach ($this->cacheData as $_k => $_v) {
+                $body .= implode("\t", array($_k,
+                    serialize(ReplaceImageURLCtl::sanitizeForCache($_v)))
+                ) . "\n";
+            }
+            return FileCtl::file_write_contents($_conf['pref_dir'] . '/'
+                . $this->cacheFilename, $body);
+        } else {
+            // append to the cache file
+            $this->cacheData[$key] = $data;
+            return FileCtl::file_write_contents(
+                $_conf['pref_dir'] . '/' . $this->cacheFilename,
+                implode("\t", array($key,
+                    serialize(ReplaceImageURLCtl::sanitizeForCache($data)))
+                ) . "\n",
+                FILE_APPEND
+            );
         }
-        $this->cacheData[$key] = $data;
-        return FileCtl::file_write_contents(
-            $_conf['pref_dir'] . '/' . $this->cacheFilename,
-            implode("\t", array($key,
-                serialize(ReplaceImageURLCtl::sanitizeForCache($data)))
-            ) . "\n",
-            FILE_APPEND
-        );
     }
 
     static function sanitizeForCache($data) {
@@ -148,60 +163,53 @@ class ReplaceImageURLCtl
      *      $ret[$i]['referer'] $i番目のリファラ
      */
     function replaceImageURL($url) {
+        global $_conf;
         // http://janestyle.s11.xrea.com/help/first/ImageViewURLReplace.html
         $this->autoLoad();
         $src = FALSE;
 
+        if (array_key_exists($url, $this->onlineCache)) {
+            return $this->onlineCache[$url];
+        }
+
         if ($this->cacheData[$url]) {
-            // キャッシュがあればそれを返す
-            return $this->cacheData[$url]['data'];
+            if ($_conf['wiki.replaceimageurl.extract_cache'] == 1) {
+                // キャッシュがあればそれを返す
+                return $this->_reply($url, $this->cacheData[$url]['data']);
+            }
+            if ($this->cacheData[$url]['lost']) {
+                // ページが消えている場合キャッシュを返す
+                return $this->_reply($url, $this->cacheData[$url]['data']);
+            }
+            if ($_conf['wiki.replaceimageurl.extract_cache'] == 3) {
+                // 前回キャッシュで結果が得られてなければやめ
+                if (array_key_exists('data', $this->cacheData[$url]) && is_array($this->cacheData[$url]['data'])
+                    && count($this->cacheData[$url]['data']) == 0) {
+                    return $this->_reply($url, $this->cacheData[$url]['data']);
+                }
+            }
         }
         foreach ($this->data as $v) {
             if (preg_match('{^'.$v['match'].'$}', $url)) {
-                $v['replace'] = str_replace('$&', '$0', $v['replace']);
-                $v['referer'] = str_replace('$&', '$0', $v['referer']);
+                $match = $v['match'];
+                $replace = str_replace('$&', '$0', $v['replace']);
+                $referer = str_replace('$&', '$0', $v['referer']);
                 // 第一置換(Match→Replace, Match→Referer)
-                $replaced = @preg_replace ('{'.$v['match'].'}', $v['replace'], $url);
-                $referer =  @preg_replace ('{'.$v['match'].'}', $v['referer'], $url);
+                $replace = @preg_replace ('{'.$match.'}', $replace, $url);
+                $referer = @preg_replace ('{'.$match.'}', $referer, $url);
                 // $EXTRACTがある場合
                 // 注:$COOKIE, $COOKIE={URL}, $EXTRACT={URL}には未対応
                 // $EXTRACT={URL}の実装は容易
                 if (strstr($v['extract'], '$EXTRACT')){
-                    $v['source'] =  @preg_replace ('{'.$v['match'].'}', $v['source'], $url);
-                    $get_url = $referer;
-                    if ($this->extractErrors[$get_url]) {
-                        break;  // 今回リクエストでエラーだった場合スキップ
-                    }
-                    $page = P2Util::getWebPage($get_url, $errmsg);
-                    if ($errmsg) {
-                        // 今回リクエストでのエラーを一時キャッシュ
-                        $this->extractErrors[$get_url] = $errmsg;
-                        if ($errmsg < 500) {
-                            // サーバエラー以外なら永続キャッシュに保存
-                            $this->addCache($url,
-                                array('code' => $errmsg, 'data' => array()));
+                    if ($_conf['wiki.replaceimageurl.extract_cache'] == 2) {
+                        if ($this->cacheData[$url] && !$v['recheck']) {
+                            return $this->_reply($url, $this->cacheData[$url]['data']);
                         }
-                        break;
                     }
-                    preg_match_all('{' . $v['source'] . '}i', $page, $extracted, PREG_SET_ORDER);
-                    foreach ($extracted as $i => $extract) {
-                        $_url = $replaced; $_referer = $referer;
-                        foreach ($extract as $j => $part) {
-                            if ($j < 1) continue;
-                            $_url       = str_replace('$EXTRACT'.$j, $part, $_url);
-                            $_referer   = str_replace('$EXTRACT'.$j, $part, $_referer);
-                        }
-                        if ($extract[1]) {
-                            $_url       = str_replace('$EXTRACT', $part, $_url);
-                            $_referer   = str_replace('$EXTRACT', $part, $_referer);
-                        }
-                        $return[$i]['url']      = $_url;
-                        $return[$i]['referer']  = $_referer;
-                    }
-                    // 結果を永続キャッシュに保存
-                    $this->addCache($url, array('code' => $errmsg, 'data' => $return));
+                    $source = $v['source'];
+                    $return = $this->extractPage($url, $match, $replace, $referer, $source);
                 } else {
-                    $return[0]['url']     = $replaced;
+                    $return[0]['url']     = $replace;
                     $return[0]['referer'] = $referer;
                 }
                 break;
@@ -217,7 +225,110 @@ class ReplaceImageURLCtl
             }
         }
         */
-        return $return;
+        return $this->_reply($url, $return);
+    }
+
+    function _reply($url, $data) {
+        $this->onlineCache[$url] = $data;
+        return $data;
+    }
+
+    function extractPage($url, $match, $replace, $referer, $source) {
+        global $_conf;
+        $ret = array();
+
+        $source =  @preg_replace ('{'.$match.'}', $source, $url);
+        $get_url = $referer;
+        if ($this->extractErrors[$get_url]) {
+            // 今回リクエストでエラーだった場合
+            return ($this->cacheData[$url] && $this->cacheData[$url]['data'])
+                ? $this->cacheData[$url]['data'] : $ret;
+        }
+
+        if (!class_exists('HTTP_Request', false)) {
+            require 'HTTP/Request.php';
+        }
+        $params = array();
+        $params['timeout'] = $_conf['http_conn_timeout'];
+        $params['readTimeout'] = array($_conf['http_read_timeout'], 0);
+        if ($_conf['proxy_use']) {
+            $params['proxy_host'] = $_conf['proxy_host'];
+            $params['proxy_port'] = $_conf['proxy_port'];
+        }
+        $req = new HTTP_Request($get_url, $params);
+        if ($this->cacheData[$url] && $this->cacheData[$url]['responseHeaders']
+                && $this->cacheData[$url]['responseHeaders']['last-modified']
+                && strlen($this->cacheData[$url]['responseHeaders']['last-modified'])) {
+            $req->addHeader("If-Modified-Since",
+                $this->cacheData[$url]['responseHeaders']['last-modified']);
+        }
+        $req->addHeader('User-Agent',
+            (!empty($_conf['expack.user_agent'])) ? $_conf['expack.user_agent']
+            : $_SERVER['HTTP_USER_AGENT']);
+        $response = $req->sendRequest();
+        $code = $req->getResponseCode();
+        if (PEAR::isError($response) || ($code != 200 && $code != 206 && $code != 304)) {
+            $errmsg = PEAR::isError($response) ? $response->getMessage() : $code;
+            // 今回リクエストでのエラーをオンラインキャッシュ
+            $this->extractErrors[$get_url] = $errmsg;
+            // サーバエラー以外なら永続キャッシュに保存
+            if ($code && $code < 500) {
+                // ページが消えている場合
+                if ($this->_checkLost($url, $ret)) {
+                    return $this->cacheData[$url]['data'];
+                }
+                $this->storeCache($url, array('code' => $code,
+                    'errmsg' => $errmsg,
+                    'responseHeaders' => $req->getResponseHeader(),
+                    'data' => $ret));
+            }
+            return ($this->cacheData[$url] && $this->cacheData[$url]['data'])
+                ? $this->cacheData[$url]['data'] : $ret;
+        }
+        if ($code == 304 && $this->cacheData[$url]) {
+            return $this->cacheData[$url]['data'];
+        }
+
+        $body = $req->getResponseBody();
+        preg_match_all('{' . $source . '}i', $body, $extracted, PREG_SET_ORDER);
+        foreach ($extracted as $i => $extract) {
+            $_url = $replace; $_referer = $referer;
+            foreach ($extract as $j => $part) {
+                if ($j < 1) continue;
+                $_url       = str_replace('$EXTRACT'.$j, $part, $_url);
+                $_referer   = str_replace('$EXTRACT'.$j, $part, $_referer);
+            }
+            if ($extract[1]) {
+                $_url       = str_replace('$EXTRACT', $part, $_url);
+                $_referer   = str_replace('$EXTRACT', $part, $_referer);
+            }
+            $ret[$i]['url']     = $_url;
+            $ret[$i]['referer'] = $_referer;
+        }
+
+        // ページが消えている場合
+        if ($this->_checkLost($url, $ret)) {
+            return $this->cacheData[$url]['data'];
+        }
+
+        // 結果を永続キャッシュに保存
+        $this->storeCache($url, array('code' => $code,
+            'responseHeaders' => $req->getResponseHeader(),
+            'data' => $ret));
+
+        return $ret;
+    }
+
+    function _checkLost($url, $data) {
+        if (count($data) == 0 && $this->cacheData[$url] &&
+                $this->cacheData[$url]['data'] &&
+                count($this->cacheData[$url]['data']) > 0) {
+            $rec = $this->cacheData[$url];
+            $rec['lost'] = true;
+            $this->storeCache($url, $rec);
+            return true;
+        }
+        return false;
     }
 
 }

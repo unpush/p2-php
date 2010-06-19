@@ -727,6 +727,22 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 }
 
 // }}}
+// {{{ expack - +Wiki
+
+$groupname = '+Wiki';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+        '画像置換URL',
+        array('wiki.replaceimageurl.extract_cache', '画像置換URLのEXTRACTキャッシュ制御'),
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
 // }}}
 
 // PC用表示
