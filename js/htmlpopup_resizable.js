@@ -149,7 +149,7 @@ function showHtmlPopUpDo(marker)
 			}
 		}
 
-		gNodePopup.src = gUrl;
+//		gNodePopup.src = gUrl;
 		gNodePopup.frameborder = 0;
 		gNodePopup.width = iframe_width;
 		gNodePopup.height = iframe_height;
@@ -200,6 +200,7 @@ function showHtmlPopUpDo(marker)
 			var setIframeResizableOnLoad = function(){ setIframeResizable(); }
 			YAHOO.util.Event.addListener(window, 'load', setIframeResizableOnLoad);
 		}
+		gNodePopup.src = gUrl;
 	}
 }
 
