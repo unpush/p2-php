@@ -90,28 +90,12 @@ class mimizun
         // hostがセットされてないかもしれないので
         // (セットされていなければ2chとみなす)
         if ($this->host) {
-            // みみずん検索ならtrue
-            if (P2Util::isHostMachiBbs($this->host)) return true;
-            
+            // まちBBSならfalse
+            if (P2Util::isHostMachiBbs($this->host)) return false;
             // 2chでなければfalse
             if (!P2Util::isHost2chs($this->host)) return false;
         }
-
-        switch ($this->from) {
-            case 1:
-                if (!isset($this->liveBoards)) $this->loadLive();
-                $this->enabled = in_array($this->bbs, $this->liveBoards);
-                break;
-            case 2:
-                if (!isset($this->kakoBoards)) $this->loadKako();
-                $this->enabled = in_array($this->bbs, $this->kakoBoards);
-                break;
-            default:
-                if (!isset($this->liveBoards)) $this->loadLive();
-                if (!isset($this->kakoBoards)) $this->loadKako();
-                $this->enabled =  in_array($this->bbs, array_merge($this->liveBoards, $this->kakoBoards));
-                break;
-        }
+        $this->enabled = true;
         return $this->enabled;
     }
 
