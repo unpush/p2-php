@@ -50,8 +50,8 @@ class mimizun
         }
         // キャッシュ用ディレクトリが無ければ作成
         FileCtl::mkdir_for($path);
-        // メニューのキャッシュ時間だけキャッシュ
-        P2UtilWiki::cacheDownload($url, $path, $_conf['menu_dl_interval'] * 3600);
+        // メニューのキャッシュ時間の10倍キャッシュ
+        P2UtilWiki::cacheDownload($url, $path, $_conf['menu_dl_interval'] * 36000);
         $file = @file_get_contents($path);
         preg_match_all($match, $file, $boards);
         return $boards[1];

@@ -34,7 +34,8 @@ class Hissi
         // include_once P2_LIB_DIR . '/p2util.class.php';
         $url  = 'http://hissi.org/menu.html';
         $path = P2Util::cacheFileForDL($url);
-        P2UtilWiki::cacheDownload($url, $path, $_conf['menu_dl_interval'] * 3600);
+        // メニューのキャッシュ時間の10倍キャッシュ
+        P2UtilWiki::cacheDownload($url, $path, $_conf['menu_dl_interval'] * 36000);
         $file = @file_get_contents($path);
         preg_match_all('{<a href=http://hissi\.org/read\.php/(\w+?)/>.+?</a><br>}',$file, $boards);
         $this->boards = $boards[1];

@@ -63,12 +63,13 @@ class P2UtilWiki {
             require 'HTTP/Request.php';
         }
         $req = & new HTTP_Request($url, array('timeout' => $_conf['fsockopen_time_limit']));
+        $req->setMethod('HEAD');
         $now = time();
         $req->sendRequest();
         $unixtime = strtotime($req->getResponseHeader('Last-Modified'));
 
-        // ずれていれば取得
-        if($unixtime !== $filetime){ 
+        // 新しければ取得
+        if($unixtime > $filetime){ 
             P2Util::fileDownload($url, $path);
             // 最終更新日時を設定
             // touch($path, $unixtime);
