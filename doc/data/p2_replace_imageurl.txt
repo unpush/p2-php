@@ -107,7 +107,7 @@ http://kjm\.kir\.jp/pc/.*\?p=(.+\.(?:jpe?g|png|gif|bmp))	http://kjm.kir.jp/pc/im
 http://mokei\.net/up/img/img\d+\.(?:jpe?g|png|gif|bmp)	http://mokei.net$EXTRACT	$&	$EXTRACT	"(/up/gresize\.cgi\?rn=[^"]+)"
 http://nurupo\.net/(?:(?:index\.php)?\?d=|cabinet/)([^&/]+)(?:&f=|/)([^?&/]+\.(?:jpe?g|png|gif|bmp))[&?](ak=\w+)	$EXTRACT	http://nurupo.net/cabinet/$1/$2?$3	$EXTRACT	(http://nurupo\.net/cabinet/$1/$2\?$3)
 http://nurupo\.net/(?:index\.php)?\?d=([^&]+)&f=([^/&]+\.(?:jpe?g|png|gif|bmp))$	http://nurupo.net/cabinet/$1/$2	$&		
-http://p\.pita\.st/\?(?:m=)?(\w{8})	$EXTRACT	$&	$EXTRACT	<a href="(http://image\d{2}\.pita\.st/\?c=$1_\d&uk=\w+)
+http://p\.pita\.st/\?(?:m=)?(\w{8})	$EXTRACT	$&	$EXTRACT	<a href="(http://image\d{2}\.pita\.st/\?c=$1_\d&uk=\w+)	1	http://image\d{2}\.pita\.st/\?c=(.+_\d)
 http://photos\.yahoo\.co\.jp/.+&\.dnm=\w+\.(?:jpe?g|png|gif|bmp)&.+	$EXTRACT	$&	$EXTRACT	src="(http://proxy\.f\d\.ymdb\.yahoofs\.jp/.+\.(?:jpe?g|png|gif|bmp)\?[^"']{16})"
 http://pic\.to/(?:_[^_]+_/|[^./]+/)*(.+)_(jpe?g|png|gif|bmp)$	http://$1.$2	http://$1.$2		
 http://pochico\.ddo\.jp/up/download/\d+\.\w+	$EXTRACT	$&	$EXTRACT	($&)
