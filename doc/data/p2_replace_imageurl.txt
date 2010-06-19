@@ -1,4 +1,4 @@
-;検索正規表現	補正文字列	リファラ文字列	$EXTRACT	EXTRACT正規表現	EXTRACT再取得
+;検索正規表現	補正文字列	リファラ文字列	$EXTRACT	EXTRACT正規表現	EXTRACT再取得	一意ID取得
 ;
 ;検索正規表現       URLに対する正規表現
 ;補正文字列         置換する正規表現
@@ -6,6 +6,7 @@
 ;$EXTRACT           HTMLを取得する場合に指定
 ;EXTRACT正規表現    取得したHTMLから画像URLを抽出する正規表現
 ;EXTRACT再取得      次回もHTMLを取得するか
+;一意ID取得         EXTRACT置換結果の画像URLに対する正規表現。指定されている場合はこれでマッチした文字列で前回キャッシュと比較し、同一であれば同じ画像と見做す。
 ;
 http://((?:(?:www\.)?(?:kiken|sekai)\.(?:nu|jp)|www\.animar-japan\.com|altair\.mydns\.jp).+)/image\.php\?\./(log/\d{14}/img/img\d+\.(?:jpe?g|png|gif|bmp))	http://$1/$2	$&		
 http://((?:[^/]+\.)?(?:haru\.gs|byonavi\.com|byokan\.net|aki\.gs)/.*vip.*)/html/(\w+)\.html	http://$1/vip$EXTRACT	$&	$EXTRACT	(/data/$2\.(?:jpe?g|png|gif|bmp))

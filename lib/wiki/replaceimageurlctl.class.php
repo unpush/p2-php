@@ -62,6 +62,11 @@ class ReplaceImageURLCtl
                     'extract' => $lar[3], // EXTRACT
                     'source'  => $lar[4], // EXTRACT正規表現
                     'recheck'  => $lar[5], // EXTRACTしたページを次回もチェックしたいか
+                    'ident'  => $lar[6],    // 置換結果の画像URLに対する正規
+                                            // 表現。指定されている場合はこれ
+                                            // でマッチした文字列で前回キャッ
+                                            // シュと比較し、同一であれば同じ
+                                            // 画像と見做す
                 );
 
                 $this->data[] = $ar;
@@ -92,6 +97,7 @@ class ReplaceImageURLCtl
             $a[3] = strtr(trim($na_info['extract'], "\t\r\n"), "\t\r\n", "   ");
             $a[4] = strtr(trim($na_info['source'] , "\t\r\n"), "\t\r\n", "   ");
             $a[5] = strtr(trim($na_info['recheck'] ,"\t\r\n"), "\t\r\n", "   ");
+            $a[6] = strtr(trim($na_info['ident'] ,"\t\r\n"), "\t\r\n", "   ");
             if ($na_info['del'] || ($a[0] === '' || $a[1] === '')) {
                 continue;
             }
@@ -207,7 +213,7 @@ class ReplaceImageURLCtl
                         }
                     }
                     $source = $v['source'];
-                    $return = $this->extractPage($url, $match, $replace, $referer, $source);
+                    $return = $this->extractPage($url, $match, $replace, $referer, $source, $v['ident']);
                 } else {
                     $return[0]['url']     = $replace;
                     $return[0]['referer'] = $referer;
@@ -233,7 +239,7 @@ class ReplaceImageURLCtl
         return $data;
     }
 
-    function extractPage($url, $match, $replace, $referer, $source) {
+    function extractPage($url, $match, $replace, $referer, $source, $ident=null) {
         global $_conf;
         $ret = array();
 
@@ -311,6 +317,10 @@ class ReplaceImageURLCtl
             return $this->cacheData[$url]['data'];
         }
 
+        if ($ident && $this->cacheData[$url] && $this->cacheData[$url]['data']) {
+            $ret = self::_identByCacheData($ret, $this->cacheData[$url]['data'], $ident);
+        }
+
         // 結果を永続キャッシュに保存
         $this->storeCache($url, array('code' => $code,
             'responseHeaders' => $req->getResponseHeader(),
@@ -329,6 +339,51 @@ class ReplaceImageURLCtl
             return true;
         }
         return false;
+    }
+
+    /**
+     * 前回キャッシュの内容に今回取得の画像URLがあるかを
+     * 指定の正規表現で探し、あった場合はキャッシュのものを
+     * 使用するように置き換える.
+     *
+     * 画像URLに認証用クエリなどが付いている、
+     * ファイル名に規則的にセッション文字列が付く、
+     * などの場合でも同じ画像を取りにいかないようにしたいため.
+     */
+    static function _identByCacheData($data, $cache, $identRegex) {
+        $ret = $data;
+        foreach ($ret as &$d) {
+            $ident_match = array();
+            if (!preg_match('{^'.$identRegex.'}', $d['url'], $ident_match))
+            {
+                continue;
+            }
+
+            // マッチした後方参照があるならそれだけ比較したいので
+            // マッチ全体[0]を塗りつぶし
+            if (count($ident_match) > 1) $ident_match[0] = '';
+
+            foreach ($cache as $c) {
+                $ident_cache_match = array();
+                if (!preg_match('{^'.$identRegex.'}', $c['url'],
+                    $ident_cache_match))
+                {
+                    continue;
+                }
+
+                // マッチした後方参照があるならそれだけ比較したいので
+                // マッチ全体[0]を塗りつぶし
+                if (count($ident_cache_match) > 1) $ident_cache_match[0] = '';
+
+                if ($ident_match === $ident_cache_match) {
+                    // キャッシュデータを使用する
+                    $d = $c;
+                    break;
+                }
+            }
+        }
+        unset($d);
+        return $ret;
     }
 
 }
