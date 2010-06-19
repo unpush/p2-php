@@ -495,7 +495,7 @@ include P2_CONF_DIR . '/conf_user_def_i.inc.php';
 // }}}
 // {{{ Å°+Wiki
 
-include_once 'conf/conf_user_def_wiki.inc.php';
+include P2_CONF_DIR . '/conf_user_def_wiki.inc.php';
 
 // }}}
 
