@@ -38,7 +38,7 @@ http://(\w+\.oekakibbs\.com/bbs/\w+)/oekakibbs\.cgi\?.*thisfile=(\d+\.(?:jpe?g|p
 http://(\w+\.s\d\+\.x-beat\.com/)upfile\.php\?n=(img/.+\.(?:jpe?g|png|gif|bmp))	http://$1$2	$&		
 http://(\w+\.vip2ch\.com|files\.or\.tp)/dl(?:\.p(?:hp)?)?\?f=((?:\w+)\.(?:jpe?g|png|gif|bmp))	http://$1/$2			
 http://(\w+\.wtakumi\.com)/bbs\.cgi\?id=(\w+).+&file=(\d+\.(?:jpe?g|png|gif|bmp))	http://$1/s/$2/$3			
-http://(\w\.pic\.to/)(\w+)(?:(\?r)=(\d+))?$	http://$1$EXTRACT	http://$1$2$3$4	$EXTRACT	src='($2-$4[^']+\.(?:jpe?g|png|gif|bmp))'
+http://(\w\.pic\.to/)(\w+)(?:(\?r)=(\d+))?$	http://$1$EXTRACT	http://$1$2$3$4	$EXTRACT	src='($2-$4[^']+\.(?:jpe?g|png|gif|bmp))'	1	http://\w\.pic\.to/([^-]+-[^-]+)-[^"']+\.(?:jpe?g|png|gif|bmp)
 http://(18ban\.jp/photo\.php\?)(?:&.*)?(?:kid=(\d+)(?:&.*)?&wid=(\d+)|wid=(\d+)(?:&.*)?&kid=(\d+))(?:&.*)?	$EXTRACT	http://$1kid=$2$5&wid=$3$4&br=m	$EXTRACT	(http://[^"]+/photo/\d/$2$5/$2$5-\d+-\d+-$3$4(?:-pc)?\.(?:jpe?g|png|gif|bmp))
 http://(appleup\.bbsnow\.net/\w+)/html/(\w+)\.html	http://$1$EXTRACT	$&	$EXTRACT	(/data/$2\.(?:jpe?g|png|gif|bmp))
 http://(bbs\.avi\.jp/photo)/(\d+)/(\d+)(?:[&/].*)?	$EXTRACT	http://$1.php?kid=$2&wid=$3&br=m	$EXTRACT	(http://photo\d\.avi\.jp/photo/\d/$2/$2-\d+-\d+-$3(?:-pc)?\.(?:jpe?g|png|gif|bmp))
