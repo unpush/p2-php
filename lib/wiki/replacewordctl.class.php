@@ -50,6 +50,11 @@ class ReplaceWordCtl
         $path = $_conf['pref_dir'].'/'.$this->filename($cont);
         if ($lines = @file($path)) {
             foreach ($lines as $l) {
+                if (substr($l, 0, 1) === ';' || substr($l, 0, 1) === "'" ||
+                    substr($l, 0, 1) === '#' || substr($l, 0, 2) === '//') {
+                    //"#" ";" "'" "//"から始まる行はコメント
+                    continue;
+                }
                 $lar = explode("\t", trim($l));
                 // Matchは必要だがReplaceは空でも良い
                 if (strlen($lar[0]) == 0)  continue;
