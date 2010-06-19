@@ -59,6 +59,9 @@ class P2UtilWiki {
         // キャッシュ有効期間ならチェックしない
         if ($filetime > 0 && $filetime > time() - $time) return;
         
+        if (!class_exists('HTTP_Request', false)) {
+            require 'HTTP/Request.php';
+        }
         $req = & new HTTP_Request($url, array('timeout' => $_conf['fsockopen_time_limit']));
         $now = time();
         $req->sendRequest();

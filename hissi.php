@@ -40,7 +40,8 @@ if ($_GET['img']) {
     if ($hissi->isEnable()) {
         $hissi->date = $_GET['date'];
         $hissi->id   = $_GET['id'];
-        header('Location: ' . P2Util::throughIme($hissi->getIDURL()));
+        $_ime = new P2Ime();
+        header('Location: ' . $_ime->through($hissi->getIDURL(), null, false));
     } else {
         P2Util::printSimpleHtml('‚±‚Ì”Â‚Í‘Î‰‚µ‚Ä‚¢‚Ü‚¹‚ñB');
     }

@@ -127,6 +127,15 @@ class ShowThreadPc extends ShowThread
             $idstr = null;
         }
 
+        // +Wiki:置換ワード
+        global $replaceword;
+        if (isset($replaceword)) {
+            $name    = $replaceword->replace('name', $this->thread, $ares, $i);
+            $mail    = $replaceword->replace('mail', $this->thread, $ares, $i);
+            $date_id = $replaceword->replace('date', $this->thread, $ares, $i);
+            $msg     = $replaceword->replace('msg',  $this->thread, $ares, $i);
+        }
+
         // {{{ フィルタリング
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
             if (strlen($GLOBALS['word_fm']) <= 0) {

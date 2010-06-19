@@ -31,7 +31,8 @@ if ($_GET['img']) {
 } else {
     if ($stalker->isEnable()) {
         $stalker->id = $_GET['id'];
-        header('Location: ' . P2Util::throughIme($stalker->getIDURL()));
+        $_ime = new P2Ime();
+        header('Location: ' . $_ime->through($stalker->getIDURL(), null, false));
     } else {
         P2Util::printSimpleHtml('‚±‚Ì”Â‚Í‘Î‰‚µ‚Ä‚¢‚Ü‚¹‚ñB');
     }

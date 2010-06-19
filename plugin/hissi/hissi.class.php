@@ -32,11 +32,11 @@ class Hissi
     {
         global $_conf;
         // include_once P2_LIB_DIR . '/p2util.class.php';
-        $url  = 'http://hissi.dyndns.ws/menu.html';
+        $url  = 'http://hissi.org/menu.html';
         $path = P2Util::cacheFileForDL($url);
         P2UtilWiki::cacheDownload($url, $path, $_conf['menu_dl_interval'] * 3600);
         $file = @file_get_contents($path);
-        preg_match_all('{<a href=http://hissi\.dyndns\.ws/read\.php/(\w+?)/>.+?</a><br>}',$file, $boards);
+        preg_match_all('{<a href=http://hissi\.org/read\.php/(\w+?)/>.+?</a><br>}',$file, $boards);
         $this->boards = $boards[1];
     }
 
@@ -47,7 +47,6 @@ class Hissi
     function isEnable()
     {
         if ($this->host) {
-            require_once P2_LIB_DIR . '/p2util.class.php';
             if (!P2Util::isHost2chs($this->host)) return false;
         }
         
@@ -63,10 +62,10 @@ class Hissi
      */
     function getIDURL($all = false, $page = 0)
     {
-        $id_en = base64_encode($this->id);
+        $id_en = rtrim(base64_encode($this->id), '=');
         $query = $all ? '?thread=all' : '';
         if($page)  $query = $query ? "{query}&p={$page}" : "?p={page}";
-        return "http://hissi.dyndns.ws/read.php/{$this->bbs}/{$this->date}/{$id_en}.html{$query}";
+        return "http://hissi.org/read.php/{$this->bbs}/{$this->date}/{$id_en}.html{$query}";
     }
 
     /**
@@ -75,7 +74,7 @@ class Hissi
      */
     function getBoardURL()
     {
-        return "http://hissi.dyndns.ws/read.php/{$this->bbs}/";
+        return "http://hissi.org/read.php/{$this->bbs}/";
     }
 
     /**
@@ -84,6 +83,6 @@ class Hissi
      */
     function getBoardDateURL()
     {
-        return "http://hissi.dyndns.ws/read.php/{$this->bbs}/{$this->date}/";
+        return "http://hissi.org/read.php/{$this->bbs}/{$this->date}/";
     }
 }
