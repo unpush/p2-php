@@ -2,12 +2,17 @@
  * ImageCache2::FitImage
  */
 
+// {{{ GLOBALS
+
+var fiTimer = null;
+
+// }}}
 // {{{ FitImage オブジェクト
 
 /*
  * コンストラクタ
  *
- * @param String id     画像のidまたはDOM要素
+ * @param String id	 画像のidまたはDOM要素
  * @param Number width  画像の幅
  * @param Number height 画像の高さ
  */
@@ -130,6 +135,10 @@ function fiShowHide(display)
 
 /*
  * データベースから画像情報を取得する
+ *
+ * @param String type
+ * @param String value
+ * @return void
  */
 function fiGetImageInfo(type, value)
 {
@@ -268,6 +277,77 @@ if (typeof document.addEventListener != 'undefined') {
 	document.attachEvent('onkeydown', fiOnKeyDown);
 } else {
 	document.onkeydown = fiOnKeyDown;
+}
+
+// }}}
+// {{{ fiSetup()
+
+/*
+ * FitImageをセットアップする
+ *
+ * @param Number width
+ * @param Number height
+ * @param String autofit
+ * @param String infoKeyType
+ * @param String infoKeyValue
+ * @return void
+ */
+function fiSetup(width, height, autofit, infoKeyType, infoKeyValue)
+{
+	var $, fi, img;
+
+	if (typeof(width) !== 'number' || width < 1 ||
+		typeof(height) !== 'number' || height < 1) {
+		alert('FitImageのセットアップ失敗: 画像サイズが不正です');
+		return;
+	}
+
+	window.focus();
+
+	$ = function(id){
+		return document.getElementById(id);
+	};
+
+	img = $('picture');
+
+	fi = new FitImage(img, width, height);
+	if (autofit && autofit !== '') {
+		fi.fitTo(autofit);
+	}
+
+	img.onclick = function(evt){
+		if (fiTimer) {
+			clearTimeout(fiTimer);
+		}
+		fiTimer = setTimeout('fiShowHide(); fiTimer = null;', 250);
+	};
+
+	img.ondblclick = function(evt){
+		if (fiTimer) {
+			clearTimeout(fiTimer);
+			fiTimer = null;
+		}
+		if (fi.currentMode == 'auto') {
+			fi.fitTo(fi.defaultMode);
+		} else {
+			fi.fitTo(fi.currentMode);
+		}
+	};
+
+	//$('fi_fit_xy').onclick = function(evt){ fi.fitTo('full'); };
+	$('fi_fit_x').onclick = function(evt){ fi.fitTo('width'); };
+	$('fi_fit_y').onclick = function(evt){ fi.fitTo('height'); };
+
+	fiGetImageInfo(infoKeyType, infoKeyValue);
+
+	if ($('fi_id').value != '') {
+		var stars = $('fi_stars').getElementsByTagName('img');
+		for (var i = 0; i < stars.length; i++) {
+			stars[i].onclick = (function(n){
+				return function(){ fiUpdateRank(n); };
+			})(i - 1);
+		}
+	}
 }
 
 // }}}

@@ -32,7 +32,7 @@ ipoputil.getZ = function(obj) {
 };
 
 // }}}
-// {{{ getActivator()
+// {{{ ipoputil.getActivator()
 
 /**
  * オブジェクトを最前面に移動する関数を返す
@@ -48,7 +48,7 @@ ipoputil.getActivator = function(obj) {
 };
 
 // }}}
-// {{{ getDeactivator()
+// {{{ ipoputil.getDeactivator()
 
 /**
  * DOMツリーからオブジェクトを取り除く関数を返す
@@ -66,7 +66,7 @@ ipoputil.getDeactivator = function(obj, key) {
 };
 
 // }}}
-// {{{ iResPopUp()
+// {{{ ipoputil.popup()
 
 /**
  * iPhone用レスポップアップ
@@ -76,7 +76,7 @@ ipoputil.getDeactivator = function(obj, key) {
  * @return {Boolean}
  * @todo use asynchronous request
  */
-var iResPopUp = function(url, evt) {
+ipoputil.popup = function(url, evt) {
 	var yOffset = Math.max(10, iutil.getPageY(evt) - 20);
 
 	if (_IRESPOPG.hash[url]) {
@@ -152,6 +152,30 @@ var iResPopUp = function(url, evt) {
 		}
 	}
 
+	return true;
+};
+
+// }}}
+// {{{ iResPopUp()
+
+/**
+ * iPhone用レスポップアップ
+ *
+ * @param {String} url
+ * @param {Event} evt
+ * @return {Boolean}
+ * @todo use asynchronous request
+ * @see iutil.popup
+ */
+var iResPopUp = function(url, evt) {
+	if (typeof url !== 'string' && typeof url.href === 'string') {
+		url = url.href;
+	}
+	evt = evt || window.event;
+	if (false === ipoputil.popup(url, evt)) {
+		iutil.stopEvent(evt);
+		return false;
+	}
 	return true;
 };
 
