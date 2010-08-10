@@ -25,11 +25,8 @@ $key_q = '&amp;key=' . $aThread->key;
 $host_bbs_key_q = 'host=' . $aThread->host . $bbs_q . $key_q;
 $offline_q = '&amp;offline=1';
 
-$do_filtering = (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0);
-
-if ($do_filtering) {
-    $hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
-}
+$hd['word'] = ResFilter::getWord('htmlspecialchars', array(ENT_QUOTES, 'Shift_JIS'));
+$do_filtering = ($hd['word'] === null) ? false : true;
 
 //=================================================================
 // ƒwƒbƒ_

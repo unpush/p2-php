@@ -374,7 +374,6 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('brocra_checker_use', 'ブラクラチェッカ (つける, つけない)'),
         array('brocra_checker_url', 'ブラクラチェッカURL'),
         array('brocra_checker_query', 'ブラクラチェッカのクエリー (空の場合、PATH_INFOでURLを渡す)'),
-        array('enable_exfilter', 'フィルタリングでAND/OR検索を可能にする'),
         array('proxy_use', 'プロキシを利用'), 
         array('proxy_host', 'プロキシホスト ex)&quot;127.0.0.1&quot;, &quot;p2proxy.example&quot;'), 
         array('proxy_port', 'プロキシポート ex)&quot;8080&quot;'), 

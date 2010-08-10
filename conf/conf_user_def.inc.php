@@ -371,10 +371,6 @@ $conf_user_rules['brocra_checker_url'] = array('emptyToDef', 'invalidUrlToDef');
 // ブラクラチェッカのクエリー
 $conf_user_def['brocra_checker_query'] = ""; // ("")
 
-// フィルタリングでAND/OR検索を可能にする（off:0, レスのみ:1, サブジェクトも:2）
-$conf_user_def['enable_exfilter'] = 2; // (2)
-$conf_user_sel['enable_exfilter'] = array('1' => 'レスのみする', '0' => 'しない', '2' => 'レス、サブジェクトともする');
-
 // 携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換 (する:1, しない:0)
 $conf_user_def['mobile.save_packet'] = 1; // (1) 
 $conf_user_rad['mobile.save_packet'] = array('1' => 'する', '0' => 'しない');

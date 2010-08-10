@@ -17,10 +17,6 @@ class ShowThreadPc extends ShowThread
 
     static private $_spm_objects = array();
 
-    private $_quote_res_nums_checked; // ポップアップ表示されるチェック済みレス番号を登録した配列
-    private $_quote_res_nums_done; // ポップアップ表示される記録済みレス番号を登録した配列
-    private $_quote_check_depth; // レス番号チェックの再帰の深さ checkQuoteResNums()
-
     public $am_autodetect = false; // AA自動判定をするか否か
     public $am_side_of_id = false; // AAスイッチをIDの横に表示する
     public $am_on_spm = false; // AAスイッチをSPMに表示する
@@ -96,13 +92,14 @@ class ShowThreadPc extends ShowThread
     /**
      * DatレスをHTMLレスに変換する
      *
-     * @param   string  $ares   datの1ライン
-     * @param   int     $i      レス番号
+     * @param   string  $ares       datの1ライン
+     * @param   int     $i          レス番号
+     * @param   string  $pattern    ハイライト用正規表現
      * @return  string
      */
-    public function transRes($ares, $i)
+    public function transRes($ares, $i, $pattern = null)
     {
-        global $_conf, $STYLE, $mae_msg, $res_filter;
+        global $_conf, $STYLE, $mae_msg;
 
         list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($ares);
         if (($id = $this->thread->ids[$i]) !== null) {
@@ -111,20 +108,6 @@ class ShowThreadPc extends ShowThread
         } else {
             $idstr = null;
         }
-
-        // {{{ フィルタリング
-        if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
-            if (strlen($GLOBALS['word_fm']) <= 0) {
-                return '';
-            // ターゲット設定（空のときはフィルタリング結果に含めない）
-            } elseif (!$target = $this->getFilterTarget($ares, $i, $name, $mail, $date_id, $msg)) {
-                return '';
-            // マッチング
-            } elseif (!$this->filterMatch($target, $i)) {
-                return '';
-            }
-        }
-        // }}}
 
         $tores = '';
         $rpop = '';
@@ -156,7 +139,6 @@ class ShowThreadPc extends ShowThread
         // レスをポップアップ表示
         //=============================================================
         if ($_conf['quote_res_view']) {
-            $this->_quote_check_depth = 0;
             $quote_res_nums = $this->checkQuoteResNums($i, $name, $msg);
 
             foreach ($quote_res_nums as $rnv) {
@@ -302,8 +284,8 @@ EOJS;
         }*/
 
         // まとめてフィルタ色分け
-        if (!empty($GLOBALS['word_fm']) && $res_filter['match'] != 'off') {
-            $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores);
+        if ($pattern) {
+            $tores = StrCtl::filterMarking($pattern, $tores);
         }
 
         return $tores;
@@ -324,7 +306,6 @@ EOJS;
         }
 
         $rpop = '';
-        $this->_quote_check_depth = 0;
         $quote_res_nums = $this->checkQuoteResNums(0, '1', '');
 
         foreach ($quote_res_nums as $rnv) {
@@ -764,95 +745,6 @@ EOP;
 
     // }}}
     // {{{ ユーティリティメソッド
-    // {{{ checkQuoteResNums()
-
-    /**
-     * HTMLメッセージ中の引用レスの番号を再帰チェックする
-     */
-    public function checkQuoteResNums($res_num, $name, $msg)
-    {
-        // 再帰リミッタ
-        if ($this->_quote_check_depth > 30) {
-            return array();
-        } else {
-            $this->_quote_check_depth++;
-        }
-
-        $quote_res_nums = array();
-
-        $name = preg_replace('/(◆.*)/', '', $name, 1);
-
-        // 名前
-        if (preg_match('/[1-9]\\d*/', $name, $matches)) {
-            $a_quote_res_num = (int)$matches[0];
-            $a_quote_res_idx = $a_quote_res_num - 1;
-
-            if ($a_quote_res_num) {
-                $quote_res_nums[] = $a_quote_res_num;
-
-                // 自分自身の番号と同一でなければ、
-                if ($a_quote_res_num != $res_num) {
-                    // チェックしていない番号を再帰チェック
-                    if (!isset($this->_quote_res_nums_checked[$a_quote_res_num])) {
-                        $this->_quote_res_nums_checked[$a_quote_res_num] = true;
-                        if (isset($this->thread->datlines[$a_quote_res_idx])) {
-                            $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_idx]);
-                            $quote_name = $datalinear[0];
-                            $quote_msg = $this->thread->datlines[$a_quote_res_idx];
-                            $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg));
-                        }
-                     }
-                 }
-             }
-            // $name=preg_replace("/([0-9]+)/", "", $name, 1);
-        }
-
-        // >>1のリンクをいったん外す
-        // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
-        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
-
-        //echo $msg;
-        if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
-
-            foreach ($out[1] as $numberq) {
-                //echo $numberq;
-                if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
-
-                    foreach ($matches[0] as $a_quote_res_num) {
-                        $a_quote_res_num = (int)$a_quote_res_num;
-                        $a_quote_res_idx = $a_quote_res_num - 1;
-
-                        //echo $a_quote_res_num;
-
-                        if (!$a_quote_res_num) {break;}
-                        $quote_res_nums[] = $a_quote_res_num;
-
-                        // 自分自身の番号と同一でなければ、
-                        if ($a_quote_res_num != $res_num) {
-                            // チェックしていない番号を再帰チェック
-                            if (!isset($this->_quote_res_nums_checked[$a_quote_res_num])) {
-                                $this->_quote_res_nums_checked[$a_quote_res_num] = true;
-                                if (isset($this->thread->datlines[$a_quote_res_idx])) {
-                                    $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_idx]);
-                                    $quote_name = $datalinear[0];
-                                    $quote_msg = $this->thread->datlines[$a_quote_res_idx];
-                                    $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg));
-                                }
-                             }
-                         }
-
-                     }
-
-                }
-
-            }
-
-        }
-
-        return $quote_res_nums;
-    }
-
-    // }}}
     // {{{ imageHtmlPopup()
 
     /**

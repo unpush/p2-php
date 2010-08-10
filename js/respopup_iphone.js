@@ -135,10 +135,11 @@ ipoputil.popup = function(url, evt) {
 				back.className = 'respop-back';
 				var anchor = document.createElement('a');
 				anchor.setAttribute('href', '#' + popid);
-				anchor.onclick = (function(){
+				anchor.onclick = function(evt){
+					iutil.stopEvent(evt || window.event);
 					scrollTo(0, yOffset - 10);
 					return false;
-				});
+				};
 				anchor.appendChild(document.createTextNode('Å£'));
 				back.appendChild(anchor);
 				lastres.appendChild(back);

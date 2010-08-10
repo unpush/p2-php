@@ -12,8 +12,10 @@ function get_read_jump(ThreadRead $aThread, $label, $use_onchange)
 {
     global $_conf;
 
-    if (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) {
-        $jump = _get_read_jump_filter($aThread, $use_onchange);
+    $resFilter = RefFilter::getFilter();
+
+    if ($resFilter && $resFilter->word !== null) {
+        $jump = _get_read_jump_filter($aThread, $resFilter, $use_onchange);
     } else {
         $jump = _get_read_jump($aThread, $use_onchange);
     }
@@ -104,9 +106,9 @@ function _get_read_jump(ThreadRead $aThread, $use_onchange)
 /**
  * ページ遷移用のHTML要素を取得する (検索時)
  */
-function _get_read_jump_filter(ThreadRead $aThread, $use_onchange)
+function _get_read_jump_filter(ThreadRead $aThread, RefFilter $resFilter, $use_onchange)
 {
-    global $_conf, $filter_range, $filter_hits;
+    global $_conf;
 
     if ($_conf['mobile.rnum_range'] < 1) {
         $options = '<option value="1">$_conf[&#39;mobile.rnum_range&#39;] の値が不正です</option>';
@@ -137,7 +139,7 @@ function _get_read_jump_filter(ThreadRead $aThread, $use_onchange)
 
             $m = ($k == $l) ? "$k" : "{$k}-"; //"{$k}-{$l}";
 
-            if ($j == $filter_range['page']) {
+            if ($j == $resFilter->range['page']) {
                 $options .= "<option value=\"{$j}\" selected>{$m}</option>";
             } else {
                 $options .= "<option value=\"{$j}\">{$m}</option>";

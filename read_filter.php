@@ -19,11 +19,6 @@ $rc   = $_GET['rescount'];
 $ttitle_en = $_GET['ttitle_en'];
 $resnum = $_GET['resnum'];
 $field  = $_GET['field'];
-if (isset($_GET['word'])) {
-    unset($_GET['word']);
-}
-$res_filter = array();
-$res_filter['field'] = $field;
 $itaj = P2Util::getItaName($host, $bbs);
 if (!$itaj) { $itaj = $bbs; }
 $ttitle_name = UrlSafeBase64::decode($ttitle_en);
@@ -46,25 +41,34 @@ if (isset($aThread->datlines[$resnum - 1])) {
 
     $aShowThread = new ShowThreadPc($aThread);
     if ($field == 'rres') {
-        $_REQUEST['field']  = 'msg';
-        $_REQUEST['method'] = 'regex';
-        $word = ShowThread::getAnchorRegex(
+        $_REQUEST['rf'] = array(
+            'field' => ResFilter::FIELD_MESSAGE,
+            'method' => ResFilter::METHOD_REGEX,
+            'match' => ResFilter::MATCH_ON,
+            'include' => ResFilter::INCLUDE_NONE,
+        );
+        $_REQUEST['rf']['word'] = ShowThread::getAnchorRegex(
             '%prefix%(.+%delimiter%)?' . $resnum . '(?!\\d|%range_delimiter%)'
         );
     } else {
-        $word = $aShowThread->getFilterTarget($ares, $resnum, $name, $mail, $date_id, $msg);
-    }
-    if (strlen($word) == 0) {
-        unset($word);
-    } else {
+        $params = array(
+            'field' => $field,
+            'method' => $_GET['method'],
+            'match' => $_GET['match'],
+            'include' => ResFilter::INCLUDE_NONE,
+        );
+        $resFilter = ResFilter::configure($params);
+        $target = $resFilter->getTarget($ares, $resnum, $name, $mail, $date_id, $msg);
+        $_REQUEST['rf'] = $params;
         if ($field == 'date') {
-            $date_part = explode(' ', trim($word));
-            $word = $date_part[0];
+            $date_part = explode(' ', trim($target));
+            $_REQUEST['rf']['word'] = $date_part[0];
+        } else {
+            $_REQUEST['rf']['word'] = $target;
         }
-        $_REQUEST['word'] = $_GET['word'] = $word;
     }
 
-    unset($ares, $resar, $name, $mail, $date_id, $msg, $aShowThread);
+    unset($ares, $resar, $name, $mail, $date_id, $msg, $params, $target, $aShowThread);
 }
 
 // read.php‚Éˆ—‚ğ“n‚·

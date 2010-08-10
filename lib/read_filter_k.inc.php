@@ -5,7 +5,7 @@
 
 // ŒŸõƒNƒGƒŠ
 $_conf['filter_q'] = '?host=' . $aThread->host . $bbs_q . $key_q . $offline_q;
-$_conf['filter_q'] .= '&amp;word=' . rawurlencode($word);
+$_conf['filter_q'] .= '&amp;word=' . ResFilter::getWord('rawurlencode');
 foreach ($res_filter as $_key => $_value) {
     $_conf['filter_q'] .= "&amp;{$_key}=" . rawurldecode($_value);
 }

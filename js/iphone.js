@@ -987,6 +987,31 @@ if (iutil.iphone) {
 }
 
 // }}}
+// {{{ getTouch()
+
+/**
+ * タッチイベントを取得する
+ *
+ * @param {Event} event
+ * @param {Number} index
+ * @return {TouchEvent}
+ */
+iutil.getTouch = function(event, index) {
+	if (typeof event.touches === 'undefined' ||
+		typeof event.touches.length !== 'number') {
+		return null;
+	}
+	if (typeof index === 'undefined') {
+		return event.touches[0]
+	}
+	try {
+		return event.touches[index] || null;
+	} catch (e) {
+		return null;
+	}
+};
+
+// }}}
 // {{{ parsePixels(), isStaticLayout()
 
 iutil.parsePixels = function(value) {
@@ -1129,10 +1154,15 @@ iutil.getLayerXY = function(event) {
 	return [event.layerX, event.layerY];
 };
 
-iutil.getPageX = function(event) { return event.pageX; };
-iutil.getPageY = function(event) { return event.pageY; };
+iutil.getPageX = function(event) {
+	return (iutil.getTouch(event) || event).pageX;
+};
+iutil.getPageY = function(event) {
+	return (iutil.getTouch(event) || event).pageY;
+};
 iutil.getPageXY = function(event) {
-	return [event.pageX, event.pageY];
+	var touch = iutil.getTouch(event) || event;
+	return [touch.pageX, touch.pageY];
 };
 
 if (window.opera) {
