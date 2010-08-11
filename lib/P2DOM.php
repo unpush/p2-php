@@ -45,12 +45,6 @@ class P2DOM
             if ($this->_conversionFailed && $fallbackEncodings) {
                 $orig_html = $html;
                 foreach ($fallbackEncodings as $charset) {
-                    // iconv_strlen() でチェック
-                    if (function_exists('iconv_strlen')) {
-                        if (false === iconv_strlen($html, $charset)) {
-                            continue;
-                        }
-                    }
                     // <head>直後に<meta>を埋め込む
                     $charset = htmlspecialchars($charset, ENT_QUOTES);
                     $html = str_replace('<rep2:charset>',
@@ -59,6 +53,9 @@ class P2DOM
                     $this->_conversionFailed = false;
                     $document = new DOMDocument;
                     $document->loadHTML($html);
+                    if (!$this->_conversionFailed) {
+                        break;
+                    }
                 }
             }
         } catch (Exception $e) {
@@ -154,8 +151,10 @@ class P2DOM
      */
     public function checkConversionFailure($errno, $errstr)
     {
-        if ($errno === E_WARNING && preg_match('/(?:input conversion failed|encoder error)/', $errstr)) {
-            $this->_conversionFailed = true;
+        if ($errno === E_WARNING) {
+            if (strpos($errstr, 'input conversion failed') !== false) {
+                $this->_conversionFailed = true;
+            }
             return true;
         }
         return false;
