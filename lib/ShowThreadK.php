@@ -395,9 +395,6 @@ EOP;
         }
 
         // まとめてフィルタ色分け
-        if ($patterns) {
-            
-        }
         if ($pattern) {
             if (is_string($_conf['k_filter_marker'])) {
                 $tores = StrCtl::filterMarking($pattern, $tores, $_conf['k_filter_marker']);

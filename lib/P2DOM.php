@@ -19,30 +19,61 @@ class P2DOM
      */
     private $_xpath;
 
+    /**
+     * @var boolean
+     */
+    private $_conversionFailed;
+
     // }}}
     // {{{ constructor
 
     /**
      * @param string $html
+     * @param array $fallbackEncodings
      * @throws P2Exception
      */
-    public function __construct($html)
+    public function __construct($html, array $fallbackEncodings = null)
     {
-        $level = error_reporting(E_ALL & ~E_WARNING);
+        set_error_handler(array($this, 'checkConversionFailure'), E_WARNING);
 
         try {
+            $this->_conversionFailed = false;
             $document = new DOMDocument;
             $document->loadHTML($html);
-            $xpath = new DOMXPath($document);
+
+            // 代替エンコーディングを指定して再読み込み
+            if ($this->_conversionFailed && $fallbackEncodings) {
+                $orig_html = $html;
+                foreach ($fallbackEncodings as $charset) {
+                    // iconv_strlen() でチェック
+                    if (function_exists('iconv_strlen')) {
+                        if (false === iconv_strlen($html, $charset)) {
+                            continue;
+                        }
+                    }
+                    // <head>直後に<meta>を埋め込む
+                    $charset = htmlspecialchars($charset, ENT_QUOTES);
+                    $html = str_replace('<rep2:charset>',
+                                        "<meta http-equiv=\"Content-Type\" content=\"text/html; charset={$charset}\">",
+                                        preg_replace('/<head[^<>]*>/i', '$0<rep2:charset>', $orig_html));
+                    $this->_conversionFailed = false;
+                    $document = new DOMDocument;
+                    $document->loadHTML($html);
+                }
+            }
         } catch (Exception $e) {
-            error_reporting($level);
+            restore_error_handler();
             throw new P2Exception('Failed to create DOM: ' .
                                   get_class($e) . ': ' . $e->getMessage());
         }
-        error_reporting($level);
+
+        restore_error_handler();
+        if ($this->_conversionFailed) {
+            throw new P2Exception('Failed to load HTML');
+        }
 
         $this->_document = $document;
-        $this->_xpath = $xpath;
+        $this->_xpath = new DOMXPath($document);
     }
 
     // }}}
@@ -111,6 +142,23 @@ class P2DOM
         } else {
             return $this->_xpath->query($expression, $contextNode);
         }
+    }
+
+    // }}}
+    // {{{ checkConversionFailure()
+
+    /**
+     * @param int $errno
+     * @param string $errstr
+     * @retur boolean
+     */
+    public function checkConversionFailure($errno, $errstr)
+    {
+        if ($errno === E_WARNING && preg_match('/(?:input conversion failed|encoder error)/', $errstr)) {
+            $this->_conversionFailed = true;
+            return true;
+        }
+        return false;
     }
 
     // }}}

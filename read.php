@@ -25,7 +25,7 @@ detectThread();    // global $host, $bbs, $key, $ls
 //=================================================
 if (array_key_exists('rf', $_REQUEST) && is_array($_REQUEST['rf'])) {
     $resFilter = ResFilter::configure($_REQUEST['rf']);
-    if ($resFilter->word != null && empty($popup_filter)) {
+    if ($resFilter->word !== null && empty($popup_filter)) {
         $resFilter->save();
     }
 } else {
