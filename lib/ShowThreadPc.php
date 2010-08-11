@@ -557,8 +557,21 @@ EOP;
             return $idstr;
         }
 
-        $word = rawurlencode($id);
-        $filter_url = "{$_conf['read_php']}?bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;host={$this->thread->host}&amp;ls=all&amp;field=id&amp;word={$word}&amp;method=just&amp;match=on&amp;idpopup=1&amp;offline=1";
+        $filter_url = $_conf['read_php'] . '?' . http_build_query(array(
+            'host' => $this->thread->host,
+            'bbs'  => $this->thread->bbs,
+            'key'  => $this->thread->key,
+            'ls'   => 'all',
+            'offline' => '1',
+            'idpopup' => '1',
+            'rf' => array(
+                'field'   => ResFilter::FIELD_ID,
+                'method'  => ResFilter::METHOD_JUST,
+                'match'   => ResFilter::MATCH_ON,
+                'include' => ResFilter::INCLUDE_NONE,
+                'word'    => $id,
+            ),
+        ), '', '&amp;') . $_conf['k_at_a'];
 
         if ($_conf['iframe_popup']) {
             return $this->iframePopup($filter_url, $idstr, $_conf['bbs_win_target_at']) . $num_ht;

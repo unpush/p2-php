@@ -12,7 +12,7 @@ function get_read_jump(ThreadRead $aThread, $label, $use_onchange)
 {
     global $_conf;
 
-    $resFilter = RefFilter::getFilter();
+    $resFilter = ResFilter::getFilter();
 
     if ($resFilter && $resFilter->word !== null) {
         $jump = _get_read_jump_filter($aThread, $resFilter, $use_onchange);
@@ -106,7 +106,7 @@ function _get_read_jump(ThreadRead $aThread, $use_onchange)
 /**
  * ページ遷移用のHTML要素を取得する (検索時)
  */
-function _get_read_jump_filter(ThreadRead $aThread, RefFilter $resFilter, $use_onchange)
+function _get_read_jump_filter(ThreadRead $aThread, ResFilter $resFilter, $use_onchange)
 {
     global $_conf;
 
@@ -114,6 +114,7 @@ function _get_read_jump_filter(ThreadRead $aThread, RefFilter $resFilter, $use_o
         $options = '<option value="1">$_conf[&#39;mobile.rnum_range&#39;] の値が不正です</option>';
     } else {
         $options = '';
+        $filter_hits = $resFilter->hits;
 
         /*$optgroup = $_conf['mobile.rnum_range'] * 5;
         if ($optgroup >= $filter_hits) {

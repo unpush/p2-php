@@ -57,8 +57,8 @@ echo <<<EOF
 {$field_field_ht}‚É<br>
 {$method_field_ht}‚ð<br>
 {$match_field_ht}<br>
+<input type="submit" id="submit2" name="submit_filter" value="ŒŸõ"><br>
 {$include_field_ht}
-<input type="submit" id="submit2" name="submit_filter" value="ŒŸõ">
 </div>
 {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>

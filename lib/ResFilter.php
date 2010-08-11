@@ -95,6 +95,39 @@ class ResFilter
     }
 
     // }}}
+    // {{{ getQuery()
+
+    /**
+     * configure()で作られたオブジェクトに設定されているパラメータから
+     * HTTP GET用クエリを作成する
+     *
+     * @param string $separator
+     * @return string
+     */
+    static public function getQuery($separator = '&')
+    {
+        $filter = self::$_instance;
+        if ($filter === null) {
+            $params = array('rf' => array(
+                'field'   => self::FIELD_DEFAULT,
+                'method'  => self::METHOD_DEFAULT,
+                'match'   => self::MATCH_DEFAULT,
+                'include' => self::INCLUDE_DEFAULT,
+            ));
+        } else {
+            $params = array('rf' => array(
+                'field'   => $filter->field,
+                'method'  => $filter->method,
+                'match'   => $filter->match,
+                'include' => $filter->include,
+                'word'    => $filter->word,
+            ));
+        }
+
+        return http_build_query($params, '', $separator);
+    }
+
+    // }}}
     // {{{ getWord()
 
     /**

@@ -636,7 +636,21 @@ EOP;
         }
         */
 
-        $filter_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=all&amp;offline=1&amp;idpopup=1&amp;field=id&amp;method=just&amp;match=on&amp;word=" . rawurlencode($id).$_conf['k_at_a'];
+        $filter_url = $_conf['read_php'] . '?' . http_build_query(array(
+            'host' => $this->thread->host,
+            'bbs'  => $this->thread->bbs,
+            'key'  => $this->thread->key,
+            'ls'   => 'all',
+            'offline' => '1',
+            'idpopup' => '1',
+            'rf' => array(
+                'field'   => ResFilter::FIELD_ID,
+                'method'  => ResFilter::METHOD_JUST,
+                'match'   => ResFilter::MATCH_ON,
+                'include' => ResFilter::INCLUDE_NONE,
+                'word'    => $id,
+            ),
+        ), '', '&amp;') . $_conf['k_at_a'];
 
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
             $num_ht = "(<a href=\"{$filter_url}\"{$this->target_at}>{$this->thread->idcount[$id]}</a>)";
