@@ -1248,9 +1248,7 @@ if (window.opera) {
 // }}}
 // {{{ DOMContentLoaded
 
-window.addEventListener('DOMContentLoaded', function(event) {
-	window.removeEventListener('DOMContentLoaded', arguments.callee, false);
-
+document.addEventListener('DOMContentLoaded', function(event) {
 	if (typeof window.iphone_js_no_modification === 'undefined' || !window.iphone_js_no_modification) {
 		// リンクにイベントハンドラを登録する
 		iutil.modifyExternalLink(document.body);
@@ -1280,6 +1278,8 @@ window.addEventListener('DOMContentLoaded', function(event) {
 	} else if (!window.location.hash.length && iutil.getScrollX() < 1) {
 		window.scrollTo(0, 1);
 	}
+
+	document.removeEventListener('DOMContentLoaded', arguments.callee, false);
 }, false);
 
 // }}}

@@ -29,7 +29,7 @@ if (array_key_exists('rf', $_REQUEST) && is_array($_REQUEST['rf'])) {
         $resFilter->save();
     }
 } else {
-    ResFilter::restore();
+    $resFilter = ResFilter::restore();
 }
 
 //=================================================
@@ -172,7 +172,7 @@ if ($aThread->isKitoku()) {
 }
 
 // フィルタリングの時は、all固定とする
-if (isset($word)) {
+if ($resFilter && $resFilter->word !== null) {
     $aThread->ls = 'all';
 }
 
@@ -243,7 +243,7 @@ if ($_conf['ktai']) {
     // ローカルDatを変換してHTML表示
     //===========================================================
     // レスがあり、検索指定があれば
-    if (isset($word) && $aThread->rescount) {
+    if ($resFilter && $resFilter->word !== null && $aThread->rescount) {
 
         $all = $aThread->rescount;
 
@@ -282,7 +282,7 @@ EOP;
     //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection("datToHtml");
 
     // フィルタ結果を表示
-    if ($word && $aThread->rescount) {
+    if ($resFilter && $resFilter->word !== null && $aThread->rescount) {
         echo <<<EOP
 <script type="text/javascript">
 //<![CDATA[
