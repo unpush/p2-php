@@ -295,6 +295,9 @@ if ($do_filtering) {
     echo "&quot;{$hd['word']}&quot;‚ð";
     echo ($resFilter->match == ResFilter::MATCH_ON) ? 'ŠÜ‚Þ' : 'ŠÜ‚Ü‚È‚¢';
 }
+if ($_GET['showbl']) {
+    echo  htmlspecialchars($aThread->resrange['start']) . '‚Ö‚ÌÚ½';
+}
 
 if (!$_conf['iphone']) {
     echo '<hr>';

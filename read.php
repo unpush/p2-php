@@ -227,7 +227,11 @@ if ($_conf['ktai']) {
         //}
     } else {
         if ($aThread->rescount) {
-            $content = $aShowThread->getDatToHtml();
+            if ($_GET['showbl']) {
+                $content = $aShowThread->getDatToHtml_resFrom();
+            } else {
+                $content = $aShowThread->getDatToHtml();
+            }
         } else if ($aThread->diedat && count($aThread->datochi_residuums) > 0) {
             $content = $aShowThread->getDatochiResiduums();
         }
@@ -273,6 +277,9 @@ function filterCount(n){
 </script>
 EOP;
     }
+    if ($_GET['showbl']) {
+        echo  '<p><b>' . htmlspecialchars($aThread->resrange['start']) . 'へのレス</b></p>';
+    }
 
     //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection("datToHtml");
 
@@ -287,10 +294,18 @@ EOP;
         $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
         if ($_conf['coloredid.enable'] > 0 && $_conf['coloredid.click'] > 0 &&
             $_conf['coloredid.rate.type'] > 0) {
-            $mainhtml .= $aShowThread->datToHtml(true);
+            if ($_GET['showbl']) {
+                $mainhtml = $aShowThread->datToHtml_resFrom(true);
+            } else {
+                $mainhtml .= $aShowThread->datToHtml(true);
+            }
             $mainhtml .= $res1['q'];
         } else {
-            $aShowThread->datToHtml();
+            if ($_GET['showbl']) {
+                $aShowThread->datToHtml_resFrom();
+            } else {
+                $aShowThread->datToHtml();
+            }
             echo $res1['q'];
         }
 

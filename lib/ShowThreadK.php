@@ -1157,6 +1157,60 @@ EOP;
     // }}}
     // }}}
 
+    protected function _quoteback_horizontal_list_html($anchors, $resnum)
+    {
+        global $_conf;
+        $ret="";
+        if ($_GET['showbl']) return '';
+        $anchors = array_diff($anchors, array($resnum));
+        if (!$anchors)  return '';
+
+        $plus = array();
+        foreach($anchors as $num) {
+            $plus = array_merge($plus, $this->_get_quoteback_count($num));
+        }
+        $plus = array_unique($plus);
+        $plus_cnt = count(array_diff($plus, $anchors));
+        $plus_str = count($plus) > 0 ? '+' .  ($plus_cnt > 0 ? $plus_cnt : '') : '';
+
+        $url = $_conf['read_php'] . '?' . http_build_query(array(
+            'host' => $this->thread->host,
+            'bbs'  => $this->thread->bbs,
+            'key'  => $this->thread->key,
+            'ls'   => $resnum,
+            'offline' => '1',
+            'showbl' => '1',
+        ), '', '&amp;') . $_conf['k_at_a'];
+        if (count($anchors) > 1) {
+            $ret .= "yQÆÚ½(<a href=\"{$url}\"{$this->target_at}>"
+                . count($anchors) . $plus_str . '</a>)z';
+        } else {
+            foreach($anchors as $anchor) {
+                if ($anchor == $resnum) continue;
+                $anchor_link = $this->quoteRes('>>'.$anchor, '>>', $anchor);
+                $ret .=sprintf('yQÆÚ½ %s%sz',$anchor_link,
+                    $plus_str ? "(<a href=\"{$url}\"{$this->target_at}>{$plus_str}</a>)" : '');
+            }
+        }
+
+        return '<div class="reslist">' . $ret . '</div>';
+    }
+
+    protected function _get_quoteback_count($num, $checked = null) {
+        $ret = array();
+        if ($checked === null) $checked = array();
+        $checked[] = $num;
+        $quotes = $this->get_quote_from();
+        if ($quotes[$num]) {
+            $ret = $quotes[$num];
+            foreach($quotes[$num] as $quote_num) {
+                if ($quote_num != $num && !in_array($quote_num, $checked)) {
+                    $ret = array_merge($ret, $this->_get_quoteback_count($quote_num, array_merge($ret, $checked)));
+                }
+            }
+        }
+        return $ret;
+    }
 }
 
 // }}}

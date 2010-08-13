@@ -298,6 +298,10 @@ abstract class ShowThread
     {
         return $this->datToHtml(true, $is_fragment);
     }
+    public function getDatToHtml_resFrom($is_fragment = false)
+    {
+        return $this->datToHtml_resFrom(true, $is_fragment);
+    }
 
     // }}}
     // {{{ datToHtml()
@@ -426,6 +430,103 @@ abstract class ShowThread
 
         if ($do_filtering && !$is_ktai) {
             $buf['body'] .= "<script type=\"text/javascript\">filterCount({$filter_hits});</script>\n";
+        }
+
+        if (!$is_fragment) {
+            $buf['body'] .= "</div>\n";
+        }
+
+        if ($capture) {
+            return $buf['body'] . $buf['q'];
+        } else {
+            echo $buf['body'];
+            echo $buf['q'];
+            flush();
+            return true;
+        }
+    }
+
+    /**
+     * 指定の書込みへのレスをHTMLに変換して表示する
+     *
+     * @param   bool $capture       trueなら変換結果を出力せずに返す
+     * @param   bool $is_fragment   trueなら<div class="thread"></div>で囲まない
+     * @param   bool $show_rootres  trueなら指定の書込みも結果に含める
+     * @return  bool|string
+     */
+    public function datToHtml_resFrom($capture = false, $is_fragment = false, $show_rootres = false)
+    {
+        global $_conf;
+
+        $aThread = $this->thread;
+
+        // 表示レスが指定されていなければ
+        $target = $aThread->resrange['start'];
+        if (!$aThread->resrange || $target != $aThread->resrange['to']) {
+            $error = '<p><b>p2 error: {$this->resrange} is FALSE at datToHtml()</b></p>';
+            if ($capture) {
+                return $error;
+            } else {
+                echo $error;
+                return false;
+            }
+        }
+
+        $datlines = $aThread->datlines;
+        $count = count($datlines);
+
+        $buf['body'] = $is_fragment ? '' : "<div class=\"thread\">\n";
+        $buf['q'] = '';
+
+        // 連鎖のため、範囲外のNGあぼーんチェック
+        if ($_conf['ngaborn_chain_all'] && empty($_GET['nong'])) {
+            $pre = min($count, $start);
+            for ($i = ($nofirst) ? 0 : 1; $i < $pre; $i++) {
+                $n = $i + 1;
+                list($name, $mail, $date_id, $msg) = $aThread->explodeDatLine($datlines[$i]);
+                if (($id = $aThread->ids[$n]) !== null) {
+                    $date_id = str_replace($aThread->idp[$n] . $id, "ID:$id", $date_id);
+                }
+                $this->_ngAbornCheck($n, strip_tags($name), $mail, $date_id, $id, $msg);
+            }
+        }
+
+        // レス展開
+        $datlines = array_fill(0, count($aThread->datlines), null);
+        if ($show_rootres) {
+            $datlines[$target - 1] = $aThread->datlines[$target - 1];
+        }
+        list($name, $mail, $date_id, $msg) =
+            $aThread->explodeDatLine($aThread->datlines[$target - 1]);
+        foreach ($this->checkQuoteResNums($target, $name, $msg, false, true, false) as $rn) {
+            $ri = $rn - 1;
+            if ($datlines[$ri] === null) {
+                $datlines[$ri] = $aThread->datlines[$ri];
+            }
+        }
+
+        // 表示
+        $i = 0;
+        $n = 0;
+        $rn = 0;
+        foreach ($datlines as $i => $ares) {
+            if ($ares === null) {
+                continue;
+            }
+            $n++;
+            $rn = $i + 1;
+            $res = $this->transRes($ares, $rn);
+            if (is_array($res)) {
+                $buf['body'] .= $res['body'];
+                $buf['q'] .= $res['q'] ? $res['q'] : '';
+            } else {
+                $buf['body'] .= $res;
+            }
+            if (!$capture && $n % 10 == 0) {
+                echo $buf['body'];
+                flush();
+                $buf['body'] = '';
+            }
         }
 
         if (!$is_fragment) {
