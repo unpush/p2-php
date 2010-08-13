@@ -433,7 +433,7 @@ class ResFilter
         $failure = ($this->match == self::MATCH_ON) ? false : true;
         $datlines = array_fill(0, count($aThread->datlines), null);
         $hit_nums = array();
-        $res_nums = array();
+//        $res_nums = array();
         $check_refs = ($this->include & self::INCLUDE_REFERENCES) ? true : false;
         $check_refed = ($this->include & self::INCLUDE_REFERENCED) ? true : false;
 
@@ -456,8 +456,8 @@ class ResFilter
                     $datlines[$i] = $aThread->datlines[$i];
                     $hit_nums[] = $i;
                 }
-                if ($check_refs) {
-                    foreach ($aShowThread->checkQuoteResNums($n, $name, $msg) as $rn) {
+                if ($check_refs || $check_refed) {
+                    foreach ($aShowThread->checkQuoteResNums($n, $name, $msg, $check_refs, $check_refed, false) as $rn) {
                         $ri = $rn - 1;
                         if ($datlines[$ri] === null) {
                             $datlines[$ri] = $aThread->datlines[$ri];
@@ -465,15 +465,18 @@ class ResFilter
                         }
                     }
                 }
+/*
                 if ($check_refed) {
                     $res_nums[] = $n;
                 }
+*/
             }
         }
 
         // }}}
         // {{{ 2パス目 (マッチしたレスへの参照)
 
+/*
         if (count($res_nums)) {
             $pattern = ShowThread::getAnchorRegex(
                 '%prefix%(.+%delimiter%)?(?:' . implode('|', $res_nums) . ')(?!\\d|%range_delimiter%)'
@@ -488,6 +491,7 @@ class ResFilter
                 }
             }
         }
+*/
 
         // }}}
 

@@ -1080,12 +1080,15 @@ abstract class ShowThread
     /**
      * HTMLメッセージ中の引用レスの番号を再帰チェックする
      */
-    public function checkQuoteResNums($res_num, $name, $msg)
+    public function checkQuoteResNums($res_num, $name, $msg, $with_quotes=true, $with_backlinks=null, $cascade=true)
     {
         global $_conf;
         $this->_quote_check_depth = 0;
-        if ($_conf['backlink_list'] > 0 || $_conf['backlink_block'] > 0) {
-            return $this->checkQuoteResNumsFromSummary($res_num == 0 ? 1 : $res_num);
+        if ($with_backlinks === null)
+            $with_backlinks = ($_conf['backlink_list'] > 0 || $_conf['backlink_block'] > 0) ? true : false;
+        if ($with_backlinks) {
+            return $this->checkQuoteResNumsFromSummary(
+                $res_num == 0 ? 1 : $res_num, $with_quotes, $with_backlinks);
         }
         return $this->_checkQuoteResNums($res_num, $name, $msg);
     }
@@ -1201,7 +1204,7 @@ abstract class ShowThread
     /**
      * 引用レス集計結果からポップアップ用に用意すべき番号を再帰チェックする
      */
-    public function checkQuoteResNumsFromSummary($res_num)
+    public function checkQuoteResNumsFromSummary($res_num, $with_quotes, $with_backlinks)
     {
         // 再帰リミッタ
         if ($this->_quote_check_depth > 3000) {
@@ -1210,36 +1213,39 @@ abstract class ShowThread
             $this->_quote_check_depth++;
         }
 
-        $quote_res_nums = array();
-        $quote_to = $this->get_quote_to();
-        $quote_from = $this->get_quote_from();
+        $ret = array();
 
-        if (array_key_exists($res_num, $quote_to)) {
-            foreach ($quote_to[$res_num] as $quote_to_num) {
-                $quote_res_nums[] = $quote_to_num;
-                if ($quote_to_num != $res_num) {
-                    if (!isset($this->_quote_res_nums_checked[$quote_to_num])) {
-                        $this->_quote_res_nums_checked[$quote_to_num] = true;
-                        $quote_res_nums = array_merge($quote_res_nums,
-                            $this->checkQuoteResNumsFromSummary($quote_to_num));
+        // 参照レス
+        if ($with_quotes) {
+            $ret = array_merge($ret,
+                $this->_checkQuoteResNumsFromSummary(
+                    $res_num, $this->get_quote_to(), $with_quotes, $with_backlinks));
+        }
+        // 被参照レス
+        if ($with_backlinks) {
+            $ret = array_merge($ret,
+                $this->_checkQuoteResNumsFromSummary(
+                    $res_num, $this->get_quote_from(), $with_quotes, $with_backlinks));
+        }
+        return $ret;
+    }
+
+    protected function _checkQuoteResNumsFromSummary($res_num, $quotes, $with_quotes, $with_backlinks)
+    {
+        $ret = array();
+        if (array_key_exists($res_num, $quotes)) {
+            foreach ($quotes[$res_num] as $quote_num) {
+                $ret[] = $quote_num;
+                if ($quote_num != $res_num) {
+                    if (!isset($this->_quote_res_nums_checked[$quote_num])) {
+                        $this->_quote_res_nums_checked[$quote_num] = true;
+                        $ret = array_merge($ret,
+                            $this->checkQuoteResNumsFromSummary($quote_num, $with_quotes, $with_backlinks));
                     }
                 }
             }
         }
-        if (array_key_exists($res_num, $quote_from)) {
-            foreach ($quote_from[$res_num] as $quote_from_num) {
-                $quote_res_nums[] = $quote_from_num;
-                if ($quote_from_num != $res_num) {
-                    if (!isset($this->_quote_res_nums_checked[$quote_from_num])) {
-                        $this->_quote_res_nums_checked[$quote_from_num] = true;
-                        $quote_res_nums = array_merge($quote_res_nums,
-                            $this->checkQuoteResNumsFromSummary($quote_from_num));
-                    }
-                }
-            }
-        }
-
-        return $quote_res_nums;
+        return $ret;
     }
 
     // }}}
