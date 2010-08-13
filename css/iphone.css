@@ -563,6 +563,207 @@ ul.subject > li.info-pop > table.info-pop-fav td:first-child {
 }
 
 /* }}} */
+/* {{{ new layout */
+
+body.nopad {
+	margin: 0;
+	padding: 0;
+}
+ 
+body.nopad p.empty-subject {
+	margin: 10px 0;
+}
+ 
+body.nopad ul.subject {
+	margin: 0;
+}
+
+/* }}} */
+/* {{{ new toolbar */
+
+div.ntoolbar {
+	margin: 0;
+	padding: 0;
+	background-color: #000;
+	color: #fff;
+}
+
+div.ntoolbar#header {
+}
+
+div.ntoolbar#footer {
+}
+
+div.ntoolbar > h1.ptitle {
+	margin: 0;
+	padding: 10px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: center;
+	font-weight: normal;
+	font-size: 16px;
+	line-height: 16px;
+}
+
+div.ntoolbar > form,
+div.ntoolbar > div > form {
+	margin: 0;
+	padding: 5px 10px;
+	border-top: #808080 solid 1px;
+	font-size: 14px;
+	line-height: 16px;
+}
+
+div.ntoolbar > div {
+	margin: 0;
+	padding: 0;
+	font-size: 14px;
+	line-height: 16px;
+}
+
+div.ntoolbar > div.info {
+	padding: 5px 10px;
+	border-top: #808080 solid 1px;
+	background-color: #ccf;
+	color: #000;
+}
+
+div.ntoolbar > div.hits {
+	padding: 5px 10px;
+	border-top: #808080 solid 1px;
+	background-color: #ffc;
+	color: #000;
+}
+
+div.ntoolbar > div.extra {
+	display: none;
+}
+
+div.ntoolbar table {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border-collapse: collapse;
+	empty-cells: show;
+}
+
+div.ntoolbar td {
+	position: relative;
+	width: 20%;
+	margin: 0;
+	padding: 8px 0;
+	text-align: center;
+	vertical-align: middle;
+	border-top: #808080 solid 1px;
+	font-size: 11px;
+	line-height: 11px;
+}
+
+div.ntoolbar td[colspan='2'] {
+	width: 40%;
+}
+
+div.ntoolbar td[colspan='3'] {
+	width: 60%;
+}
+
+div.ntoolbar td[colspan='4'] {
+	width: 80%;
+}
+
+div.ntoolbar td[colspan='5'] {
+	width: 100%;
+}
+
+div.ntoolbar > h1.ptitle > a {
+	text-decoration: none;
+}
+
+div.ntoolbar td > a {
+	display: block;
+	position: relative;
+	text-decoration: none;
+}
+
+div.ntoolbar > h1.ptitle > a:link,
+div.ntoolbar > h1.ptitle > a:visited,
+div.ntoolbar td > a:link,
+div.ntoolbar td > a:visited {
+	color: #fff;
+}
+
+div.ntoolbar > h1.ptitle > a.hover,
+div.ntoolbar > h1.ptitle > a.active,
+div.ntoolbar > h1.ptitle > a:hover,
+div.ntoolbar > h1.ptitle > a:active,
+div.ntoolbar td > a.hover,
+div.ntoolbar td > a.active,
+div.ntoolbar td > a:hover,
+div.ntoolbar td > a:active {
+	color: #9cf;
+}
+
+div.ntoolbar td > a.inactive,
+div.ntoolbar td > span.unavailable {
+	color: #666;
+}
+
+div.ntoolbar td > a > span.badge {
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	right: 8px;
+	width: auto;
+	height: 12px;
+	margin: 0;
+	padding: 2px 5px;
+	-webkit-border-radius: 8px;
+	background-color: #f00;
+	background-color: rgba(255, 0, 0, 0.95);
+	color: #fff;
+	font-weight: bold;
+	font-size: 12px;
+	line-height: 12px;
+}
+
+div.ntoolbar td > a.hover > span.badge,
+div.ntoolbar td > a.active > span.badge,
+div.ntoolbar td > a:hover > span.badge,
+div.ntoolbar td > a:active > span.badge {
+	background-color: #36f;
+}
+
+div.ntoolbar td > a > img {
+	border: none;
+}
+
+div.ntoolbar td > a:link > img,
+div.ntoolbar td > a:visited > img {
+	background-color: #fff;
+}
+
+div.ntoolbar td > a.hover > img,
+div.ntoolbar td > a.active > img,
+div.ntoolbar td > a:hover > img,
+div.ntoolbar td > a:active > img {
+	background-color: #9cf;
+}
+
+div.ntoolbar td > a.inactive > img,
+div.ntoolbar td > span.unavailable > img {
+	background-color: #666;
+}
+
+div.ntoolbar td > select {
+	font-size: 16px;
+}
+
+div.ntoolbar td > span.large {
+	font-size: 14px;
+}
+
+/* }}} */
 
 /*
  * Local Variables:

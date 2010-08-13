@@ -139,24 +139,6 @@ if (!$disp_navi['all_once']) {
             $k_sb_navi_select_from_ht .= '</optgroup>';
         }*/
     }
-
-    if ($_conf['iphone']) {
-        $k_sb_navi_ht = <<<EOP
-<div class="pager"><select onchange="location.href = '{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from=' + this.options[this.selectedIndex].value + '{$sb_view_at}{$word_at}{$_conf['k_at_a']}';">{$k_sb_navi_select_from_ht}</select>/{$sb_disp_all_num} {$mae_ht} {$tugi_ht}</div>
-EOP;
-    } else {
-        $k_sb_navi_ht = <<<EOP
-<div>{$sb_range_on}/{$sb_disp_all_num} {$mae_ht} {$tugi_ht}</div>
-<form method="get" action="{$_conf['subject_php']}">
-<input type="hidden" name="host" value="{$aThreadList->host}">
-<input type="hidden" name="bbs" value="{$aThreadList->bbs}">
-<input type="hidden" name="spmode" value="{$aThreadList->spmode}">
-<input type="hidden" name="norefresh" value="1">
-<select name="from">{$k_sb_navi_select_from_ht}</select><input type="submit" value="GO">
-{$sb_view_input_ht}{$word_input_ht}{$_conf['k_input_ht']}
-</form>
-EOP;
-    }
 } else {
     $k_sb_navi_ht = '';
 }
@@ -207,11 +189,7 @@ if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
 // }}}
 // {{{ ソート変更 （新着 レス No. タイトル 板 すばやさ 勢い Birthday ☆）
 
-if ($_conf['iphone']) {
-    $sorts = array('midoku' => '新着', 'res' => 'レス', 'no' => 'No.', 'title' => 'タイトル');
-} else {
-    $sorts = array('midoku' => '新着', 'res' => 'ﾚｽ', 'no' => 'No.', 'title' => 'ﾀｲﾄﾙ');
-}
+$sorts = array('midoku' => '新着', 'res' => 'ﾚｽ', 'no' => 'No.', 'title' => 'ﾀｲﾄﾙ');
 
 if ($aThreadList->spmode and $aThreadList->spmode != 'taborn' and $aThreadList->spmode != 'soko') {
     $sorts['ita'] = '板';
@@ -268,9 +246,7 @@ $htm['change_sort'] .= ' <input type="submit" value="並び替え"></form>';
 // }}}
 
 // HTMLプリント ==============================================
-if (!$_conf['iphone']) {
-    echo '<hr>';
-}
+echo '<hr>';
 echo $k_sb_navi_ht;
 include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 echo $allfav_ht;
@@ -283,12 +259,6 @@ echo '</div>';
 echo $htm['change_sort'];
 
 echo "<hr>\n<div class=\"center\">{$_conf['k_to_index_ht']}";
-if (!$aThreadList->spmode && $_conf['iphone'] && $_conf['expack.misc.use_bb2c']) {
-    $bb2c_open_uri = "beebee2seeopen://{$aThreadList->host}/{$aThreadList->bbs}/";
-    echo ' <a class="button" href="javascript:location.replace(\'';
-    echo htmlspecialchars($bb2c_open_uri, ENT_QUOTES);
-    echo '\');">BB2C</a>';
-}
 echo "</div>\n";
 
 echo '</body></html>';

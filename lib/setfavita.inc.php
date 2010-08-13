@@ -87,7 +87,7 @@ function setFavItaByRequest()
  *
  * @param   string      $host
  * @param   string      $bbs
- * @param   int|string  $setfavita  0(解除), 1(追加), top, up, down, bottom
+ * @param   int|string  $setfavita  -1(登録・解除をトグル), 0(解除), 1(追加), top, up, down, bottom
  * @param   string      $itaj
  * @param   int|null    $setnum
  * @return  bool
@@ -105,6 +105,7 @@ function setFavItaByHostBbs($host, $bbs, $setfavita, $itaj = null, $setnum = nul
     //================================================
     $neolines = array();
     $before_line_num = 0;
+    $was_set = false;
 
     // 最初に重複要素を消去
     if (!empty($lines)) {
@@ -122,6 +123,7 @@ function setFavItaByHostBbs($host, $bbs, $setfavita, $itaj = null, $setnum = nul
 
             if ($lar[1] == $host and $lar[2] == $bbs) { // 重複回避
                 $before_line_num = $i;
+                $was_set = true;
                 continue;
             } elseif (!$lar[1] || !$lar[2]) { // 不正データ（host, bbsなし）もアウト
                 continue;
@@ -129,6 +131,10 @@ function setFavItaByHostBbs($host, $bbs, $setfavita, $itaj = null, $setnum = nul
                 $neolines[] = $l;
             }
         }
+    }
+
+    if ($setfavita == -1) {
+        $setfavita = ($was_set) ? 0 : 1;
     }
 
     // 記録データ設定

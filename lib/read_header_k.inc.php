@@ -25,14 +25,8 @@ $key_q = '&amp;key=' . $aThread->key;
 $host_bbs_key_q = 'host=' . $aThread->host . $bbs_q . $key_q;
 $offline_q = '&amp;offline=1';
 
-$do_filtering = (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0);
-
-if ($do_filtering) {
-    $hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
-    $hd['field'] = $res_filter['field'];
-    $hd['method'] = $res_filter['method'];
-    $hd['match'] = $res_filter['match'];
-}
+$hd['word'] = ResFilter::getWord('htmlspecialchars', array(ENT_QUOTES, 'Shift_JIS'));
+$do_filtering = ($hd['word'] === null) ? false : true;
 
 //=================================================================
 // ヘッダ
@@ -285,13 +279,24 @@ EOP;
 echo "<hr>";
 echo "<h3><font color=\"{$STYLE['mobile_read_ttitle_color']}\">{$aThread->ttitle_hd}</font></h3>\n";
 
-$filter_fields = array('hole' => '', 'msg' => 'ﾒｯｾｰｼﾞが', 'name' => '名前が', 'mail' => 'ﾒｰﾙが', 'date' => '日付が', 'id' => 'IDが', 'belv' => 'ﾎﾟｲﾝﾄが');
+$filter_fields = array(
+    ResFilter::FIELD_HOLE => '', 
+    ResFilter::FIELD_MESSAGE => 'ﾒｯｾｰｼﾞが',
+    ResFilter::FIELD_NAME => '名前が',
+    ResFilter::FIELD_MAIL => 'ﾒｰﾙが',
+    ResFilter::FIELD_DATE => '日付が',
+    ResFilter::FIELD_ID => 'IDが',
+);
+
 
 if ($do_filtering) {
-    echo "検索結果: ";
-    echo "{$filter_fields[$res_filter['field']]}";
+    $resFilter = ResFilter::getFilter();
+    echo "検索結果: {$filter_fields[$resFilter->field]}";
     echo "&quot;{$hd['word']}&quot;を";
-    echo ($res_filter['match'] == 'on') ? '含む' : '含まない';
+    echo ($resFilter->match == ResFilter::MATCH_ON) ? '含む' : '含まない';
+}
+if ($_GET['showbl']) {
+    echo  htmlspecialchars($aThread->resrange['start']) . 'へのﾚｽ';
 }
 
 if (!$_conf['iphone']) {

@@ -37,7 +37,12 @@ function ic2_getinfo(type, value, thumb)
 		return null;
 	}
 
-	return (typeof res === 'object' && typeof res.id === 'number') ? res : null;
+	if (res) {
+		if (typeof res.id === 'number') {
+			return res;
+		}
+	}
+	return null;
 }
 
 // }}}

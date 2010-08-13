@@ -68,6 +68,13 @@ class P2Client
     // {{{ properties
 
     /**
+     * HTMLを読み込めなかったときの代替エンコーディング候補
+     *
+     * @var array
+     */
+    static private $_fallbackEncodings = array('Shift_JIS-2004', 'Windows-31J');
+
+    /**
      * 公式p2のルートURI
      *
      * @var string
@@ -206,7 +213,7 @@ class P2Client
 
         if ($dom === null) {
             $response = $this->httpGet($uri);
-            $dom = new P2DOM($response['body']);
+            $dom = new P2DOM($response['body'], self::$_fallbackEncodings);
             $form = null;
         }
 
@@ -233,7 +240,7 @@ class P2Client
 
         $response = $this->httpPost($uri, $postData, true);
 
-        return $this->getLoginForm(new P2DOM($response['body'])) === null;
+        return $this->getLoginForm(new P2DOM($response['body'], self::$_fallbackEncodings)) === null;
     }
 
     // }}}
@@ -255,7 +262,7 @@ class P2Client
         $getData = $this->setupGetData($host, $bbs, $key, $ls);
         $uri = $this->_rootUri . self::SCRIPT_NAME_READ;
         $response = $this->httpGet($uri, $getData, true);
-        $dom = new P2DOM($response['body']);
+        $dom = new P2DOM($response['body'], self::$_fallbackEncodings);
 
         if ($form = $this->getLoginForm($dom)) {
             if (!$this->login($uri, $getData, $dom, $form, $response)) {
@@ -301,7 +308,7 @@ class P2Client
         // 「モリタポでp2に取り込む」リンクの有無を調べる。
         // 無い場合はdat取得権限があるものとする。
         // dat取得権限がない場合やモリタポ通帳の残高が足りない場合の処理は端折る。
-        $dom = new P2DOM($html);
+        $dom = new P2DOM($html, self::$_fallbackEncodings);
         $expression = './/a[contains(@href, "' . self::SCRIPT_NAME_READ . '?")'
                     . ' and contains(@href, "&moritapodat=")]';
         $result = $dom->query($expression);
@@ -354,7 +361,7 @@ class P2Client
             return false;
         }
 
-        $dom = new P2DOM($html);
+        $dom = new P2DOM($html, self::$_fallbackEncodings);
         $form = $this->getPostForm($dom);
         if ($form === null) {
             throw new P2Exception('Post form not found.');
@@ -375,10 +382,12 @@ class P2Client
 
         // Cookie確認の場合は再POST。
         if (preg_match(self::REGEX_POST_COOKIE, $response['body'])) {
-            $html = str_replace('<META http-equiv="Content-Type" content="text/html; charset=x-sjis">',
-                                '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">',
-                                $response['body']);
-            $dom = new P2DOM($html);
+            // x-sjisはlibxml2で不明な文字セット扱いになり、
+            // エラーは出ないが期待通りに読み込めないのでShift_JISを挿入しておく
+            $html = preg_replace('/<head[^<>]*>/i',
+                                 '$0<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">',
+                                 $response['body']);
+            $dom = new P2DOM($html, self::$_fallbackEncodings);
             $expression = './/form[contains(@action, "' . self::SCRIPT_NAME_POST . '")]';
             $result = $dom->query($expression);
             if (($result instanceof DOMNodeList) && $result->length > 0) {

@@ -140,13 +140,14 @@ class ShowThreadK extends ShowThread
     /**
      * DatレスをHTMLレスに変換する
      *
-     * @param   string  $ares   datの1ライン
-     * @param   int     $i      レス番号
+     * @param   string  $ares       datの1ライン
+     * @param   int     $i          レス番号
+     * @param   string  $pattern    ハイライト用正規表現
      * @return  string
      */
-    public function transRes($ares, $i)
+    public function transRes($ares, $i, $pattern = null)
     {
-        global $_conf, $STYLE, $mae_msg, $res_filter;
+        global $_conf, $STYLE, $mae_msg;
 
         list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($ares);
         if (($id = $this->thread->ids[$i]) !== null) {
@@ -164,22 +165,6 @@ class ShowThreadK extends ShowThread
             $date_id = $replaceword->replace('date', $this->thread, $ares, $i);
             $msg     = $replaceword->replace('msg',  $this->thread, $ares, $i);
         }
-
-        // {{{ フィルタリング
-
-        if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
-            if (strlen($GLOBALS['word_fm']) <= 0) {
-                return '';
-            // ターゲット設定（空のときはフィルタリング結果に含めない）
-            } elseif (!$target = $this->getFilterTarget($ares, $i, $name, $mail, $date_id, $msg)) {
-                return '';
-            // マッチング
-            } elseif (!$this->filterMatch($target, $i)) {
-                return '';
-            }
-        }
-
-        // }}}
 
         $tores = '';
         if ($this->_matome) {
@@ -430,11 +415,11 @@ EOP;
         }
 
         // まとめてフィルタ色分け
-        if ($GLOBALS['word_fm'] && $GLOBALS['res_filter']['match'] != 'off') {
+        if ($pattern) {
             if (is_string($_conf['k_filter_marker'])) {
-                $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores, $_conf['k_filter_marker']);
+                $tores = StrCtl::filterMarking($pattern, $tores, $_conf['k_filter_marker']);
             } else {
-                $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores);
+                $tores = StrCtl::filterMarking($pattern, $tores);
             }
         }
 
@@ -501,7 +486,6 @@ EOP;
     public function transMsg($msg, $mynum)
     {
         global $_conf;
-        global $res_filter, $word_fm;
         global $pre_thumb_ignore_limit;
 
         $ryaku = false;
@@ -686,7 +670,21 @@ EOP;
         }
         */
 
-        $filter_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=all&amp;offline=1&amp;idpopup=1&amp;field=id&amp;method=just&amp;match=on&amp;word=" . rawurlencode($id).$_conf['k_at_a'];
+        $filter_url = $_conf['read_php'] . '?' . http_build_query(array(
+            'host' => $this->thread->host,
+            'bbs'  => $this->thread->bbs,
+            'key'  => $this->thread->key,
+            'ls'   => 'all',
+            'offline' => '1',
+            'idpopup' => '1',
+            'rf' => array(
+                'field'   => ResFilter::FIELD_ID,
+                'method'  => ResFilter::METHOD_JUST,
+                'match'   => ResFilter::MATCH_ON,
+                'include' => ResFilter::INCLUDE_NONE,
+                'word'    => $id,
+            ),
+        ), '', '&amp;') . $_conf['k_at_a'];
 
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
             $num_ht = "(<a href=\"{$filter_url}\"{$this->target_at}>{$this->thread->idcount[$id]}</a>)";
@@ -1353,6 +1351,60 @@ EOP;
     // }}}
     // }}}
 
+    protected function _quoteback_horizontal_list_html($anchors, $resnum)
+    {
+        global $_conf;
+        $ret="";
+        if ($_GET['showbl']) return '';
+        $anchors = array_diff($anchors, array($resnum));
+        if (!$anchors)  return '';
+
+        $plus = array();
+        foreach($anchors as $num) {
+            $plus = array_merge($plus, $this->_get_quoteback_count($num));
+        }
+        $plus = array_unique($plus);
+        $plus_cnt = count(array_diff($plus, $anchors));
+        $plus_str = count($plus) > 0 ? '+' .  ($plus_cnt > 0 ? $plus_cnt : '') : '';
+
+        $url = $_conf['read_php'] . '?' . http_build_query(array(
+            'host' => $this->thread->host,
+            'bbs'  => $this->thread->bbs,
+            'key'  => $this->thread->key,
+            'ls'   => $resnum,
+            'offline' => '1',
+            'showbl' => '1',
+        ), '', '&amp;') . $_conf['k_at_a'];
+        if (count($anchors) > 1) {
+            $ret .= "【参照ﾚｽ(<a href=\"{$url}\"{$this->target_at}>"
+                . count($anchors) . $plus_str . '</a>)】';
+        } else {
+            foreach($anchors as $anchor) {
+                if ($anchor == $resnum) continue;
+                $anchor_link = $this->quoteRes('>>'.$anchor, '>>', $anchor);
+                $ret .=sprintf('【参照ﾚｽ %s%s】',$anchor_link,
+                    $plus_str ? "(<a href=\"{$url}\"{$this->target_at}>{$plus_str}</a>)" : '');
+            }
+        }
+
+        return '<div class="reslist">' . $ret . '</div>';
+    }
+
+    protected function _get_quoteback_count($num, $checked = null) {
+        $ret = array();
+        if ($checked === null) $checked = array();
+        $checked[] = $num;
+        $quotes = $this->get_quote_from();
+        if ($quotes[$num]) {
+            $ret = $quotes[$num];
+            foreach($quotes[$num] as $quote_num) {
+                if ($quote_num != $num && !in_array($quote_num, $checked)) {
+                    $ret = array_merge($ret, $this->_get_quoteback_count($quote_num, array_merge($ret, $checked)));
+                }
+            }
+        }
+        return $ret;
+    }
 }
 
 // }}}
