@@ -713,6 +713,73 @@ iutil.stopEvent = function(event) {
 };
 
 // }}}
+// {{{ toolbarShowHide()
+
+/**
+ * ツールバーボタンで要素の表示・非表示をトグルする
+ *
+ * @param {Element} element
+ * @param {Event} event
+ * @return {false}
+ */
+iutil.toolbarShowHide = function(element, event) {
+	var href = element.href;
+	var offset = element.href.indexOf('#');
+
+	if (offset !== -1) {
+		var target = document.getElementById(href.substring(offset + 1, href.length));
+		if (target) {
+			if (target.style.display === 'block') {
+				target.style.display = 'none';
+				element.className = '';
+			} else {
+				target.style.display = 'block';
+				element.className = 'active';
+			}
+		}
+	}
+
+	return iutil.stopEvent(event);
+};
+
+// }}}
+// {{{ toolbarSetFav()
+
+/**
+ * ツールバーボタンでお気にスレの登録・解除をトグルする
+ *
+ * @param {Element} element
+ * @param {Event} event
+ * @return {false}
+ */
+iutil.toolbarSetFav = function(element, event) {
+	if (iutil.httpGetText(element.href) == '1') {
+		if (element.className === 'inactive') {
+			element.className = '';
+		} else {
+			element.className = 'inactive';
+		}
+	} else {
+		window.alert('お気に入りの登録・解除に失敗しました\n'+element.href);
+	}
+
+	return iutil.stopEvent(event);
+};
+
+// }}}
+// {{{ toolbarSetFavIta()
+
+/**
+ * ツールバーボタンでお気に板の登録・解除をトグルする
+ * 実体はiutil.toolbarSetFav
+ *
+ * @param {Element} element
+ * @param {Event} event
+ * @return {false}
+ */
+iutil.toolbarSetFavIta = iutil.toolbarSetFav;
+
+// }}}
 // {{{ sliding.onTouchStart()
 
 /**

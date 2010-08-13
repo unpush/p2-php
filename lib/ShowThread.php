@@ -307,7 +307,7 @@ abstract class ShowThread
 
         $is_ktai = $_conf['ktai'];
         $resFilter = ResFilter::getFilter();
-        if ($resFilter && $resFilter->word !== null) {
+        if ($resFilter && $resFilter->hasWord()) {
             $do_filtering = true;
             $nofirst = true;
         } else {

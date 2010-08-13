@@ -25,8 +25,14 @@ detectThread();    // global $host, $bbs, $key, $ls
 //=================================================
 if (array_key_exists('rf', $_REQUEST) && is_array($_REQUEST['rf'])) {
     $resFilter = ResFilter::configure($_REQUEST['rf']);
-    if ($resFilter->word !== null && empty($popup_filter)) {
-        $resFilter->save();
+    if ($resFilter->hasWord()) {
+        if ($_conf['ktai']) {
+            $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : 1;
+            $resFilter->setRange($_conf['mobile.rnum_range'], $page);
+        }
+        if (empty($popup_filter)) {
+            $resFilter->save();
+        }
     }
 } else {
     $resFilter = ResFilter::restore();
@@ -172,7 +178,7 @@ if ($aThread->isKitoku()) {
 }
 
 // フィルタリングの時は、all固定とする
-if ($resFilter && $resFilter->word !== null) {
+if ($resFilter && $resFilter->hasWord()) {
     $aThread->ls = 'all';
 }
 
@@ -243,7 +249,7 @@ if ($_conf['ktai']) {
     // ローカルDatを変換してHTML表示
     //===========================================================
     // レスがあり、検索指定があれば
-    if ($resFilter && $resFilter->word !== null && $aThread->rescount) {
+    if ($resFilter && $resFilter->hasWord() && $aThread->rescount) {
 
         $all = $aThread->rescount;
 
@@ -282,7 +288,7 @@ EOP;
     //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection("datToHtml");
 
     // フィルタ結果を表示
-    if ($resFilter && $resFilter->word !== null && $aThread->rescount) {
+    if ($resFilter && $resFilter->hasWord() && $aThread->rescount) {
         echo <<<EOP
 <script type="text/javascript">
 //<![CDATA[

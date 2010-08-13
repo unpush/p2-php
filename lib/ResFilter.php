@@ -120,8 +120,10 @@ class ResFilter
                 'method'  => $filter->method,
                 'match'   => $filter->match,
                 'include' => $filter->include,
-                'word'    => $filter->word,
             ));
+            if ($filter->hasWord()) {
+                $params['word'] = $filter->word;
+            }
         }
 
         return http_build_query($params, '', $separator);
@@ -143,7 +145,7 @@ class ResFilter
         if ($filter === null || $filter->word === null) {
             return null;
         }
-        if (is_callable($callback)) {
+        if ($callback !== null && is_callable($callback)) {
             array_unshift($params, $filter->word);
             return call_user_func_array($callback, $params);
         }
@@ -212,7 +214,11 @@ class ResFilter
      * @param string $match
      * @param int $include
      */
-    public function __construct($word, $field, $method, $match, $include)
+    public function __construct($word,
+                                $field   = self::FIELD_DEFAULT,
+                                $method  = self::METHOD_DEFAULT,
+                                $match   = self::MATCH_DEFAULT,
+                                $include = self::INCLUDE_DEFAULT)
     {
         global $_conf;
 
@@ -226,20 +232,21 @@ class ResFilter
         if ($method !== null && array_key_exists($method, self::$_methods)) {
             $this->method = $method;
         } else {
-            $this->method = self::FIELD_DEFAULT;
+            $this->method = self::METHOD_DEFAULT;
         }
         if ($match !== null && array_key_exists($match, self::$_matches)) {
             $this->match = $match;
         } else {
-            $this->match = self::FIELD_DEFAULT;
+            $this->match = self::MATCH_DEFAULT;
         }
         if ($include !== null && array_key_exists($include, self::$_includes)) {
             $this->include = $include;
         } else {
-            $this->include = self::FIELD_DEFAULT;
+            $this->include = self::INCLUDE_DEFAULT;
         }
 
         $this->setWord($word);
+        $this->range = null;
     }
 
     // }}}
@@ -326,6 +333,20 @@ class ResFilter
     }
 
     // }}}
+    // {{{ hasWord()
+
+    /**
+     * キーワードが設定されているかどうかを判定する
+     *
+     * @param void
+     * @return boolean
+     */
+    public function hasWord()
+    {
+        return ($this->word === null) ? false : true;
+    }
+
+    // }}}
     // {{{ setWord()
 
     /**
@@ -364,23 +385,36 @@ class ResFilter
             $this->_word_fm = $word_fm;
             $this->_words_fm = $words_fm;
             $this->_words_num = count($words_fm);
-
-            if ($_conf['ktai']) {
-                $page = (isset($_REQUEST['page'])) ? max(1, intval($_REQUEST['page'])) : 1;
-                $this->range = array(
-                    'page'  => $page,
-                    'start' => ($page - 1) * $_conf['mobile.rnum_range'] + 1,
-                    'to'    => $page * $_conf['mobile.rnum_range'],
-                );
-            } else {
-                $this->range = null;
-            }
         } else {
-            $this->range = null;
             $this->word = null;
             $this->_word_fm = null;
             $this->_words_fm = null;
             $this->_words_num = 0;
+        }
+    }
+
+    // }}}
+    // {{{ setRange()
+
+    /**
+     * 表示範囲を設定する
+     *
+     * @param int $perPage
+     * @param int $page
+     * @return void
+     */
+    public function setRange($perPage, $page = 1)
+    {
+        $perPage = max(0, (int)$perPage);
+        if ($perPage === 0) {
+            $this->range = null;
+        } else {
+            $page = max(1, (int)$page);
+            $this->range = array(
+                'page'  => $page,
+                'start' => ($page - 1) * $perPage + 1,
+                'to'    => $page * $perPage,
+            );
         }
     }
 
