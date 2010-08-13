@@ -383,30 +383,12 @@ EOP;
 
 if ($aThread->rescount && empty($_GET['renzokupop'])) {
 // レスフィルタ ===============================
-    $selected_field = array('hole' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'msg' => '');
-    $selected_field[($res_filter['field'])] = ' selected';
-
-    $selected_match = array('on' => '', 'off' => '');
-    $selected_match[($res_filter['match'])] = ' selected';
-
-    // 拡張条件
-    if ($_conf['enable_exfilter']) {
-        $selected_method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '');
-        $selected_method[($res_filter['method'])] = ' selected';
-        $select_method_ht = <<<EOP
-    の
-    </span>
-    <span class="param">
-    <select id="method" name="method">
-        <option value="or"{$selected_method['or']}>いずれか</option>
-        <option value="and"{$selected_method['and']}>すべて</option>
-        <option value="just"{$selected_method['just']}>そのまま</option>
-        <option value="regex"{$selected_method['regex']}>正規表現</option>
-    </select>
-EOP;
-    }
-
-    $hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
+    $hidden_fields_ht = ResFilterElement::getHiddenFields($aThread->host, $aThread->bbs, $aThread->key);
+    $word_field_ht = ResFilterElement::getWordField(array('size' => '24'));
+    $field_field_ht = ResFilterElement::getFieldField();
+    $method_field_ht = ResFilterElement::getMethodField();
+    $match_field_ht = ResFilterElement::getMatchField();
+    $include_field_ht = ResFilterElement::getIncludeField();
 
     if (empty($_SESSION['use_narrow_toolbars'])) {
         $header_style = 'style="white-space:nowrap"';
@@ -416,32 +398,14 @@ EOP;
 
     echo <<<EOP
 <form id="header" method="get" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" {$header_style}>
-    <input type="hidden" name="bbs" value="{$aThread->bbs}">
-    <input type="hidden" name="key" value="{$aThread->key}">
-    <input type="hidden" name="host" value="{$aThread->host}">
-    <input type="hidden" name="ls" value="all">
-    <input type="hidden" name="offline" value="1">
-    <select id="field" name="field">
-        <option value="hole"{$selected_field['hole']}>全体で</option>
-        <option value="name"{$selected_field['name']}>名前が</option>
-        <option value="mail"{$selected_field['mail']}>メールが</option>
-        <option value="date"{$selected_field['date']}>日付が</option>
-        <option value="id"{$selected_field['id']}>IDが</option>
-        <option value="msg"{$selected_field['msg']}>メッセージが</option>
-    </select>
-    <span class="param">
-    <input id="word" name="word" value="{$hd['word']}" size="24">{$select_method_ht}
-    を
-    </span>
-    <span class="param">
-    <select id="match" name="match">
-        <option value="on"{$selected_match['on']}>含む</option>
-        <option value="off"{$selected_match['off']}>含まない</option>
-    </select>
-    レスを
-    </span>
-    <input type="submit" name="submit_filter" value="フィルタ表示">
-    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
+{$hidden_fields_ht}
+<span class="param">{$field_field_ht}に</span>
+<span class="param">{$word_field_ht}の</span>
+<span class="param">{$method_field_ht}を</span>
+<span class="param">{$match_field_ht}レスを</span>
+<input type="submit" name="submit_filter" value="フィルタ表示">
+<span class="param">{$include_field_ht}</span>
+{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>\n
 EOP;
 }

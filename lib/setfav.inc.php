@@ -22,7 +22,7 @@
  * @param   string      $host
  * @param   string      $bbs
  * @param   string      $key
- * @param   int|string  $setfavita  0(解除), 1(追加), top, up, down, bottom
+ * @param   int|string  $setfavita  -1(登録・解除をトグル), 0(解除), 1(追加), top, up, down, bottom
  * @param   string      $ttitle
  * @param   int|null    $setnum
  * @return  bool
@@ -89,6 +89,7 @@ function setFav($host, $bbs, $key, $setfav, $ttitle = null, $setnum = null)
     //================================================
     $neolines = array();
     $before_line_num = 0;
+    $was_set = false;
 
     // 最初に重複要素を削除しておく
     if (!empty($favlines)) {
@@ -99,6 +100,7 @@ function setFav($host, $bbs, $key, $setfav, $ttitle = null, $setnum = null)
             // 重複回避
             if ($lar[1] == $key && $lar[11] == $bbs) {
                 $before_line_num = $i; // 移動前の行番号をセット
+                $was_set = true;
                 continue;
             // keyのないものは不正データなのでスキップ
             } elseif (!$lar[1]) {
@@ -107,6 +109,10 @@ function setFav($host, $bbs, $key, $setfav, $ttitle = null, $setnum = null)
                 $neolines[] = $l;
             }
         }
+    }
+
+    if ($setfav == -1) {
+        $setfav = ($was_set) ? 0 : 1;
     }
 
     // 記録データ設定

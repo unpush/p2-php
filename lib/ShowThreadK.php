@@ -138,13 +138,14 @@ class ShowThreadK extends ShowThread
     /**
      * DatレスをHTMLレスに変換する
      *
-     * @param   string  $ares   datの1ライン
-     * @param   int     $i      レス番号
+     * @param   string  $ares       datの1ライン
+     * @param   int     $i          レス番号
+     * @param   string  $pattern    ハイライト用正規表現
      * @return  string
      */
-    public function transRes($ares, $i)
+    public function transRes($ares, $i, $pattern = null)
     {
-        global $_conf, $STYLE, $mae_msg, $res_filter;
+        global $_conf, $STYLE, $mae_msg;
 
         list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($ares);
         if (($id = $this->thread->ids[$i]) !== null) {
@@ -153,22 +154,6 @@ class ShowThreadK extends ShowThread
         } else {
             $idstr = null;
         }
-
-        // {{{ フィルタリング
-
-        if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
-            if (strlen($GLOBALS['word_fm']) <= 0) {
-                return '';
-            // ターゲット設定（空のときはフィルタリング結果に含めない）
-            } elseif (!$target = $this->getFilterTarget($ares, $i, $name, $mail, $date_id, $msg)) {
-                return '';
-            // マッチング
-            } elseif (!$this->filterMatch($target, $i)) {
-                return '';
-            }
-        }
-
-        // }}}
 
         $tores = '';
         if ($this->_matome) {
@@ -419,11 +404,11 @@ EOP;
         }
 
         // まとめてフィルタ色分け
-        if ($GLOBALS['word_fm'] && $GLOBALS['res_filter']['match'] != 'off') {
+        if ($pattern) {
             if (is_string($_conf['k_filter_marker'])) {
-                $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores, $_conf['k_filter_marker']);
+                $tores = StrCtl::filterMarking($pattern, $tores, $_conf['k_filter_marker']);
             } else {
-                $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores);
+                $tores = StrCtl::filterMarking($pattern, $tores);
             }
         }
 
@@ -490,7 +475,6 @@ EOP;
     public function transMsg($msg, $mynum)
     {
         global $_conf;
-        global $res_filter, $word_fm;
         global $pre_thumb_ignore_limit;
 
         $ryaku = false;
@@ -675,7 +659,21 @@ EOP;
         }
         */
 
-        $filter_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=all&amp;offline=1&amp;idpopup=1&amp;field=id&amp;method=just&amp;match=on&amp;word=" . rawurlencode($id).$_conf['k_at_a'];
+        $filter_url = $_conf['read_php'] . '?' . http_build_query(array(
+            'host' => $this->thread->host,
+            'bbs'  => $this->thread->bbs,
+            'key'  => $this->thread->key,
+            'ls'   => 'all',
+            'offline' => '1',
+            'idpopup' => '1',
+            'rf' => array(
+                'field'   => ResFilter::FIELD_ID,
+                'method'  => ResFilter::METHOD_JUST,
+                'match'   => ResFilter::MATCH_ON,
+                'include' => ResFilter::INCLUDE_NONE,
+                'word'    => $id,
+            ),
+        ), '', '&amp;') . $_conf['k_at_a'];
 
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
             $num_ht = "(<a href=\"{$filter_url}\"{$this->target_at}>{$this->thread->idcount[$id]}</a>)";

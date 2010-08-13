@@ -134,24 +134,8 @@ EOP;
 }
 
 // フィルタ検索 ==================================================
-if ($_conf['enable_exfilter'] == 2) {
-
-    $selected_method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '', 'similar' => '');
-    $selected_method[($sb_filter['method'])] = ' selected';
-
-    $sb_form_method_ht = <<<EOP
-<select name="method">
-    <option value="or"{$selected_method['or']}>いずれか</option>
-    <option value="and"{$selected_method['and']}>すべて</option>
-    <option value="just"{$selected_method['just']}>そのまま</option>
-    <option value="regex"{$selected_method['regex']}>正規表現</option>
-    <option value="similar"{$selected_method['similar']}>自然文</option>
-</select>
-EOP;
-} else {
-    $sb_form_method_ht = '';
-}
-
+$selected_method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '', 'similar' => '');
+$selected_method[($sb_filter['method'])] = ' selected';
 $hd['word'] = (isset($GLOBALS['wakati_word'])) ? htmlspecialchars($GLOBALS['wakati_word'], ENT_QUOTES) : htmlspecialchars($word, ENT_QUOTES);
 $checked_ht = array('find_cont' => (!empty($_REQUEST['find_cont'])) ? 'checked' : '');
 
@@ -162,7 +146,14 @@ EOP;
 $filter_form_ht = <<<EOP
         <form class="toolbar" method="GET" action="{$_conf['subject_php']}" accept-charset="{$_conf['accept_charset']}" target="_self">
             {$sb_form_hidden_ht}
-            <input type="text" name="word" value="{$hd['word']}" size="16">{$sb_form_method_ht}
+            <input type="text" name="word" value="{$hd['word']}" size="16">
+            <select name="method">
+                <option value="or"{$selected_method['or']}>いずれか</option>
+                <option value="and"{$selected_method['and']}>すべて</option>
+                <option value="just"{$selected_method['just']}>そのまま</option>
+                <option value="regex"{$selected_method['regex']}>正規表現</option>
+                <option value="similar"{$selected_method['similar']}>自然文</option>
+            </select>
             {$input_find_cont_ht}
             <input type="submit" name="submit_kensaku" value="検索">
         </form>

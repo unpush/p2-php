@@ -4,15 +4,13 @@
  */
 
 // ŒŸõƒNƒGƒŠ
-$_conf['filter_q'] = '?host=' . $aThread->host . $bbs_q . $key_q . $offline_q;
-$_conf['filter_q'] .= '&amp;word=' . rawurlencode($word);
-foreach ($res_filter as $_key => $_value) {
-    $_conf['filter_q'] .= "&amp;{$_key}=" . rawurldecode($_value);
-}
-$_conf['filter_q'] .= '&amp;ls=all&amp;page=';
+$_conf['filter_q'] = '?host=' . $aThread->host . $bbs_q . $key_q . $offline_q
+                   . ResFilter::getQuery('&amp;') . '&amp;ls=all&amp;page=';
 
 $prev_st = '‘O*';
 $next_st = 'ŽŸ*';
+
+$filter_range = ResFilter::getFilter()->range;
 
 if ($filter_range['page'] > 1) {
     $read_navi_previous_url = $_conf['read_php'] . $_conf['filter_q'] . ($filter_range['page'] - 1) . $_conf['k_at_a'];

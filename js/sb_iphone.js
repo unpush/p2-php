@@ -410,7 +410,7 @@
 	// }}}
 	// {{{ on DOMContentLoaded
 
-	window.addEventListener('DOMContentLoaded', function(event) {
+	document.addEventListener('DOMContentLoaded', function(event) {
 		// iutil/JSON‚ª—˜—p‰Â”\‚É‚È‚é‚Ü‚Å‘Ò‚Â
 		if (typeof window.iutil === 'undefined' ||
 			typeof window.JSON  === 'undefined')
@@ -418,7 +418,7 @@
 			window.setTimeout(arguments.callee, 50);
 		} else {
 			setup(window.iutil, window.JSON);
-			window.removeEventListener('DOMContentLoaded', arguments.callee, false);
+			document.removeEventListener('DOMContentLoaded', arguments.callee, false);
 		}
 	}, false);
 

@@ -23,61 +23,20 @@ detectThread();    // global $host, $bbs, $key, $ls
 //=================================================
 // レスフィルタ
 //=================================================
-$word = isset($_REQUEST['word']) ? $_REQUEST['word'] : null;
-$res_filter = array('field' => 'hole', 'match' => 'on', 'method' => 'or');
-if (!empty($_REQUEST['field']))  { $res_filter['field']  = $_REQUEST['field'];  }
-if (!empty($_REQUEST['match']))  { $res_filter['match']  = $_REQUEST['match'];  }
-if (!empty($_REQUEST['method'])) { $res_filter['method'] = $_REQUEST['method']; }
-
-if (isset($word) && strlen($word) > 0) {
-    if ($res_filter['method'] == 'regex' && substr_count($word, '.') == strlen($word)) {
-        $word = null;
-    } elseif (p2_set_filtering_word($word, $res_filter['method']) !== null) {
-        $_conf['filtering'] = true;
+if (array_key_exists('rf', $_REQUEST) && is_array($_REQUEST['rf'])) {
+    $resFilter = ResFilter::configure($_REQUEST['rf']);
+    if ($resFilter->hasWord()) {
         if ($_conf['ktai']) {
-            $page = (isset($_REQUEST['page'])) ? max(1, intval($_REQUEST['page'])) : 1;
-            $filter_range = array(
-                'page'  => $page,
-                'start' => ($page - 1) * $_conf['mobile.rnum_range'] + 1,
-                'to'    => $page * $_conf['mobile.rnum_range'],
-            );
+            $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : 1;
+            $resFilter->setRange($_conf['mobile.rnum_range'], $page);
         }
-    } else {
-        $word = null;
+        if (empty($popup_filter)) {
+            $resFilter->save();
+        }
     }
 } else {
-    $word = null;
+    $resFilter = ResFilter::restore();
 }
-
-//=================================================
-// フィルタ値保存
-//=================================================
-$cachefile = $_conf['pref_dir'] . '/p2_res_filter.txt';
-
-// フィルタ指定がなければ前回保存を読み込む（フォームのデフォルト値で利用）
-if (!isset($GLOBALS['word'])) {
-
-    if ($res_filter_cont = FileCtl::file_read_contents($cachefile)) {
-        $res_filter = unserialize($res_filter_cont);
-    }
-
-// フィルタ指定があれば
-} else {
-
-    // ボタンが押されていたなら、ファイルに設定を保存
-    if (isset($_REQUEST['submit_filter'])) { // !isset($_REQUEST['idpopup'])
-        FileCtl::make_datafile($cachefile, $_conf['p2_perm']); // ファイルがなければ生成
-        if ($res_filter) {
-            $res_filter_cont = serialize($res_filter);
-        }
-        if ($res_filter_cont && empty($popup_filter)) {
-            if (FileCtl::file_write_contents($cachefile, $res_filter_cont) === false) {
-                p2die('cannot write file.');
-            }
-        }
-    }
-}
-
 
 //=================================================
 // あぼーん&NGワード設定読み込み
@@ -219,7 +178,7 @@ if ($aThread->isKitoku()) {
 }
 
 // フィルタリングの時は、all固定とする
-if (isset($word)) {
+if ($resFilter && $resFilter->hasWord()) {
     $aThread->ls = 'all';
 }
 
@@ -294,13 +253,13 @@ if ($_conf['ktai']) {
     // ローカルDatを変換してHTML表示
     //===========================================================
     // レスがあり、検索指定があれば
-    if (isset($word) && $aThread->rescount) {
+    if ($resFilter && $resFilter->hasWord() && $aThread->rescount) {
 
         $all = $aThread->rescount;
 
         $GLOBALS['filter_hits'] = 0;
 
-        echo "<p><b id=\"filterstart\">{$all}レス中 <span id=\"searching\">{$GLOBALS['filter_hits']}</span>レスがヒット</b></p>\n";
+        echo "<p><b id=\"filterstart\">{$all}レス中 <span id=\"searching\">n</span>レスがヒット</b></p>\n";
         echo <<<EOP
 <script type="text/javascript">
 //<![CDATA[
@@ -357,7 +316,7 @@ EOP;
     //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection("datToHtml");
 
     // フィルタ結果を表示
-    if ($word && $aThread->rescount) {
+    if ($resFilter && $resFilter->hasWord() && $aThread->rescount) {
         echo <<<EOP
 <script type="text/javascript">
 //<![CDATA[

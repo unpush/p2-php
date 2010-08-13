@@ -162,11 +162,11 @@ function p2_load_class($name)
             JStyle |
             Login |
             MD5Crypt |
-            MatomeCache(List)? |
+            MatomeCache(?:List)? |
             NgAbornCtl |
             P2[A-Z][A-Za-z]* |
             PresetManager |
-            Res(Article|Hist) |
+            Res(?:Article|Filter(?:Element)?|Hist) |
             Session |
             SettingTxt |
             ShowBrdMenu(?:K|Pc) |
@@ -177,7 +177,7 @@ function p2_load_class($name)
             Thread(?:List|Read)? |
             UA |
             UrlSafeBase64 |
-            Wap(UserAgent|Request|Response)
+            Wap(?:UserAgent|Request|Response)
         )$/x', $name))
     {
         if (strncmp($name, 'Wap', 3) === 0) {

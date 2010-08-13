@@ -12,8 +12,10 @@ function get_read_jump(ThreadRead $aThread, $label, $use_onchange)
 {
     global $_conf;
 
-    if (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) {
-        $jump = _get_read_jump_filter($aThread, $use_onchange);
+    $resFilter = ResFilter::getFilter();
+
+    if ($resFilter && $resFilter->hasWord()) {
+        $jump = _get_read_jump_filter($aThread, $resFilter, $use_onchange);
     } else {
         $jump = _get_read_jump($aThread, $use_onchange);
     }
@@ -35,29 +37,33 @@ function _get_read_jump(ThreadRead $aThread, $use_onchange)
 {
     global $_conf;
 
-    if ($_conf['mobile.rnum_range'] < 1) {
+    $rpp = (int)$_conf['mobile.rnum_range'];
+
+    if ($rpp < 1) {
         $options = '<option value="1">$_conf[&#39;mobile.rnum_range&#39;] の値が不正です</option>';
     } else {
-        //if ($aThread->resrange['start'] != 1 && $aThread->resrange['start'] % $_conf['mobile.rnum_range']) {
-        if (($aThread->resrange['start'] - 1) % $_conf['mobile.rnum_range']) {
-            $options = "<option value=\"{$aThread->ls}\" selected>{$aThread->ls}</option>";
+        //if ($aThread->resrange['start'] != 1 && $aThread->resrange['start'] % $rpp) {
+        if (($aThread->resrange['start'] - 1) % $rpp) {
+            $ls = htmlspecialchars($aThread->ls, ENT_QUOTES);
+            $options = "<option value=\"{$ls}\" selected>{$ls}</option>";
         } else {
             $options = '';
         }
 
-        /*$optgroup = $_conf['mobile.rnum_range'] * 5;
+        /*$optgroup = $rpp * 5;
         if ($optgroup >= $aThread->rescount) {
             $optgroup = 0; 
         }*/
 
-        $pages = ceil($aThread->rescount / $_conf['mobile.rnum_range']);
+        $rescount = $aThread->rescount;
+        $pages = ceil($rescount / $rpp);
 
         for ($i = 0; $i < $pages; $i++) {
             $j = $i + 1;
-            $k = $i * $_conf['mobile.rnum_range'] + 1;
-            $l = $j * $_conf['mobile.rnum_range'] + 1;
-            if ($l > $aThread->rescount) {
-                $l = $aThread->rescount;
+            $k = $i * $rpp + 1;
+            $l = $j * $rpp + 1;
+            if ($l > $rescount) {
+                $l = $rescount;
             }
 
             /*if ($k > 1) {
@@ -104,14 +110,15 @@ function _get_read_jump(ThreadRead $aThread, $use_onchange)
 /**
  * ページ遷移用のHTML要素を取得する (検索時)
  */
-function _get_read_jump_filter(ThreadRead $aThread, $use_onchange)
+function _get_read_jump_filter(ThreadRead $aThread, ResFilter $resFilter, $use_onchange)
 {
-    global $_conf, $filter_range, $filter_hits;
+    global $_conf;
 
     if ($_conf['mobile.rnum_range'] < 1) {
         $options = '<option value="1">$_conf[&#39;mobile.rnum_range&#39;] の値が不正です</option>';
     } else {
         $options = '';
+        $filter_hits = $resFilter->hits;
 
         /*$optgroup = $_conf['mobile.rnum_range'] * 5;
         if ($optgroup >= $filter_hits) {
@@ -137,7 +144,7 @@ function _get_read_jump_filter(ThreadRead $aThread, $use_onchange)
 
             $m = ($k == $l) ? "$k" : "{$k}-"; //"{$k}-{$l}";
 
-            if ($j == $filter_range['page']) {
+            if ($j == $resFilter->range['page']) {
                 $options .= "<option value=\"{$j}\" selected>{$m}</option>";
             } else {
                 $options .= "<option value=\"{$j}\">{$m}</option>";

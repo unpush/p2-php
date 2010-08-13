@@ -8,23 +8,13 @@ $matome_accesskey_at = '';
 $matome_accesskey_navi = '';
 
 if (empty($upper_toolbar_done)) {
-    if ($_conf['iphone']) {
-        $toolbar_at = ' id="header" class="toolbar"';
-        $updown_ht = "<a href=\"#footer\">Å•</a>";
-    } else {
-        $toolbar_at = ' id="header" name="header"';
-        $updown_ht = "<a href=\"#footer\"{$_conf['k_accesskey_at']['bottom']}>{$_conf['k_accesskey_st']['bottom']}Å•</a>";
-    }
+    $toolbar_at = ' id="header" name="header"';
+    $updown_ht = "<a href=\"#footer\"{$_conf['k_accesskey_at']['bottom']}>{$_conf['k_accesskey_st']['bottom']}Å•</a>";
 } else {
-    if ($_conf['iphone']) {
-        $toolbar_at = ' id="footer" class="toolbar"';
-        $updown_ht = "<a href=\"#header\">Å£</a>";
-    } else {
-        $toolbar_at = ' id="footer" name="footer"';
-        $updown_ht = "<a href=\"#header\"{$_conf['k_accesskey_at']['above']}>{$_conf['k_accesskey_st']['above']}Å£</a>";
-        $matome_accesskey_at = $_conf['k_accesskey_at']['matome'];
-        $matome_accesskey_navi = $_conf['k_accesskey_st']['matome'];
-    }
+    $toolbar_at = ' id="footer" name="footer"';
+    $updown_ht = "<a href=\"#header\"{$_conf['k_accesskey_at']['above']}>{$_conf['k_accesskey_st']['above']}Å£</a>";
+    $matome_accesskey_at = $_conf['k_accesskey_at']['matome'];
+    $matome_accesskey_navi = $_conf['k_accesskey_st']['matome'];
 }
 
 // ëqå…Ç≈Ç»ÇØÇÍÇŒ
@@ -48,6 +38,7 @@ EOP;
     }
 } else {
     $shinchaku_matome_ht = '';
+    $shinchaku_norefresh_ht = '';
 }
 
 // ÉvÉäÉìÉg==============================================

@@ -4,9 +4,7 @@
 
 // {{{ DOMContentLoaded
 
-window.addEventListener('DOMContentLoaded', function(event) {
-	this.removeEventListener('DOMContentLoaded', arguments.callee, false);
-
+document.addEventListener('DOMContentLoaded', function(event) {
 	var styleSheets    = document.styleSheets;
 	var commonStyle    = styleSheets[styleSheets.length - 3];
 	var landscapeStyle = styleSheets[styleSheets.length - 2];
@@ -45,6 +43,8 @@ window.addEventListener('DOMContentLoaded', function(event) {
 		landscapeStyle.disabled = true;
 		portraitStyle.disabled = true;
 	}
+
+	document.removeEventListener('DOMContentLoaded', arguments.callee, false);
 }, false);
 
 // }}}

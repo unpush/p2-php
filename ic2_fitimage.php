@@ -18,9 +18,6 @@ if (!$_conf['expack.ic2.enabled']) {
 // {{{ 画像検索・出力用変数設定
 
 $url = $_GET['url'];
-$x = '';
-$y = '';
-
 $info_key_type = 'url';
 $info_key_value = $url;
 
@@ -36,25 +33,32 @@ if (preg_match('/^' . preg_quote($thumbnailer->sourcedir, '/') . '/', $url) && f
     $url = rawurldecode($m[1]);
     if ($icdb->get($url)) {
         $url = $thumbnailer->srcPath($icdb->size, $icdb->md5, $icdb->mime);
-        $x = $icdb->width;
-        $y = $icdb->height;
+        $x = (int)$icdb->width;
+        $y = (int)$icdb->height;
+    } else {
+        $x = 0;
+        $y = 0;
     }
     $info_key_type = 'id';
     $info_key_value = $icdb->id;
+} else {
+    // 前もってキャッシュされた画像を表示するので、ここには来ないはず
+    $x = 0;
+    $y = 0;
 }
 
 $info_key_value = htmlspecialchars($info_key_value, ENT_QUOTES);
 
 $alt = htmlspecialchars(basename($url));
 
-$afi_js = '';
+$autofit = '';
 if ($x && $y) {
     if ($_conf['expack.ic2.fitimage'] == 1) {
-        $afi_js = "fi.fitTo('contract');";
+        $autofit = 'contract';
     } elseif ($_conf['expack.ic2.fitimage'] == 2) {
-        $afi_js = "fi.fitTo('width');";
+        $autofit = 'width';
     } elseif ($_conf['expack.ic2.fitimage'] == 3) {
-        $afi_js = "fi.fitTo('height');";
+        $autofit = 'height';
     }
 }
 
@@ -78,61 +82,8 @@ echo <<<EOF
     <script type="text/javascript" src="js/json2.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/ic2_getinfo.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/fitimage.js?{$_conf['p2_version_id']}"></script>
-    <script type="text/javascript">
-    //<![CDATA[
-    var fi, fiTimer = null;
-
-    function fiSetup()
-    {
-        window.focus();
-
-        function \$(id) { return document.getElementById(id); }
-
-        var img = \$('picture');
-
-        fi = new FitImage(img, {$x}, {$y});
-        {$afi_js}
-
-        img.onclick = function(evt)
-        {
-            if (fiTimer) {
-                clearTimeout(fiTimer);
-            }
-            fiTimer = setTimeout('fiShowHide(); fiTimer = null;', 250);
-        };
-
-        img.ondblclick = function(evt)
-        {
-            if (fiTimer) {
-                clearTimeout(fiTimer);
-                fiTimer = null;
-            }
-            if (fi.currentMode == 'auto') {
-                fi.fitTo(fi.defaultMode);
-            } else {
-                fi.fitTo(fi.currentMode);
-            }
-        };
-
-        //\$('fi_fit_xy').onclick = function(evt){ fi.fitTo('full'); };
-        \$('fi_fit_x').onclick = function(evt){ fi.fitTo('width'); };
-        \$('fi_fit_y').onclick = function(evt){ fi.fitTo('height'); };
-
-        fiGetImageInfo('{$info_key_type}', '{$info_key_value}');
-
-        if (\$('fi_id').value != '') {
-            var stars = \$('fi_stars').getElementsByTagName('img');
-            for (var i = 0; i < stars.length; i++) {
-                stars[i].onclick = (function(n){
-                    return function(){ fiUpdateRank(n); };
-                })(i - 1);
-            }
-        }
-    }
-    //]]>
-    </script>
 </head>
-<body onload="fiSetup()">
+<body onload="fiSetup({$x},{$y},'{$autofit}','{$info_key_type}','{$info_key_value}')">
 <div id="btn">
     <input type="hidden" id="fi_id" value="">
     <!-- <input type="text" id="fi_memo" size="50" value=""><br> -->

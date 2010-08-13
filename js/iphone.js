@@ -713,6 +713,73 @@ iutil.stopEvent = function(event) {
 };
 
 // }}}
+// {{{ toolbarShowHide()
+
+/**
+ * ツールバーボタンで要素の表示・非表示をトグルする
+ *
+ * @param {Element} element
+ * @param {Event} event
+ * @return {false}
+ */
+iutil.toolbarShowHide = function(element, event) {
+	var href = element.href;
+	var offset = element.href.indexOf('#');
+
+	if (offset !== -1) {
+		var target = document.getElementById(href.substring(offset + 1, href.length));
+		if (target) {
+			if (target.style.display === 'block') {
+				target.style.display = 'none';
+				element.className = '';
+			} else {
+				target.style.display = 'block';
+				element.className = 'active';
+			}
+		}
+	}
+
+	return iutil.stopEvent(event);
+};
+
+// }}}
+// {{{ toolbarSetFav()
+
+/**
+ * ツールバーボタンでお気にスレの登録・解除をトグルする
+ *
+ * @param {Element} element
+ * @param {Event} event
+ * @return {false}
+ */
+iutil.toolbarSetFav = function(element, event) {
+	if (iutil.httpGetText(element.href) == '1') {
+		if (element.className === 'inactive') {
+			element.className = '';
+		} else {
+			element.className = 'inactive';
+		}
+	} else {
+		window.alert('お気に入りの登録・解除に失敗しました\n'+element.href);
+	}
+
+	return iutil.stopEvent(event);
+};
+
+// }}}
+// {{{ toolbarSetFavIta()
+
+/**
+ * ツールバーボタンでお気に板の登録・解除をトグルする
+ * 実体はiutil.toolbarSetFav
+ *
+ * @param {Element} element
+ * @param {Event} event
+ * @return {false}
+ */
+iutil.toolbarSetFavIta = iutil.toolbarSetFav;
+
+// }}}
 // {{{ sliding.onTouchStart()
 
 /**
@@ -987,6 +1054,31 @@ if (iutil.iphone) {
 }
 
 // }}}
+// {{{ getTouch()
+
+/**
+ * タッチイベントを取得する
+ *
+ * @param {Event} event
+ * @param {Number} index
+ * @return {TouchEvent}
+ */
+iutil.getTouch = function(event, index) {
+	if (typeof event.touches === 'undefined' ||
+		typeof event.touches.length !== 'number') {
+		return null;
+	}
+	if (typeof index === 'undefined') {
+		return event.touches[0]
+	}
+	try {
+		return event.touches[index] || null;
+	} catch (e) {
+		return null;
+	}
+};
+
+// }}}
 // {{{ parsePixels(), isStaticLayout()
 
 iutil.parsePixels = function(value) {
@@ -1129,10 +1221,15 @@ iutil.getLayerXY = function(event) {
 	return [event.layerX, event.layerY];
 };
 
-iutil.getPageX = function(event) { return event.pageX; };
-iutil.getPageY = function(event) { return event.pageY; };
+iutil.getPageX = function(event) {
+	return (iutil.getTouch(event) || event).pageX;
+};
+iutil.getPageY = function(event) {
+	return (iutil.getTouch(event) || event).pageY;
+};
 iutil.getPageXY = function(event) {
-	return [event.pageX, event.pageY];
+	var touch = iutil.getTouch(event) || event;
+	return [touch.pageX, touch.pageY];
 };
 
 if (window.opera) {
@@ -1218,9 +1315,7 @@ if (window.opera) {
 // }}}
 // {{{ DOMContentLoaded
 
-window.addEventListener('DOMContentLoaded', function(event) {
-	window.removeEventListener('DOMContentLoaded', arguments.callee, false);
-
+document.addEventListener('DOMContentLoaded', function(event) {
 	if (typeof window.iphone_js_no_modification === 'undefined' || !window.iphone_js_no_modification) {
 		// リンクにイベントハンドラを登録する
 		iutil.modifyExternalLink(document.body);
@@ -1250,6 +1345,8 @@ window.addEventListener('DOMContentLoaded', function(event) {
 	} else if (!window.location.hash.length && iutil.getScrollX() < 1) {
 		window.scrollTo(0, 1);
 	}
+
+	document.removeEventListener('DOMContentLoaded', arguments.callee, false);
 }, false);
 
 // }}}

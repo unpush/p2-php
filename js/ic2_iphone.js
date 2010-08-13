@@ -9,9 +9,7 @@ var ic2info = {};
 // }}}
 // {{{ DOMContentLoaded
 
-window.addEventListener('DOMContentLoaded', function(event) {
-	this.removeEventListener('DOMContentLoaded', arguments.callee, false);
-
+document.addEventListener('DOMContentLoaded', function(event) {
 	// {{{ initiaize
 
 	ic2info._targetId = null;
@@ -196,6 +194,8 @@ window.addEventListener('DOMContentLoaded', function(event) {
 			return function(){ ic2info.updateRank(n); };
 		})(i - 1);
 	}
+
+	document.removeEventListener('DOMContentLoaded', arguments.callee, false);
 }, false);
 
 // }}}
