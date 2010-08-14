@@ -779,7 +779,7 @@ iutil.toolbarSetFavIta = iutil.toolbarSetFav;
 // {{{ toggleClass()
 
 /**
- * CSSクラスのトグルする
+ * CSSクラスをトグルする
  *
  * @param {Element} element
  * @param {String} className

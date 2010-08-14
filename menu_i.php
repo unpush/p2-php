@@ -58,6 +58,7 @@ if (isset($_POST['word'])) {
     <script type="text/javascript" src="js/json2.js?<?php echo $_conf['p2_version_id']; ?>"></script>
     <script type="text/javascript" src="js/iphone.js?<?php echo $_conf['p2_version_id']; ?>"></script>
     <script type="text/javascript" src="js/menu_i.js?<?php echo $_conf['p2_version_id']; ?>"></script>
+    <script type="text/javascript" src="js/javascript-xpath.js?<?php echo $_conf['p2_version_id']; ?>"></script>
 <?php
 // {{{ 指定サブメニューへ自動で移動
 // $hashesの取得が未実装なので封印。
