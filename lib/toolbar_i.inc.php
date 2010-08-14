@@ -3,6 +3,13 @@
  * rep2 - ツールバー用ユーティリティ（iPhone）
  */
 
+$GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'] = implode(' ', array(
+    '',
+    'ontouchstart="iutil.toggleClass(this, \'hover\', true);"',
+    'ontouchend="iutil.toggleClass(this, \'hover\', false);"',
+    'ontouchcancel="iutil.toggleClass(this, \'hover\', false);"',
+));
+
 // {{{ toolbar_i_standard_button()
 
 /**
@@ -15,8 +22,9 @@
  */
 function toolbar_i_standard_button($icon, $label, $uri)
 {
+    $attrs = $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'];
     return <<<EOS
-<a href="{$uri}" ontouchstart="this.className='hover'" ontouchend="this.className=''"><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
+<a href="{$uri}"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
 EOS;
 }
 
@@ -34,8 +42,10 @@ EOS;
  */
 function toolbar_i_badged_button($icon, $label, $uri, $badge)
 {
+    $attrs = $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'];
+    $l = min(strlen($badge), 4);
     return <<<EOS
-<a href="{$uri}" ontouchstart="this.className='hover'" ontouchend="this.className=''"><img src="{$icon}" width="48" height="32" alt=""><br>{$label}<span class="badge">{$badge}</span></a>
+<a href="{$uri}"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$label}<span class="badge l{$l}">{$badge}</span></a>
 EOS;
 }
 
@@ -52,8 +62,9 @@ EOS;
  */
 function toolbar_i_opentab_button($icon, $label, $uri)
 {
+    $attrs = $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'] . ' target="_blank"';
     return <<<EOS
-<a href="{$uri}" ontouchstart="this.className='hover'" ontouchend="this.className=''" target="_blank"><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
+<a href="{$uri}"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
 EOS;
 }
 
@@ -88,8 +99,9 @@ EOS;
  */
 function toolbar_i_showhide_button($icon, $label, $id)
 {
+    $attrs = ' onclick="return iutil.toolbarShowHide(this, event);"' . $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'];
     return <<<EOS
-<a href="#{$id}", onclick="return iutil.toolbarShowHide(this, event);"><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
+<a href="#{$id}"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
 EOS;
 }
 
@@ -112,7 +124,10 @@ function toolbar_i_favita_button($icon, $label, $info, $setnum = 0)
     }
 
     $fav = $info->favs[$setnum];
-    $attrs = $fav['set'] ? '' : ' class="inactive"';
+    $attrs = ' onclick="return iutil.toolbarSetFavIta(this, event);"' . $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'];
+    if (!$fav['set']) {
+        $attrs .= ' class="inactive"';
+    }
     $query = http_build_query(array(
         'cmd'       => 'setfavita',
         'host'      => $info->host,
@@ -123,7 +138,7 @@ function toolbar_i_favita_button($icon, $label, $info, $setnum = 0)
     ), '', '&amp;');
 
     return <<<EOS
-<a href="httpcmd.php?{$query}", onclick="return iutil.toolbarSetFavIta(this, event);"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$fav['title']}</a>
+<a href="httpcmd.php?{$query}"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$fav['title']}</a>
 EOS;
 }
 
@@ -146,7 +161,10 @@ function toolbar_i_fav_button($icon, $label, $info, $setnum = 0)
     }
 
     $fav = $info->favs[$setnum];
-    $attrs = $fav['set'] ? '' : ' class="inactive"';
+    $attrs = ' onclick="return iutil.toolbarSetFav(this, event);"' . $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'];
+    if (!$fav['set']) {
+        $attrs .= ' class="inactive"';
+    }
     $query = http_build_query(array(
         'cmd'       => 'setfav',
         'host'      => $info->host,
@@ -158,7 +176,7 @@ function toolbar_i_fav_button($icon, $label, $info, $setnum = 0)
     ), '', '&amp;');
 
     return <<<EOS
-<a href="httpcmd.php?{$query}", onclick="return iutil.toolbarSetFav(this, event);"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$fav['title']}</a>
+<a href="httpcmd.php?{$query}"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$fav['title']}</a>
 EOS;
 }
 

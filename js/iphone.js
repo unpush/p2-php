@@ -754,13 +754,9 @@ iutil.toolbarShowHide = function(element, event) {
  */
 iutil.toolbarSetFav = function(element, event) {
 	if (iutil.httpGetText(element.href) == '1') {
-		if (element.className === 'inactive') {
-			element.className = '';
-		} else {
-			element.className = 'inactive';
-		}
+		iutil.toggleClass(element, 'inactive');
 	} else {
-		window.alert('‚¨‹C‚É“ü‚è‚Ì“o˜^E‰ğœ‚É¸”s‚µ‚Ü‚µ‚½\n'+element.href);
+		window.alert('‚¨‹C‚É“ü‚è‚Ì“o˜^E‰ğœ‚É¸”s‚µ‚Ü‚µ‚½');
 	}
 
 	return iutil.stopEvent(event);
@@ -778,6 +774,44 @@ iutil.toolbarSetFav = function(element, event) {
  * @return {false}
  */
 iutil.toolbarSetFavIta = iutil.toolbarSetFav;
+
+// }}}
+// {{{ toggleClass()
+
+/**
+ * CSSƒNƒ‰ƒX‚ÌƒgƒOƒ‹‚·‚é
+ *
+ * @param {Element} element
+ * @param {String} className
+ * @param {Boolean} toggle
+ * @return void
+ */
+iutil.toggleClass = function(element, className, toggle) {
+	var i, l, hasClass, oldClasses, newClasses;
+
+	oldClasses = element.className.split(/\s+/);
+	newClasses = [];
+	l = oldClasses.length;
+	hasClass = false;
+
+	for (i = 0; i < l; i++) {
+		if (oldClasses[i] === className) {
+			hasClass = true;
+		} else {
+			newClasses.push(oldClasses[i]);
+		}
+	}
+
+	if (typeof toggle === 'undefined') {
+		if (!hasClass) {
+			newClasses.push(className);
+		}
+	} else if (toggle) {
+		newClasses.push(className);
+	}
+
+	element.className = newClasses.join(' ');
+};
 
 // }}}
 // {{{ sliding.onTouchStart()

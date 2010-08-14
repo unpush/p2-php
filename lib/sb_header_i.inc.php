@@ -95,7 +95,7 @@ EOS;
 }
 
 // ƒXƒŒî•ñ
-if (!$spmode || $spmode == 'soko' || $spmode == 'taborn') {
+if (!$spmode) {
     if (!function_exists('get_board_info')) {
         include P2_LIB_DIR . '/get_info.inc.php';
     }

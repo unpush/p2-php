@@ -79,6 +79,7 @@ input[type="checkbox"] {
 	width: 24px;
 	height: 24px;
 	-webkit-border-radius: 8px;
+	border-radius: 8px;
 	vertical-align: middle;
 }
 
@@ -127,6 +128,7 @@ div.toolbar a[href]:not(.nobutton)
 	background: #ffffff url('../img/iphone/btn-bg.png') repeat-x left bottom;
 	border: #505050 solid 1px;
 	-webkit-border-radius: 15px;
+	border-radius: 8px;
 }
 
 div#read_new_header {
@@ -153,7 +155,9 @@ div#spm {
 	color: #ffffff;
 	background-color: rgba(0, 0, 0, 0.8);
 	-webkit-box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
+	box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
 	-webkit-border-radius: 8px;
+	border-radius: 8px;
 }
 
 div#spm span#spm-num {
@@ -218,6 +222,7 @@ div.res:not(.aborned) {
 	background-color: #ffffff;
 	border: #808080 solid 1px;
 	-webkit-border-radius: 8px;
+	border-radius: 8px;
 }
 
 div.res.aborned {
@@ -292,6 +297,7 @@ div.respop > div.res {
 	background-color: rgba(255, 255, 240, 0.9) !important;
 	border-color: rgba(108, 108, 108, 0.8) !important;
 	-webkit-box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
+	box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
 }
 
 div.respop > div.res > div.res-header {
@@ -417,6 +423,7 @@ ul.subject > li > a > span.unread {
 	color: #ffffff !important;
 	background-color: #666666;
 	-webkit-border-radius: 8px;
+	border-radius: 8px;
 }
 
 ul.subject > li > a > span.unread.new {
@@ -456,7 +463,9 @@ div.popup-dialog {
 	color: #ffffff;
 	background-color: rgba(0, 0, 0, 0.8);
 	-webkit-box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
+	box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
 	-webkit-border-radius: 8px;
+	border-radius: 8px;
 }
 
 div.popup-dialog > img.close-button {
@@ -676,9 +685,17 @@ div.ntoolbar > h1.ptitle > a {
 }
 
 div.ntoolbar td > a {
-	display: block;
+	display: inline-block;
 	position: relative;
+	width: 64px; /* 320/5 px */
+	margin: 0 auto;
+	padding: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: center;
 	text-decoration: none;
+	-webkit-tap-highlight-color: transparent;
 }
 
 div.ntoolbar > h1.ptitle > a:link,
@@ -686,6 +703,11 @@ div.ntoolbar > h1.ptitle > a:visited,
 div.ntoolbar td > a:link,
 div.ntoolbar td > a:visited {
 	color: #fff;
+}
+
+div.ntoolbar td > a.inactive,
+div.ntoolbar td > span.unavailable {
+	color: #666;
 }
 
 div.ntoolbar > h1.ptitle > a.hover,
@@ -699,11 +721,6 @@ div.ntoolbar td > a:active {
 	color: #9cf;
 }
 
-div.ntoolbar td > a.inactive,
-div.ntoolbar td > span.unavailable {
-	color: #666;
-}
-
 div.ntoolbar td > a > span.badge {
 	display: inline-block;
 	position: absolute;
@@ -714,12 +731,29 @@ div.ntoolbar td > a > span.badge {
 	margin: 0;
 	padding: 2px 5px;
 	-webkit-border-radius: 8px;
+	border-radius: 8px;
 	background-color: #f00;
 	background-color: rgba(255, 0, 0, 0.95);
 	color: #fff;
 	font-weight: bold;
 	font-size: 12px;
 	line-height: 12px;
+}
+
+div.ntoolbar td > a > span.badge.l2 {
+	right: 5px;
+}
+
+div.ntoolbar td > a > span.badge.l3 {
+	right: 3px;
+}
+
+div.ntoolbar td > a > span.badge.l4 {
+	right: 0px;
+}
+
+div.ntoolbar td > a > span.badge.l0 {
+	display: none;
 }
 
 div.ntoolbar td > a.hover > span.badge,
@@ -738,16 +772,16 @@ div.ntoolbar td > a:visited > img {
 	background-color: #fff;
 }
 
+div.ntoolbar td > a.inactive > img,
+div.ntoolbar td > span.unavailable > img {
+	background-color: #666;
+}
+
 div.ntoolbar td > a.hover > img,
 div.ntoolbar td > a.active > img,
 div.ntoolbar td > a:hover > img,
 div.ntoolbar td > a:active > img {
 	background-color: #9cf;
-}
-
-div.ntoolbar td > a.inactive > img,
-div.ntoolbar td > span.unavailable > img {
-	background-color: #666;
 }
 
 div.ntoolbar td > select {
