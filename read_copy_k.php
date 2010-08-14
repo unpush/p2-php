@@ -120,7 +120,11 @@ echo <<<EOS
 <script type="text/javascript">
 // <![CDATA[
 window.addEventListener('load', function(event) {
-    var read_copy_adjsut_text_width = function() {
+    var read_copy_adjsut_text_width
+
+    window.removeEventListener(event.type, arguments.callee, false);
+
+    read_copy_adjsut_text_width = function() {
         var texts, i, l, node, width;
 
         texts = document.evaluate('.//input[@type="text"]',
@@ -146,7 +150,7 @@ window.addEventListener('load', function(event) {
     read_copy_adjsut_text_width();
 
     document.body.addEventListener('orientationchange', read_copy_adjsut_text_width, false);
-});
+}, false);
 // ]]>
 </script>\n
 EOS;

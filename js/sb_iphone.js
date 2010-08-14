@@ -417,8 +417,8 @@
 		{
 			window.setTimeout(arguments.callee, 50);
 		} else {
+			document.removeEventListener(event.type, arguments.callee, false);
 			setup(window.iutil, window.JSON);
-			document.removeEventListener('DOMContentLoaded', arguments.callee, false);
 		}
 	}, false);
 

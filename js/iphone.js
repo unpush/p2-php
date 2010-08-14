@@ -1350,6 +1350,8 @@ if (window.opera) {
 // {{{ DOMContentLoaded
 
 document.addEventListener('DOMContentLoaded', function(event) {
+	document.removeEventListener(event.type, arguments.callee, false);
+
 	if (typeof window.iphone_js_no_modification === 'undefined' || !window.iphone_js_no_modification) {
 		// リンクにイベントハンドラを登録する
 		iutil.modifyExternalLink(document.body);
@@ -1379,8 +1381,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
 	} else if (!window.location.hash.length && iutil.getScrollX() < 1) {
 		window.scrollTo(0, 1);
 	}
-
-	document.removeEventListener('DOMContentLoaded', arguments.callee, false);
 }, false);
 
 // }}}

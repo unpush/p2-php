@@ -70,7 +70,14 @@ function sb_print_k($aThreadList)
     //=====================================================
 
     // spmodeがあればクエリー追加
-    if ($aThreadList->spmode) {$spmode_q = "&amp;spmode={$aThreadList->spmode}";}
+    if ($aThreadList->spmode) {
+        $spmode_q = "&amp;spmode={$aThreadList->spmode}";
+    }
+    if ($aThreadList->spmode == 'palace' || $aThreadList->spmode == 'soko' || $aThreadList->spmode == 'taborn') {
+        $show_unum = false;
+    } else {
+        $show_unum = true;
+    }
 
     if ($_conf['iphone']) {
         echo '<ul class="subject">';
@@ -94,7 +101,7 @@ function sb_print_k($aThreadList)
 
         // 新着レス数 =============================================
         // 既得済み
-        if ($aThread->isKitoku()) {
+        if ($show_unum && $aThread->isKitoku()) {
             $htm['unum'] = "{$aThread->unum}";
 
             $anum_ht = sprintf('#r%d', min($aThread->rescount, $aThread->rescount - $aThread->nunum + 1 - $_conf['respointer']));
@@ -139,7 +146,7 @@ function sb_print_k($aThreadList)
                 $classtitle .= ' new';
             }
         } else {
-            if ($aThread->new) {
+            if ($show_unum && $aThread->new) {
                 $htm['unum'] = "<font color=\"{$STYLE['mobile_subject_newthre_color']}\">新</font>";
             }
         }

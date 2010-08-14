@@ -141,9 +141,10 @@ EOS;
 <script type="text/javascript" src="js/limelight.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript">
 // <![CDATA[
-window.addEventListener('DOMContentLoaded', function(event) {
-    this.removeEventListener(event.type, arguments.callee, false);
-    var limelight = new Limelight({ 'savable': true, 'title': true });
+document.addEventListener('DOMContentLoaded', function(event) {
+    var limelight;
+    document.removeEventListener(event.type, arguments.callee, false);
+    limelight = new Limelight({ 'savable': true, 'title': true });
     limelight.bind();
     window._IRESPOPG.callbacks.push(function(container) {
         limelight.bind(null, container, true);

@@ -114,7 +114,7 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
                 }
             }
         }, 200, [<?php echo $js; ?>], document.getElementById('top'), 200);
-    });
+    }, false);
     // ]]>
     </script>
 <?php
