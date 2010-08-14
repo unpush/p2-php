@@ -476,7 +476,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 
 // }}}
 // {{{ iPhone - subject
-
+/*
 $groupname = 'subject (iPhone)';
 $groups[] = $groupname;
 $flags = getGroupShowFlags($groupname);
@@ -484,18 +484,10 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('iphone.subject.indicate-speed', '勢いを示すインジケーターを表示'),
-        array('iphone.subject.speed.width', 'インジケーターの幅 (pixels)'),
-        array('iphone.subject.speed.0rpd', 'インジケーターの色 (1レス/日未満)'),
-        array('iphone.subject.speed.1rpd', 'インジケーターの色 (1レス/日以上)'),
-        array('iphone.subject.speed.10rpd', 'インジケーターの色 (10レス/日以上)'),
-        array('iphone.subject.speed.100rpd', 'インジケーターの色 (100レス/日以上)'),
-        array('iphone.subject.speed.1000rpd', 'インジケーターの色 (1000レス/日以上)'),
-        array('iphone.subject.speed.10000rpd', 'インジケーターの色 (10000レス/日以上)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
-
+*/
 // }}}
 // {{{ iPhone - read
 /*
@@ -691,6 +683,76 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('expack.aas.inline.bgcolor', '背景色 (6桁または3桁の16進数)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
+// {{{ expack - ツールバーアクション
+
+$groupname = 'ツールバーアクション';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $_tba_board_uri_description = <<<EOS
+iPhone/スレ一覧/URI<br>
+例) beebee2seeopen://\$host/\$bbs/<br>
+<table style="margin:5px auto;background:#ccc;color:#000">
+<caption>置換パターン</caption>
+<thead>
+<tr><th>from</th><th>to</th></tr>
+</thead>
+<tbody>
+<tr><td>\$time</td><td>タイムスタンプ</td></tr>
+<tr><td>\$host</td><td>ホスト名</td></tr>
+<tr><td>\$bbs</td><td>板名</td></tr>
+<tr><td>\$url</td><td>板のURL</td></tr>
+<tr><td>\$eurl</td><td>〃</td></tr>
+</tbody>
+</table>
+(\$url以外の置換パラメータはURLエンコード済)
+EOS;
+    $_tba_thread_uri_description = <<<EOS
+iPhone/スレ一覧/URI<br>
+例) beebee2seeopen://\$path<br>
+<table style="margin:5px auto;background:#ccc;color:#000">
+<caption>置換パターン</caption>
+<thead>
+<tr><th>from</th><th>to</th></tr>
+</thead>
+<tbody>
+<tr><td>\$time</td><td>タイムスタンプ</td></tr>
+<tr><td>\$host</td><td>ホスト名</td></tr>
+<tr><td>\$bbs</td><td>板名</td></tr>
+<tr><td>\$key</td><td>スレッドキー</td></tr>
+<tr><td>\$ls</td><td>表示範囲</td></tr>
+<tr><td>\$url</td><td>スレッドのURL</td></tr>
+<tr><td>\$eurl</td><td>〃</td></tr>
+<tr><td>\$path</td><td>http://を除外したURL</td></tr>
+</tbody>
+</table>
+(\$url, \$path以外の置換パラメータはURLエンコード済)
+EOS;
+    $conflist = array(
+        array('expack.tba.iphone.board_uri', $_tba_board_uri_description, P2_EDIT_CONF_USER_LONGTEXT),
+        array('expack.tba.iphone.board_title', 'iPhone/スレ一覧/タイトル<br>例) BB2C'),
+        array('expack.tba.iphone.thread_uri', $_tba_thread_uri_description, P2_EDIT_CONF_USER_LONGTEXT),
+        array('expack.tba.iphone.thread_title', 'iPhone/スレ内容/タイトル<br>例) BB2C'),
+        array('expack.tba.android.board_uri', 'Android/スレ一覧/URI', P2_EDIT_CONF_USER_LONGTEXT),
+        array('expack.tba.android.board_title', 'Android/スレ一覧/タイトル'),
+        array('expack.tba.android.thread_uri', 'Android/スレ内容/URI', P2_EDIT_CONF_USER_LONGTEXT),
+        array('expack.tba.android.thread_title', 'Android/スレ内容/タイトル'),
+        array('expack.tba.mobile.board_uri', '携帯/スレ一覧/URI', P2_EDIT_CONF_USER_LONGTEXT),
+        array('expack.tba.mobile.board_title', '携帯/スレ一覧/タイトル'),
+        array('expack.tba.mobile.thread_uri', '携帯/スレ内容/URI', P2_EDIT_CONF_USER_LONGTEXT),
+        array('expack.tba.mobile.thread_title', '携帯/スレ内容/タイトル'),
+        array('expack.tba.other.board_uri', 'PC/スレ一覧/URI', P2_EDIT_CONF_USER_LONGTEXT),
+        array('expack.tba.other.board_title', 'PC/スレ一覧/タイトル'),
+        array('expack.tba.other.thread_uri', 'PC/スレ内容/URI', P2_EDIT_CONF_USER_LONGTEXT),
+        array('expack.tba.other.thread_title', 'PC/スレ内容/タイトル'),
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+    unset($_tba_board_uri_description, $_tba_thread_uri_description);
 }
 
 // }}}

@@ -3,13 +3,36 @@
  * rep2 - ツールバー用ユーティリティ（iPhone）
  */
 
-$GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'] = implode(' ', array(
-    '',
-    'ontouchstart="iutil.toggleClass(this, \'hover\', true);"',
-    'ontouchend="iutil.toggleClass(this, \'hover\', false);"',
-    'ontouchcancel="iutil.toggleClass(this, \'hover\', false);"',
-));
+// {{{ _toolbar_i_button()
 
+/**
+ * ツールバーボタン (リンク)
+ *
+ * @param string $icon
+ * @param string $label
+ * @param string $uri
+ * @param string $attrs
+ * @return string
+ */
+function _toolbar_i_button($icon, $label, $uri, $attrs = '')
+{
+    static $hover = null;
+
+    if ($hover === null) {
+        $hover = implode(' ', array(
+            '',
+            'ontouchstart="iutil.toggleClass(this, \'hover\', true);"',
+            'ontouchend="iutil.toggleClass(this, \'hover\', false);"',
+            'ontouchcancel="iutil.toggleClass(this, \'hover\', false);"',
+        ));
+    }
+
+    return <<<EOS
+<a href="{$uri}"{$attrs}{$hover}><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
+EOS;
+}
+
+// }}}
 // {{{ toolbar_i_standard_button()
 
 /**
@@ -22,10 +45,7 @@ $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'] = implode(' ', array(
  */
 function toolbar_i_standard_button($icon, $label, $uri)
 {
-    $attrs = $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'];
-    return <<<EOS
-<a href="{$uri}"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
-EOS;
+    return _toolbar_i_button($icon, $label, $uri);
 }
 
 // }}}
@@ -42,11 +62,8 @@ EOS;
  */
 function toolbar_i_badged_button($icon, $label, $uri, $badge)
 {
-    $attrs = $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'];
-    $l = min(strlen($badge), 4);
-    return <<<EOS
-<a href="{$uri}"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$label}<span class="badge l{$l}">{$badge}</span></a>
-EOS;
+    $label .= sprintf('<span class="badge l%d">%s</span>', min(strlen($badge), 4), $badge);
+    return _toolbar_i_button($icon, $label, $uri);
 }
 
 // }}}
@@ -62,10 +79,7 @@ EOS;
  */
 function toolbar_i_opentab_button($icon, $label, $uri)
 {
-    $attrs = $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'] . ' target="_blank"';
-    return <<<EOS
-<a href="{$uri}"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
-EOS;
+    return _toolbar_i_button($icon, $label, $uri, ' target="_blank"');
 }
 
 // }}}
@@ -99,10 +113,8 @@ EOS;
  */
 function toolbar_i_showhide_button($icon, $label, $id)
 {
-    $attrs = ' onclick="return iutil.toolbarShowHide(this, event);"' . $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'];
-    return <<<EOS
-<a href="#{$id}"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
-EOS;
+    $attrs = ' onclick="return iutil.toolbarShowHide(this, event);"';
+    return _toolbar_i_button($icon, $label, "#{$id}", $attrs);
 }
 
 // }}}
@@ -124,11 +136,11 @@ function toolbar_i_favita_button($icon, $label, $info, $setnum = 0)
     }
 
     $fav = $info->favs[$setnum];
-    $attrs = ' onclick="return iutil.toolbarSetFavIta(this, event);"' . $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'];
+    $attrs = ' onclick="return iutil.toolbarSetFavIta(this, event);"';
     if (!$fav['set']) {
         $attrs .= ' class="inactive"';
     }
-    $query = http_build_query(array(
+    $uri = 'httpcmd.php?' . http_build_query(array(
         'cmd'       => 'setfavita',
         'host'      => $info->host,
         'bbs'       => $info->bbs,
@@ -137,9 +149,7 @@ function toolbar_i_favita_button($icon, $label, $info, $setnum = 0)
         'setfavita' => -1,
     ), '', '&amp;');
 
-    return <<<EOS
-<a href="httpcmd.php?{$query}"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$fav['title']}</a>
-EOS;
+    return _toolbar_i_button($icon, $fav['title'], $uri, $attrs);
 }
 
 // }}}
@@ -161,11 +171,11 @@ function toolbar_i_fav_button($icon, $label, $info, $setnum = 0)
     }
 
     $fav = $info->favs[$setnum];
-    $attrs = ' onclick="return iutil.toolbarSetFav(this, event);"' . $GLOBALS['_TOOLBAR_I_TOGGLE_HOVER'];
+    $attrs = ' onclick="return iutil.toolbarSetFav(this, event);"';
     if (!$fav['set']) {
         $attrs .= ' class="inactive"';
     }
-    $query = http_build_query(array(
+    $uri = 'httpcmd.php?' . http_build_query(array(
         'cmd'       => 'setfav',
         'host'      => $info->host,
         'bbs'       => $info->bbs,
@@ -175,9 +185,116 @@ function toolbar_i_fav_button($icon, $label, $info, $setnum = 0)
         'setfav'    => -1,
     ), '', '&amp;');
 
-    return <<<EOS
-<a href="httpcmd.php?{$query}"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$fav['title']}</a>
-EOS;
+    return _toolbar_i_button($icon, $fav['title'], $uri, $attrs);
+}
+
+// }}}
+// {{{ toolbar_i_action_board_button()
+
+/**
+ * 外部アプリ等で板を開くボタン
+ *
+ * @param string $icon
+ * @param string $label (fallback)
+ * @param ThreadList $aThreadList
+ * @return string
+ */
+function toolbar_i_action_board_button($icon, $label, ThreadList $aThreadList)
+{
+    global $_conf;
+
+    $type = _toolbar_i_client_type();
+    $pattern = $_conf["expack.tba.{$type}.board_uri"];
+    if (!$pattern) {
+        return toolbar_i_disabled_button($icon, $label);
+    }
+
+    $host = $aThreadList->host;
+    $bbs = $aThreadList->bbs;
+    $url = "http://{$host}/{$bbs}/";
+    $uri = htmlspecialchars(strtr($pattern, array(
+        '$time' => time(),
+        '$host' => rawurlencode($host),
+        '$bbs'  => rawurlencode($bbs),
+        '$url'  => $url,
+        '$eurl' => rawurlencode($url),
+    )), ENT_QUOTES, 'Shift_JIS', false);
+
+    $title = $_conf["expack.tba.{$type}.board_title"];
+    if ($title !== '') {
+        $label = htmlspecialchars($title, ENT_QUOTES, 'Shift_JIS', false);
+    }
+
+    return _toolbar_i_button($icon, $label, $uri);
+}
+
+// }}}
+// {{{ toolbar_i_action_thread_button()
+
+/**
+ * 外部アプリ等でスレッドを開くボタン
+ *
+ * @param string $icon
+ * @param string $label (fallback)
+ * @param Thread $aThread
+ * @return string
+ */
+function toolbar_i_action_thread_button($icon, $label, Thread $aThread)
+{
+    global $_conf;
+
+    $type = _toolbar_i_client_type();
+    $pattern = $_conf["expack.tba.{$type}.thread_uri"];
+    if (!$pattern) {
+        return toolbar_i_disabled_button($icon, $label);
+    }
+
+    $url = $aThread->getMotoThread(true, '');
+    $uri = htmlspecialchars(strtr($pattern, array(
+        '$time' => time(),
+        '$host' => rawurlencode($aThread->host),
+        '$bbs'  => rawurlencode($aThread->bbs),
+        '$key'  => rawurlencode($aThread->key),
+        '$ls'   => rawurlencode($aThread->ls),
+        '$url'  => $url,
+        '$eurl' => rawurlencode($url),
+        '$path' => preg_replace('!^https?://!', '', $url),
+    )), ENT_QUOTES, 'Shift_JIS', false);
+
+    $title = $_conf["expack.tba.{$type}.thread_title"];
+    if ($title !== '') {
+        $label = htmlspecialchars($title, ENT_QUOTES, 'Shift_JIS', false);
+    }
+
+    return _toolbar_i_button($icon, $label, $uri);
+}
+
+// }}}
+// {{{ _toolbar_i_client_type()
+
+/**
+ * クライアントの種類を返す
+ *
+ * @param void
+ * @return string
+ */
+function _toolbar_i_client_type()
+{
+    global $_conf;
+
+    switch ($_conf['client_type']) {
+        case 'i':
+            $type = UA::isAndroidWebKit() ? 'android' : 'iphone';
+            break;
+        case 'i':
+            $type = 'mobile';
+            break;
+        case 'pc':
+        default:
+            $type = 'other';
+    }
+
+    return $type;
 }
 
 // }}}

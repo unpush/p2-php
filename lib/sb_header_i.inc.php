@@ -77,22 +77,6 @@ $_conf['extra_headers_ht'] .= <<<EOS
 <script type="text/javascript" src="js/json2.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript" src="js/sb_iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
-// スレの勢いを示すためのスタイルシート
-if ($_conf['iphone.subject.indicate-speed']) {
-    $_conf['extra_headers_ht'] .= <<<EOS
-<style type="text/css">
-/* <![CDATA[ */
-ul.subject > li > a { border-left: transparent solid {$_conf['iphone.subject.speed.width']}px; }
-ul.subject > li > a.dayres-0 { border-left-color: {$_conf['iphone.subject.speed.0rpd']}; }
-ul.subject > li > a.dayres-1 { border-left-color: {$_conf['iphone.subject.speed.1rpd']}; }
-ul.subject > li > a.dayres-10 { border-left-color: {$_conf['iphone.subject.speed.10rpd']}; }
-ul.subject > li > a.dayres-100 { border-left-color: {$_conf['iphone.subject.speed.100rpd']}; }
-ul.subject > li > a.dayres-1000 { border-left-color: {$_conf['iphone.subject.speed.1000rpd']}; }
-ul.subject > li > a.dayres-10000 { border-left-color: {$_conf['iphone.subject.speed.10000rpd']}; }
-/* ]]> */
-</style>
-EOS;
-}
 
 // スレ情報
 if (!$spmode) {

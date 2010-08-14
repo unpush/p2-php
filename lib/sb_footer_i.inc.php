@@ -202,8 +202,6 @@ $htm['change_sort'] .= ' <input type="submit" value="並び替え"></form>';
 // }}}
 // {{{ ツールバーを表示
 
-$touch_handlers = ' ontouchstart="this.className=\'hover\'" ontouchend="this.className=\'\'"';
-
 echo '<div class="ntoolbar" id="footer">';
 echo '<table><tbody><tr>';
 
@@ -270,16 +268,8 @@ echo '</td>';
 // トップに戻る
 echo '<td>', toolbar_i_standard_button('img/glyphish/icons2/53-house.png', 'TOP', "index.php{$_conf['k_at_q']}"), '</td>';
 
-// BB2Cでスレを開く
-echo '<td>';
-if (!$aThreadList->spmode && $_conf['expack.misc.use_bb2c']) {
-    $bb2c_open_uri = 'beebee2seeopen://' . str_replace('%2F', '/', rawurldecode("{$aThreadList->host}/{$aThreadList->bbs}/"));
-    $escaped_url = "javascript:location.replace('{$bb2c_open_uri}')";
-    echo toolbar_i_standard_button('img/glyphish/icons2/12-eye.png', 'BB2C', $escaped_url);
-} else {
-    echo toolbar_i_disabled_button('img/glyphish/icons2/12-eye.png', 'BB2C');
-}
-echo '</td>';
+// アクション
+echo '<td>', toolbar_i_action_board_button('img/glyphish/icons2/12-eye.png', 'アクション', $aThreadList), '</td>';
 
 // 新しいスレッドを立てる
 echo '<td>';

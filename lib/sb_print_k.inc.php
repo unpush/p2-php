@@ -265,32 +265,12 @@ function sb_print_k($aThreadList)
                                  $aThread->dayres                  // ¨‚¢BØ‚èã‚°‚È‚µ
                                  );
 
-            if ($_conf['iphone.subject.indicate-speed']) {
-                // ¨‚¢”»’èB‚È‚º‚©•sˆÀ’è‚É‚È‚é‚Ì‚Ålog10()‚ÌŒ‹‰Ê‚Å•ªŠò‚Í‚µ‚È‚¢
-                $dayres = (int)$aThread->dayres;
-                if ($dayres > 9999) {
-                    $classspeed_at = ' class="dayres-10000"';
-                } elseif ($dayres > 999) {
-                    $classspeed_at = ' class="dayres-1000"';
-                } elseif ($dayres > 99) {
-                    $classspeed_at = ' class="dayres-100"';
-                } elseif ($dayres > 9) {
-                    $classspeed_at = ' class="dayres-10"';
-                } elseif ($dayres > 0) {
-                    $classspeed_at = ' class="dayres-1"';
-                } else {
-                    $classspeed_at = ' class="dayres-0"';
-                }
-            } else {
-                $classspeed_at = '';
-            }
-
             if ($htm['ita'] !== '') {
                 $htm['ita'] = "<span class=\"ita\">{$htm['ita']}</span>";
             }
 
             echo <<<EOP
-<li><a href="{$thre_url}"{$classspeed_at}><span class="info">{$thre_info}</span> {$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
+<li><a href="{$thre_url}"><span class="info">{$thre_info}</span> {$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
 EOP;
         } else {
             echo <<<EOP
