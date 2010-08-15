@@ -9,21 +9,32 @@ require_once P2_LIB_DIR . '/spm_k.inc.php';
 // フッタ
 //=====================================================================
 // 表示範囲
-if ($_conf['filtering'] && $aThread->rescount) {
+if ($do_filtering) {
+    $filter_hits = $resFilter->hits;
+    $filter_range = $resFilter->range;
     $filter_range['end'] = min($filter_range['to'], $filter_hits);
-    $read_range_on = "{$filter_range['start']}-{$filter_range['end']}";
-    $rescount_st = "{$filter_hits}hits/{$aThread->rescount}";
-} elseif ($aThread->resrange['start'] == $aThread->resrange['to']) {
-    $read_range_on = $aThread->resrange['start'];
-    $rescount_st = (string)$aThread->rescount;
+    if ($filter_hits > 1) {
+        $filter_unit = 'hits';
+        $read_range_on = "{$filter_range['start']}-{$filter_range['end']}";
+    } else {
+        $filter_unit = 'hit';
+        $read_range_on = "{$filter_range['start']}-{$filter_range['end']}";
+    }
+    $rescount_st = "{$filter_hits}{$filter_unit}/{$aThread->rescount}";
+    $last_resnum = $resFilter->last_hit_resnum;
 } else {
-    $read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
+    if ($aThread->resrange['start'] == $aThread->resrange['to']) {
+        $read_range_on = $aThread->resrange['start'];
+    } else {
+        $read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
+    }
     $rescount_st = (string)$aThread->rescount;
+    $last_resnum = $aThread->resrange['to'];
 }
 $hd['read_range'] = "{$read_range_on}/{$rescount_st}";
 
 // レス番指定移動 etc.
-$htm['goto'] = kspform($aThread, ($_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to']));
+$htm['goto'] = kspform($aThread, $last_resnum);
 
 //=====================================================================
 // プリント
@@ -51,12 +62,10 @@ EOP;
     }
 
     if (empty($_GET['one'])) {
-        require_once P2_LIB_DIR . '/read_jump_k.inc.php';
-        if ($_conf['iphone']) {
-            echo get_read_jump($aThread, "<span id=\"footer\">{$rescount_st}</span>", true);
-        } else {
-            echo get_read_jump($aThread, "<a id=\"footer\" name=\"footer\">{$hd['read_range']}</a>", false);
+        if (!function_exists('get_read_jump')) {
+            include P2_LIB_DIR . '/read_jump_k.inc.php';
         }
+        echo get_read_jump($aThread, "<a id=\"footer\" name=\"footer\">{$hd['read_range']}</a>", false);
     }
 
     echo <<<EOP
@@ -81,26 +90,6 @@ EOP;
 
 echo "<hr>\n<div class=\"center\">{$_conf['k_to_index_ht']}";
 echo "</div>\n";
-
-// iPhone
-if ($_conf['iphone']) {
-    // ImageCache2
-    if ($_conf['expack.ic2.enabled']) {
-        if (!function_exists('ic2_loadconfig')) {
-            include P2EX_LIB_DIR . '/ic2/bootstrap.php';
-        }
-        $ic2conf = ic2_loadconfig();
-        if ($ic2conf['Thumb1']['width'] > 80) {
-            include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
-        } else {
-            include P2EX_LIB_DIR . '/ic2/templates/info-h.tpl.html';
-        }
-    }
-    // SPM
-    if ($_conf['expack.spm.enabled']) {
-        echo ShowThreadK::getSpmElementHtml();
-    }
-}
 
 echo '</body></html>';
 

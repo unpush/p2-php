@@ -723,11 +723,13 @@ iutil.stopEvent = function(event) {
  * @return {false}
  */
 iutil.toolbarShowHide = function(element, event) {
-	var href = element.href;
-	var offset = element.href.indexOf('#');
+	var url, offset, id, target;
 
+	url = element.href;
+	offset = url.indexOf('#');
 	if (offset !== -1) {
-		var target = document.getElementById(href.substring(offset + 1, href.length));
+		id = url.substring(offset + 1, url.length);
+		target = document.getElementById(id);
 		if (target) {
 			if (target.style.display === 'block') {
 				target.style.display = 'none';
@@ -735,6 +737,20 @@ iutil.toolbarShowHide = function(element, event) {
 			} else {
 				target.style.display = 'block';
 				element.className = 'active';
+
+				if (id.indexOf('toolbar_filter') !== -1) {
+					var i, l, f;
+					f = target.getElementsByTagName('input');
+					if (f) {
+						l = f.length;
+						for (i = 0; i < l; i++) {
+							if (f[i].type === 'text') {
+								f[i].focus();
+								break;
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -743,37 +759,24 @@ iutil.toolbarShowHide = function(element, event) {
 };
 
 // }}}
-// {{{ toolbarSetFav()
+// {{{ toolbarRunHttpCommand()
 
 /**
- * ツールバーボタンでお気にスレの登録・解除をトグルする
+ * ツールバーボタンで各種状態をトグルする
  *
  * @param {Element} element
  * @param {Event} event
  * @return {false}
  */
-iutil.toolbarSetFav = function(element, event) {
+iutil.toolbarRunHttpCommand = function(element, event) {
 	if (iutil.httpGetText(element.href) == '1') {
 		iutil.toggleClass(element, 'inactive');
 	} else {
-		window.alert('お気に入りの登録・解除に失敗しました');
+		window.alert('コマンド実行に失敗しました');
 	}
 
 	return iutil.stopEvent(event);
 };
-
-// }}}
-// {{{ toolbarSetFavIta()
-
-/**
- * ツールバーボタンでお気に板の登録・解除をトグルする
- * 実体はiutil.toolbarSetFav
- *
- * @param {Element} element
- * @param {Event} event
- * @return {false}
- */
-iutil.toolbarSetFavIta = iutil.toolbarSetFav;
 
 // }}}
 // {{{ toggleClass()

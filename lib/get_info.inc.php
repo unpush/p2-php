@@ -177,11 +177,9 @@ function get_thread_info($host, $bbs, $key)
     if ($tabornlines = FileCtl::file_read_lines($taborn_idx, FILE_IGNORE_NEW_LINES)) {
         foreach ($tabornlines as $l) {
             $tabornarray = explode('<>', $l);
-            if ($aThread->key == $tabornarray[1] && $aThread->bbs == $tabornarray[11]) {
-                if (P2Util::getHostGroupName($tabornarray[10]) == $group) {
-                    $info->taborn = true;
-                    break;
-                }
+            if ($key == $tabornarray[1]) {
+                $info->taborn = true;
+                break;
             }
         }
     }

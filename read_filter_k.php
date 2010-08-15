@@ -18,12 +18,15 @@ $ttitle_back = (isset($_SERVER['HTTP_REFERER']))
     ? '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="–ß‚é">' . $ttitle . '</a>'
     : $ttitle;
 
-
 $hidden_fields_ht = ResFilterElement::getHiddenFields($host, $bbs, $key);
-$word_field_ht = ResFilterElement::getWordField(array(
-    'autocorrect' => 'off',
-    'autocapitalize' => 'off',
-));
+if ($_conf['iphone']) {
+    $word_field_ht = ResFilterElement::getWordField(array(
+        'autocorrect' => 'off',
+        'autocapitalize' => 'off',
+    ));
+} else {
+    $word_field_ht = ResFilterElement::getWordField();
+}
 $field_field_ht = ResFilterElement::getFieldField();
 $method_field_ht = ResFilterElement::getMethodField();
 $match_field_ht = ResFilterElement::getMatchField();

@@ -16,19 +16,11 @@
  */
 function _toolbar_i_button($icon, $label, $uri, $attrs = '')
 {
-    static $hover = null;
-
-    if ($hover === null) {
-        $hover = implode(' ', array(
-            '',
-            'ontouchstart="iutil.toggleClass(this, \'hover\', true);"',
-            'ontouchend="iutil.toggleClass(this, \'hover\', false);"',
-            'ontouchcancel="iutil.toggleClass(this, \'hover\', false);"',
-        ));
+    if ($attrs !== '' && strncmp($attrs, ' ', 1) === 0) {
+        $attrs = ' ' . $attrs;
     }
-
     return <<<EOS
-<a href="{$uri}"{$attrs}{$hover}><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
+<a href="{$uri}" ontouchstart="iutil.toggleClass(this, 'hover', true);" ontouchend="iutil.toggleClass(this, 'hover', false);" ontouchcancel="iutil.toggleClass(this, 'hover', false);"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
 EOS;
 }
 
@@ -136,7 +128,7 @@ function toolbar_i_favita_button($icon, $label, $info, $setnum = 0)
     }
 
     $fav = $info->favs[$setnum];
-    $attrs = ' onclick="return iutil.toolbarSetFavIta(this, event);"';
+    $attrs = ' onclick="return iutil.toolbarRunHttpCommand(this, event);"';
     if (!$fav['set']) {
         $attrs .= ' class="inactive"';
     }
@@ -146,7 +138,7 @@ function toolbar_i_favita_button($icon, $label, $info, $setnum = 0)
         'bbs'       => $info->bbs,
         'itaj_en'   => UrlSafeBase64::encode($info->itaj),
         'setnum'    => $setnum,
-        'setfavita' => -1,
+        'setfavita' => 2,
     ), '', '&amp;');
 
     return _toolbar_i_button($icon, $fav['title'], $uri, $attrs);
@@ -171,7 +163,7 @@ function toolbar_i_fav_button($icon, $label, $info, $setnum = 0)
     }
 
     $fav = $info->favs[$setnum];
-    $attrs = ' onclick="return iutil.toolbarSetFav(this, event);"';
+    $attrs = ' onclick="return iutil.toolbarRunHttpCommand(this, event);"';
     if (!$fav['set']) {
         $attrs .= ' class="inactive"';
     }
@@ -182,10 +174,68 @@ function toolbar_i_fav_button($icon, $label, $info, $setnum = 0)
         'key'       => $info->key,
         'ttitle_en' => UrlSafeBase64::encode($info->ttitle),
         'setnum'    => $setnum,
-        'setfav'    => -1,
+        'setfav'    => 2,
     ), '', '&amp;');
 
     return _toolbar_i_button($icon, $fav['title'], $uri, $attrs);
+}
+
+// }}}
+// {{{ toolbar_i_palace_button()
+
+/**
+ * 殿堂入りの登録・解除をトグルするツールバーボタン
+ *
+ * @param string $icon
+ * @param string $label
+ * @param object $info @see lib/get_info.inc.php: get_thread_info()
+ * @return string
+ */
+function toolbar_i_palace_button($icon, $label, $info)
+{
+    $attrs = ' onclick="return iutil.toolbarRunHttpCommand(this, event);"';
+    if (!$info->palace) {
+        $attrs .= ' class="inactive"';
+    }
+    $uri = 'httpcmd.php?' . http_build_query(array(
+        'cmd'       => 'setpal',
+        'host'      => $info->host,
+        'bbs'       => $info->bbs,
+        'key'       => $info->key,
+        'ttitle_en' => UrlSafeBase64::encode($info->ttitle),
+        'setpal'    => 2,
+    ), '', '&amp;');
+
+    return _toolbar_i_button($icon, $label, $uri, $attrs);
+}
+
+// }}}
+// {{{ toolbar_i_aborn_button()
+
+/**
+ * スレッドあぼーん状態をトグルするツールバーボタン
+ *
+ * @param string $icon
+ * @param string $label
+ * @param object $info @see lib/get_info.inc.php: get_thread_info()
+ * @return string
+ */
+function toolbar_i_aborn_button($icon, $label, $info)
+{
+    $attrs = ' onclick="return iutil.toolbarRunHttpCommand(this, event);"';
+    if (!$info->taborn) {
+        $attrs .= ' class="inactive"';
+    }
+    $uri = 'httpcmd.php?' . http_build_query(array(
+        'cmd'       => 'taborn',
+        'host'      => $info->host,
+        'bbs'       => $info->bbs,
+        'key'       => $info->key,
+        'ttitle_en' => UrlSafeBase64::encode($info->ttitle),
+        'taborn'    => 2,
+    ), '', '&amp;');
+
+    return _toolbar_i_button($icon, $label, $uri, $attrs);
 }
 
 // }}}

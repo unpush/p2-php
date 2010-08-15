@@ -21,7 +21,7 @@ function get_read_jump(ThreadRead $aThread, $label, $use_onchange)
     }
 
     if ($use_onchange) {
-        return "<div>{$jump}/{$label}</div>";
+        return "{$jump}<span class=\"large\">/{$label}</span>";
     } else {
         return "<form method=\"get\" action=\"{$_conf['read_php']}\" accept-charset=\"{$_conf['accept_charset']}\">{$label}{$jump}</form>";
     }

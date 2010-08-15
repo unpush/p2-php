@@ -45,7 +45,7 @@ SPM.init = function (aThread) {
 
 	// 逆参照
 	spm.appendItem('逆参照', (function (event) {
-		SPM.openFilter(aThread, 'rres', 'on', event);
+		SPM.openFilter(aThread, 'num:refed', 'on', event);
 	}));
 
 	// ここまで読んだ
@@ -371,10 +371,24 @@ SPM.openSubWin = function (aThread, inUrl, option) {
  * URIの処理をし、フィルタリング結果を表示する
  */
 SPM.openFilter = function (aThread, field, match, event) {
-	var target;
-	var inUrl = 'read_filter.php?bbs=' + aThread.bbs + '&key=' + aThread.key + '&host=' + aThread.host;
-	inUrl += '&rescount=' + aThread.rc + '&ttitle_en=' + aThread.ttitle_en + '&resnum=' + spmResNum;
-	inUrl += '&ls=all&field=' + field + '&method=just&match=' + match + '&offline=1';
+	var target, inUrl, encode;
+
+	encode = function (key, value) {
+		return encodeURIComponent(key) + '=' + encodeURIComponent(value);
+	};
+
+	inUrl = 'read_filter.php?' + [
+		encode('host', aThread.host),
+		encode('bbs', aThread.bbs),
+		encode('key', aThread.key),
+		encode('rescount', aThread.rc),
+		encode('ttitle_en',  aThread.ttitle_en),
+		encode('resnum', spmResNum),
+		encode('field', field),
+		encode('rf[method]', 'just'),
+		encode('rf[match]', match),
+		'offline=1'
+	].join('&');
 
 	event = event || window.event;
 	if (event.shiftKey) {

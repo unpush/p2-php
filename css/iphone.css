@@ -128,7 +128,7 @@ div.toolbar a[href]:not(.nobutton)
 	background: #ffffff url('../img/iphone/btn-bg.png') repeat-x left bottom;
 	border: #505050 solid 1px;
 	-webkit-border-radius: 15px;
-	border-radius: 8px;
+	border-radius: 15px;
 }
 
 div#read_new_header {
@@ -217,12 +217,10 @@ div:not(.res-header) > span.onthefly {
 }
 
 div.res:not(.aborned) {
-	margin: 8px 0;
+	margin: 0;
 	padding: 0;
+	border-top: #808080 solid 1px;
 	background-color: #ffffff;
-	border: #808080 solid 1px;
-	-webkit-border-radius: 8px;
-	border-radius: 8px;
 }
 
 div.res.aborned {
@@ -234,16 +232,17 @@ div.res.aborned {
 
 div.res > div.message {
 	margin: 0;
-	padding: 8px;
+	padding: 10px;
 	line-height: 140%;
 	word-break: break-all;
 }
 
 div.res > div.res-header {
 	margin: 0;
-	padding: 8px;
+	padding: 8px 10px;
 	line-height: 120%;
 	border-bottom: #808080 solid 1px;
+	background-color: #fafafa;
 }
 
 div.res-header > span.no {
@@ -294,13 +293,18 @@ div.respop {
 
 div.respop > div.res {
 	margin: 0 0 8px 0 !important;
-	background-color: rgba(255, 255, 240, 0.9) !important;
-	border-color: rgba(108, 108, 108, 0.8) !important;
+	background-color: rgba(255, 255, 246, 0.95) !important;
+	border: rgba(108, 108, 108, 0.8) solid 1px !important;
+	-webkit-border-radius: 8px;
+	border-radius: 8px;
 	-webkit-box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
 	box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
 }
 
 div.respop > div.res > div.res-header {
+	background-color: rgba(250, 250, 225, 0.8) !important;
+	-webkit-border-top-right-radius: 8px;
+	border-top-right-radius: 8px;
 	border-bottom-color: rgba(108, 108, 108, 0.8) !important;
 }
 
@@ -314,6 +318,11 @@ div.respop > img.close-button {
 div.respop > div.res > div.respop-back {
 	margin: 0;
 	padding: 0;
+	background-color: rgba(250, 250, 225, 0.8) !important;
+	-webkit-border-bottom-left-radius: 8px;
+	-webkit-border-bottom-right-radius: 8px;
+	border-bottom-left-radius: 8px;
+	border-bottom-right-radius: 8px;
 	border-top: rgba(108, 108, 108, 0.8) solid 1px;
 	text-align: center;
 }
@@ -322,7 +331,7 @@ div.respop > div.res > div.respop-back > a {
 	display: block;
 	margin: 0;
 	padding: 3px;
-	font-size: medium;
+	font-size: small;
 	text-decoration: none;
 	color: #252525;
 }
@@ -586,6 +595,7 @@ body.nopad ul.subject {
 /* {{{ new toolbar */
 
 div.ntoolbar {
+	min-width: 320px;
 	margin: 0;
 	padding: 0;
 	background-color: #000;
@@ -605,9 +615,14 @@ div.ntoolbar > h1.ptitle {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	text-align: center;
-	font-weight: normal;
+	font-weight: bold;
 	font-size: 16px;
 	line-height: 16px;
+}
+
+div.ntoolbar > h1.ptitle > span.thin {
+	font-weight: noraml;
+	font-size: 14px;
 }
 
 div.ntoolbar > form,
@@ -687,7 +702,7 @@ div.ntoolbar > h1.ptitle > a {
 div.ntoolbar td > a {
 	display: inline-block;
 	position: relative;
-	width: 64px; /* 320/5 px */
+	width: 60px;
 	margin: 0 auto;
 	padding: 0;
 	white-space: nowrap;
@@ -705,9 +720,12 @@ div.ntoolbar td > a:visited {
 	color: #fff;
 }
 
-div.ntoolbar td > a.inactive,
+div.ntoolbar td > a.inactive {
+	color: #888;
+}
+
 div.ntoolbar td > span.unavailable {
-	color: #666;
+	color: #555;
 }
 
 div.ntoolbar > h1.ptitle > a.hover,
@@ -772,9 +790,12 @@ div.ntoolbar td > a:visited > img {
 	background-color: #fff;
 }
 
-div.ntoolbar td > a.inactive > img,
+div.ntoolbar td > a.inactive > img {
+	background-color: #888;
+}
+
 div.ntoolbar td > span.unavailable > img {
-	background-color: #666;
+	background-color: #555;
 }
 
 div.ntoolbar td > a.hover > img,
@@ -790,6 +811,39 @@ div.ntoolbar td > select {
 
 div.ntoolbar td > span.large {
 	font-size: 14px;
+}
+
+/* }}} */
+/* {{{ Media Queries */
+
+@media screen and (min-width: 340px) {
+	div.ntoolbar td > a {
+		width: 64px;
+	}
+}
+
+@media screen and (min-width: 360px) {
+	div.ntoolbar td > a {
+		width: 68px;
+	}
+}
+
+@media screen and (min-width: 400px) {
+	div.ntoolbar td > a {
+		width: 76px;
+	}
+}
+
+@media screen and (min-width: 480px) {
+	div.ntoolbar td > a {
+		width: 92px;
+	}
+}
+
+@media screen and (min-width: 640px) {
+	div.ntoolbar td > a {
+		width: 100%;
+	}
 }
 
 /* }}} */

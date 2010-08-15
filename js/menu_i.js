@@ -628,7 +628,7 @@
 			typeof window.iutil === 'undefined' ||
 			typeof window.JSON  === 'undefined')
 		{
-			window.setTimeout(arguments.callee, 50);
+			window.setTimeout(arguments.callee, 50, event);
 		} else {
 			document.removeEventListener(event.type, arguments.callee, false);
 			setup(window.iui, window.iutil, window.JSON);

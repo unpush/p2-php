@@ -1126,7 +1126,7 @@ class ThreadRead extends Thread
                 if ($start + $_conf['mobile.rnum_range'] <= $to) {
                     $to = $start + $_conf['mobile.rnum_range'];
                 }
-                if ($_conf['filtering']) {
+                if (ResFilter::getWord() !== null) {
                     $start = 1;
                     $to = $this->rescount;
                     $nofirst = false;
