@@ -826,11 +826,17 @@ div.ntoolbar td > span.large {
 	div.ntoolbar td > a {
 		width: 68px;
 	}
+	div.ntoolbar td > a > span.badge {
+		right: 8px !important;
+	}
 }
 
 @media screen and (min-width: 400px) {
 	div.ntoolbar td > a {
 		width: 76px;
+	}
+	div.ntoolbar td > a > span.badge {
+		right: 16px !important;
 	}
 }
 
@@ -838,11 +844,8 @@ div.ntoolbar td > span.large {
 	div.ntoolbar td > a {
 		width: 92px;
 	}
-}
-
-@media screen and (min-width: 640px) {
-	div.ntoolbar td > a {
-		width: 100%;
+	div.ntoolbar td > a > span.badge {
+		right: 24px !important;
 	}
 }
 
