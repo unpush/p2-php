@@ -271,8 +271,11 @@ EOP;
                     $ls_q = "&amp;ls={$lf}-";
                     $footer_q = "#r{$lf}";
                 }
+                if ($_conf['iphone']) {
+                    $footer_q = '';
+                }
                 $time = time();
-                $href_ht = $_conf['read_php'] . "?host=" . $a_res->host . "&amp;bbs=" . $a_res->bbs . "&amp;key=" . $a_res->key . $ls_q . "{$_conf['k_at_a']}&amp;nt={$time}={$footer_q}";
+                $href_ht = $_conf['read_php'] . "?host=" . $a_res->host . "&amp;bbs=" . $a_res->bbs . "&amp;key=" . $a_res->key . $ls_q . "{$_conf['k_at_a']}&amp;nt={$time}{$footer_q}";
             }
 
             // ‘å‚«‚³§ŒÀ

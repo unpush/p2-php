@@ -94,8 +94,8 @@ function sb_print_k($aThreadList)
     $i = 0;
     foreach ($aThreadList->threads as $aThread) {
         $i++;
-        $midoku_ari = "";
-        $anum_ht = ""; //#r1
+        $midoku_ari = '';
+        $anum_ht = ''; //#r1
         $htm = array('ita' => '', 'rnum' => '', 'unum' => '', 'sim' => '');
 
         $bbs_q = '&amp;bbs=' . $aThread->bbs;
@@ -103,16 +103,16 @@ function sb_print_k($aThreadList)
         $host_bbs_key_q = 'host=' . $aThread->host . $bbs_q . $key_q;
         $offline_q = '';
 
-        if ($aThreadList->spmode!="taborn") {
-            if (!$aThread->torder) {$aThread->torder=$i;}
+        if ($aThreadList->spmode!='taborn') {
+            if (!$aThread->torder) {
+                $aThread->torder = $i;
+            }
         }
 
         // 新着レス数 =============================================
         // 既得済み
         if ($show_unum && $aThread->isKitoku()) {
             $htm['unum'] = "{$aThread->unum}";
-
-            $anum_ht = sprintf('#r%d', min($aThread->rescount, $aThread->rescount - $aThread->nunum + 1 - $_conf['respointer']));
 
             // iPhone用
             if ($_conf['iphone']) {
@@ -132,6 +132,8 @@ function sb_print_k($aThreadList)
 
                 $htm['unum'] = "<span class=\"{$classunum}\">{$htm['unum']}</span>";
             } else {
+                $anum_ht = sprintf('#r%d', min($aThread->rescount, $aThread->rescount - $aThread->nunum + 1 - $_conf['respointer']));
+
                 // 新着あり
                 if ($aThread->unum >= 1) {
                     $midoku_ari = true;
