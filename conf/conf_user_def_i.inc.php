@@ -3,43 +3,55 @@
  * rep2expack - iPhone用ユーザ初期設定
  */
 
-// {{{ subject-i (スレ一覧)
+// {{{ ツールバーアクション
 
-// 勢いを示すインジケーターを表示 (する:1, しない:0)
-$conf_user_def['iphone.subject.indicate-speed'] = 0; // (0)
-$conf_user_rad['iphone.subject.indicate-speed'] = array('1' => 'する', '0' => 'しない');
+// iPhone用スレッド一覧ツールバーアクションのURI
+$conf_user_def['expack.tba.iphone.board_uri'] = ""; // ("")
 
-// インジケーターの幅 (pixels)
-$conf_user_def['iphone.subject.speed.width'] = 10; // (10)
-$conf_user_rules['iphone.subject.speed.width'] = array('notIntExceptMinusToDef');
+// iPhone用スレッド一覧ツールバーアクションのタイトル
+$conf_user_def['expack.tba.iphone.board_title'] = ""; // ("")
 
-// インジケーターの色 (1レス/日未満)
-$conf_user_def['iphone.subject.speed.0rpd'] = "#eeeeee"; // ("#eeeeee")
-$conf_user_rules['iphone.subject.speed.0rpd'] = array('notCssColorToDef');
+// iPhone用スレッド一覧ツールバーアクションのURI
+$conf_user_def['expack.tba.iphone.thread_uri'] = ""; // ("")
 
-// インジケーターの色 (1レス/日以上)
-$conf_user_def['iphone.subject.speed.1rpd'] = "#ffcccc"; // ("#ffcccc")
-$conf_user_rules['iphone.subject.speed.1rpd'] = array('notCssColorToDef');
+// iPhone用スレッド内容ツールバーアクションのタイトル
+$conf_user_def['expack.tba.iphone.thread_title'] = ""; // ("")
 
-// インジケーターの色 (10レス/日以上)
-$conf_user_def['iphone.subject.speed.10rpd'] = "#ff9999"; // ("#ff9999")
-$conf_user_rules['iphone.subject.speed.10rpd'] = array('notCssColorToDef');
+// Android用スレッド一覧ツールバーアクションのURI
+$conf_user_def['expack.tba.android.board_uri'] = ""; // ("")
 
-// インジケーターの色 (100レス/日以上)
-$conf_user_def['iphone.subject.speed.100rpd'] = "#ff6666"; // ("#ff6666")
-$conf_user_rules['iphone.subject.speed.100rpd'] = array('notCssColorToDef');
+// Android用スレッド一覧ツールバーアクションのタイトル
+$conf_user_def['expack.tba.android.board_title'] = ""; // ("")
 
-// インジケーターの色 (1000レス/日以上)
-$conf_user_def['iphone.subject.speed.1000rpd'] = "#ff3333"; // ("#ff3333")
-$conf_user_rules['iphone.subject.speed.1000rpd'] = array('notCssColorToDef');
+// Android用スレッド内容ツールバーアクションのURI
+$conf_user_def['expack.tba.android.thread_uri'] = ""; // ("")
 
-// インジケーターの色 (10000レス/日以上)
-$conf_user_def['iphone.subject.speed.10000rpd'] = "#ff0000"; // ("#ff0000")
-$conf_user_rules['iphone.subject.speed.10000rpd'] = array('notCssColorToDef');
+// Android用スレッド内容ツールバーアクションのタイトル
+$conf_user_def['expack.tba.android.thread_title'] = ""; // ("")
 
-// }}}
-// {{{ read-i (スレ内容)
+// 携帯用スレッド一覧ツールバーアクションのURI
+$conf_user_def['expack.tba.mobile.board_uri'] = ""; // ("")
 
+// 携帯用スレッド一覧ツールバーアクションのタイトル
+$conf_user_def['expack.tba.mobile.board_title'] = ""; // ("")
+
+// 携帯用スレッド内容ツールバーアクションのURI
+$conf_user_def['expack.tba.mobile.thread_uri'] = ""; // ("")
+
+// 携帯用スレッド内容ツールバーアクションのタイトル
+$conf_user_def['expack.tba.mobile.thread_title'] = ""; // ("")
+
+// PC用スレッド一覧ツールバーアクションのURI
+$conf_user_def['expack.tba.other.board_uri'] = ""; // ("")
+
+// PC用スレッド一覧ツールバーアクションのタイトル
+$conf_user_def['expack.tba.other.board_title'] = ""; // ("")
+
+// PC用スレッド内容ツールバーアクションのURI
+$conf_user_def['expack.tba.other.thread_uri'] = ""; // ("")
+
+// PC用スレッド内容ツールバーアクションのタイトル
+$conf_user_def['expack.tba.other.thread_title'] = ""; // ("")
 
 // }}}
 

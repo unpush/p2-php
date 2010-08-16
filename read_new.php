@@ -705,7 +705,6 @@ EOP;
 $newthre_num++;
 
 if (!$aThreadList->num) {
-    $GLOBALS['matome_naipo'] = TRUE;
     echo "V’…ƒŒƒX‚Í‚È‚¢‚Û";
     echo "<hr>";
 }

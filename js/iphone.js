@@ -682,7 +682,7 @@ iutil.getTextNodes = function(node, needsValue, texts) {
 iutil.httpGetText = function(uri) {
 	var req, err;
 	try {
-		var req = new XMLHttpRequest();
+		req = new XMLHttpRequest();
 		req.open('GET', uri, false);
 		req.send(null);
 
@@ -698,13 +698,36 @@ iutil.httpGetText = function(uri) {
 };
 
 // }}}
+// {{{ httpGetAsync()
+
+/**
+ * 非同期GETリクエストを実行する
+ *
+ * @param {String} uri
+ * @param {Function} callback
+ * @return void
+ */
+iutil.httpGetAsync = function(uri, callback) {
+	var req = new XMLHttpRequest();
+	req.open('GET', uri, true);
+	req.onreadystatechange = function() {
+		if (req.readyState == 4) {
+			if (req.status == 200) {
+				callback(this, uri);
+			}
+		}
+	};
+	req.send(null);
+};
+
+// }}}
 // {{{ stopEvent()
 
 /**
  * デフォルトイベントの発生とイベントの伝播を抑制する
  *
  * @param {Event} event
- * @return {false}
+ * @return false
  */
 iutil.stopEvent = function(event) {
 	event.preventDefault();
@@ -713,6 +736,37 @@ iutil.stopEvent = function(event) {
 };
 
 // }}}
+// {{{ setHoverable()
+
+/**
+ * タッチイベントで疑似hover効果を実現する
+ *
+ * @param {Node|String} contextNode
+ * @return void
+ */
+iutil.setHoverable = function(contextNode) {
+	var anchors, anchor, hoverOn, hoverOff, i, l;
+
+	anchors = document.evaluate('.//a[contains(concat(" ", @class, " "), " hoverable ")]',
+	                            contextNode, null,
+	                            XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	l = anchors.snapshotLength;
+
+	hoverOn = function(event) {
+		iutil.toggleClass(this, 'hover', true);
+	};
+	hoverOff = function(event) {
+		iutil.toggleClass(this, 'hover', false);
+	};
+
+	for (i = 0; i < l; i++) {
+		anchor = anchors.snapshotItem(i);
+		anchor.addEventListener('touchstart', hoverOn, false);
+		anchor.addEventListener('touchend', hoverOff, false);
+	}
+};
+
+// ]}}
 // {{{ toolbarShowHide()
 
 /**
@@ -720,64 +774,105 @@ iutil.stopEvent = function(event) {
  *
  * @param {Element} element
  * @param {Event} event
- * @return {false}
+ * @return false
  */
 iutil.toolbarShowHide = function(element, event) {
-	var href = element.href;
-	var offset = element.href.indexOf('#');
+	var url, offset, id, target;
 
+	iutil.stopEvent(event);
+
+	url = element.href;
+	offset = url.indexOf('#');
 	if (offset !== -1) {
-		var target = document.getElementById(href.substring(offset + 1, href.length));
+		id = url.substring(offset + 1, url.length);
+		target = document.getElementById(id);
 		if (target) {
 			if (target.style.display === 'block') {
 				target.style.display = 'none';
-				element.className = '';
+				iutil.toggleClass(element, 'active', false);
 			} else {
 				target.style.display = 'block';
-				element.className = 'active';
+				iutil.toggleClass(element, 'active', true);
+
+				if (id.indexOf('toolbar_filter') !== -1) {
+					var i, l, f;
+					f = target.getElementsByTagName('input');
+					if (f) {
+						l = f.length;
+						for (i = 0; i < l; i++) {
+							if (f[i].type === 'text') {
+								f[i].focus();
+								break;
+							}
+						}
+					}
+				}
 			}
 		}
 	}
 
-	return iutil.stopEvent(event);
+	return false;
 };
 
 // }}}
-// {{{ toolbarSetFav()
+// {{{ toolbarRunHttpCommand()
 
 /**
- * ツールバーボタンでお気にスレの登録・解除をトグルする
+ * ツールバーボタンで各種状態をトグルする
  *
  * @param {Element} element
  * @param {Event} event
- * @return {false}
+ * @return false
  */
-iutil.toolbarSetFav = function(element, event) {
-	if (iutil.httpGetText(element.href) == '1') {
-		if (element.className === 'inactive') {
-			element.className = '';
+iutil.toolbarRunHttpCommand = function(element, event) {
+	iutil.stopEvent(event);
+	iutil.httpGetAsync(element.href, function(req, uri) {
+		if (req.responseText == '1') {
+			iutil.toggleClass(element, 'inactive');
 		} else {
-			element.className = 'inactive';
+			window.alert('コマンド実行に失敗しました');
 		}
-	} else {
-		window.alert('お気に入りの登録・解除に失敗しました\n'+element.href);
+	});
+	return false;
+};
+
+// }}}
+// {{{ toggleClass()
+
+/**
+ * CSSクラスをトグルする
+ *
+ * @param {Element} element
+ * @param {String} className
+ * @param {Boolean} toggle
+ * @return void
+ */
+iutil.toggleClass = function(element, className, toggle) {
+	var i, l, hasClass, oldClasses, newClasses;
+
+	oldClasses = element.className.split(/\s+/);
+	newClasses = [];
+	l = oldClasses.length;
+	hasClass = false;
+
+	for (i = 0; i < l; i++) {
+		if (oldClasses[i] === className) {
+			hasClass = true;
+		} else {
+			newClasses.push(oldClasses[i]);
+		}
 	}
 
-	return iutil.stopEvent(event);
+	if (typeof toggle === 'undefined') {
+		if (!hasClass) {
+			newClasses.push(className);
+		}
+	} else if (toggle) {
+		newClasses.push(className);
+	}
+
+	element.className = newClasses.join(' ');
 };
-
-// }}}
-// {{{ toolbarSetFavIta()
-
-/**
- * ツールバーボタンでお気に板の登録・解除をトグルする
- * 実体はiutil.toolbarSetFav
- *
- * @param {Element} element
- * @param {Event} event
- * @return {false}
- */
-iutil.toolbarSetFavIta = iutil.toolbarSetFav;
 
 // }}}
 // {{{ sliding.onTouchStart()
@@ -1316,6 +1411,8 @@ if (window.opera) {
 // {{{ DOMContentLoaded
 
 document.addEventListener('DOMContentLoaded', function(event) {
+	document.removeEventListener(event.type, arguments.callee, false);
+
 	if (typeof window.iphone_js_no_modification === 'undefined' || !window.iphone_js_no_modification) {
 		// リンクにイベントハンドラを登録する
 		iutil.modifyExternalLink(document.body);
@@ -1324,6 +1421,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
 		if (iutil.iphone) {
 			iutil.setLabelAction(document.body);
 			//iutil.setHashScrool(document.body);
+			iutil.setHoverable(document.body);
 		}
 
 		// accesskeyをバインドする
@@ -1345,8 +1443,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
 	} else if (!window.location.hash.length && iutil.getScrollX() < 1) {
 		window.scrollTo(0, 1);
 	}
-
-	document.removeEventListener('DOMContentLoaded', arguments.callee, false);
 }, false);
 
 // }}}

@@ -153,46 +153,6 @@ if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagelink']) {
         '">IC2' . $cnt . '</a>';
 }
 
-// iPhone
-if ($_conf['iphone']) {
-    $_conf['extra_headers_ht'] .= <<<EOS
-<script type="text/javascript" src="js/respopup_iphone.js?{$_conf['p2_version_id']}"></script>
-EOS;
-    // ImageCache2
-    if ($_conf['expack.ic2.enabled']) {
-        $_conf['extra_headers_ht'] .= <<<EOS
-<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
-<script type="text/javascript" src="js/json2.js?{$_conf['p2_version_id']}"></script>
-<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
-EOS;
-    }
-    // SPM
-    if ($_conf['expack.spm.enabled']) {
-        $_conf['extra_headers_ht'] .= <<<EOS
-<script type="text/javascript" src="js/spm_iphone.js?{$_conf['p2_version_id']}"></script>
-EOS;
-    }
-    // Limelight
-    if ($_conf['expack.aas.enabled'] || $_conf['expack.ic2.enabled']) {
-        $_conf['extra_headers_ht'] .= <<<EOS
-<link rel="stylesheet" type="text/css" href="css/limelight.css?{$_conf['p2_version_id']}">
-<script type="text/javascript" src="js/limelight.js?{$_conf['p2_version_id']}"></script>
-<script type="text/javascript">
-// <![CDATA[
-window.addEventListener('DOMContentLoaded', function(event) {
-    this.removeEventListener(event.type, arguments.callee, false);
-    var limelight = new Limelight({ 'savable': true, 'title': true });
-    limelight.bind();
-    window._IRESPOPG.callbacks.push(function(container) {
-        limelight.bind(null, container, true);
-    });
-}, false);
-// ]]>
-</script>
-EOS;
-    }
-}
-
 //====================================================================
 // ŒŸõŽž‚Ì“Á•Ê‚Èˆ—
 //====================================================================
@@ -299,9 +259,7 @@ if ($_GET['showbl']) {
     echo  htmlspecialchars($aThread->resrange['start']) . '‚Ö‚ÌÚ½';
 }
 
-if (!$_conf['iphone']) {
-    echo '<hr>';
-}
+echo '<hr>';
 
 /*
  * Local Variables:

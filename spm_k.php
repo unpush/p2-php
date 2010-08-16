@@ -16,7 +16,17 @@ if (isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
     $base_dir_s = P2_BASE_DIR . DIRECTORY_SEPARATOR;
     switch ($_GET['ktool_name']) {
         case 'goto':
-            $_REQUEST['ls'] = $_GET['ls'] = $ktv . '-' . ($ktv + $_conf['mobile.rnum_range']);
+            $_REQUEST['ls'] = $_GET['ls'] = spirntf('%d-%d', $ktv, $ktv + $_conf['mobile.rnum_range']);
+            include $base_dir_s . 'read.php';
+            exit;
+        case 'rref':
+            $_REQUEST['rf'] = array(
+                'field' => ResFilter::FIELD_NUMBER,
+                'method' => ResFilter::METHOD_JUST,
+                'match' => ResFilter::MATCH_ON,
+                'include' => ResFilter::INCLUDE_REFERENCED,
+                'word' => (string)$ktv, // int‚Å‚Í‚¾‚ß
+            );
             include $base_dir_s . 'read.php';
             exit;
         case 'res':

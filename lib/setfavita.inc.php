@@ -87,7 +87,7 @@ function setFavItaByRequest()
  *
  * @param   string      $host
  * @param   string      $bbs
- * @param   int|string  $setfavita  -1(登録・解除をトグル), 0(解除), 1(追加), top, up, down, bottom
+ * @param   int|string  $setfavita  0(解除), 1(追加), 2(トグル), top, up, down, bottom
  * @param   string      $itaj
  * @param   int|null    $setnum
  * @return  bool
@@ -133,7 +133,7 @@ function setFavItaByHostBbs($host, $bbs, $setfavita, $itaj = null, $setnum = nul
         }
     }
 
-    if ($setfavita == -1) {
+    if ($setfavita == 2) {
         $setfavita = ($was_set) ? 0 : 1;
     }
 

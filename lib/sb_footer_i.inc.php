@@ -143,66 +143,7 @@ if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
 }
 
 // }}}
-// {{{ ソート変更 （新着 レス No. タイトル 板 すばやさ 勢い Birthday ☆）
-
-$sorts = array('midoku' => '新着', 'res' => 'レス', 'no' => 'No.', 'title' => 'タイトル');
-
-if ($aThreadList->spmode and $aThreadList->spmode != 'taborn' and $aThreadList->spmode != 'soko') {
-    $sorts['ita'] = '板';
-}
-if ($_conf['sb_show_spd']) {
-    $sorts['spd'] = 'すばやさ';
-}
-if ($_conf['sb_show_ikioi']) {
-    $sorts['ikioi'] = '勢い';
-}
-$sorts['bd'] = 'Birthday';
-if ($_conf['sb_show_fav'] and $aThreadList->spmode != 'taborn') {
-    $sorts['fav'] = '☆';
-}
-
-$htm['change_sort'] = "<form method=\"get\" action=\"{$_conf['subject_php']}\">";
-$htm['change_sort'] .= $_conf['k_input_ht'];
-$htm['change_sort'] .= '<input type="hidden" name="norefresh" value="1">';
-// spmode時
-if ($aThreadList->spmode) {
-    $htm['change_sort'] .= "<input type=\"hidden\" name=\"spmode\" value=\"{$aThreadList->spmode}\">";
-}
-// spmodeでない、または、spmodeがあぼーん or dat倉庫なら
-if (!$aThreadList->spmode || $aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko") {
-    $htm['change_sort'] .= "<input type=\"hidden\" name=\"host\" value=\"{$aThreadList->host}\">";
-    $htm['change_sort'] .= "<input type=\"hidden\" name=\"bbs\" value=\"{$aThreadList->bbs}\">";
-}
-
-$htm['change_sort'] .= '<select name="sort">';
-foreach ($sorts as $k => $v) {
-    if ($GLOBALS['now_sort'] == $k) {
-        $sb_sort_selected_at = ' selected';
-    } else {
-        $sb_sort_selected_at = '';
-    }
-    $htm['change_sort'] .= "<option value=\"{$k}\"{$sb_sort_selected_at}>{$v}</option>";
-}
-$htm['change_sort'] .= '</select>';
-
-if (!empty($_REQUEST['sb_view'])) {
-    $htm['change_sort'] .= '<input type="hidden" name="sb_view" value="'
-                        . htmlspecialchars($_REQUEST['sb_view']) . '">';
-}
-
-if (!empty($_REQUEST['rsort'])) {
-    $sb_rsort_checked_at = ' checked';
-} else {
-    $sb_rsort_checked_at = '';
-}
-$htm['change_sort'] .= ' <input type="checkbox" id="sb_rsort" name="rsort" value="1"'
-                    . $sb_rsort_checked_at . '><label for="sb_rsort">逆順</label>';
-$htm['change_sort'] .= ' <input type="submit" value="並び替え"></form>';
-
-// }}}
 // {{{ ツールバーを表示
-
-$touch_handlers = ' ontouchstart="this.className=\'hover\'" ontouchend="this.className=\'\'"';
 
 echo '<div class="ntoolbar" id="footer">';
 echo '<table><tbody><tr>';
@@ -230,10 +171,17 @@ if ($disp_navi['tugi_from'] <= $sb_disp_all_num) {
 echo '</td>';
 
 // ページ番号を直接指定
-echo "<td colspan=\"2\">{$k_sb_navi_ht}<span class=\"large\">/{$sb_all_pages}</span><br>ページ</td>";
+echo '<td colspan="2">';
+echo "{$k_sb_navi_ht}<span class=\"large\">/{$sb_all_pages}</span>";
+if (empty($_conf['expack.iphone.toolbars.no_label'])) {
+    echo '<br>ページ';
+}
+echo '</td>';
 
 // 上へ
-echo '<td>', toolbar_i_standard_button('img/gp1-up.png', '上', '#header'), '</td>';
+echo '<td>';
+echo toolbar_i_standard_button('img/gp1-up.png', '上', '#header');
+echo '</td>';
 
 // }}}
 
@@ -245,12 +193,12 @@ echo '</tr><tr>';
 echo '<td>';
 if ($ta_num) {
     $escaped_url = "{$_conf['subject_php']}?{$host_bbs_q}{$norefresh_q}&amp;spmode=taborn{$_conf['k_at_a']}";
-    echo toolbar_i_badged_button('img/glyphish/icons2/21-skull.png', 'あぼーん', $escaped_url, $ta_num);
+    echo toolbar_i_badged_button('img/glyphish/icons2/128-bone.png', 'あぼーん', $escaped_url, $ta_num);
 } elseif ($aThreadList->spmode == 'taborn') {
     $escaped_url = "{$_conf['subject_php']}?{$host_bbs_q}{$_conf['k_at_a']}";
     echo toolbar_i_standard_button('img/glyphish/icons2/63-runner.png', '板に戻る', $escaped_url);
 } else {
-    echo toolbar_i_disabled_button('img/glyphish/icons2/21-skull.png', 'あぼーん');
+    echo toolbar_i_disabled_button('img/glyphish/icons2/128-bone.png', 'あぼーん');
 }
 echo '</td>';
 
@@ -268,26 +216,22 @@ if (!$aThreadList->spmode || $aThreadList->spmode == 'taborn') {
 echo '</td>';
 
 // トップに戻る
-echo '<td>', toolbar_i_standard_button('img/glyphish/icons2/53-house.png', 'TOP', "index.php{$_conf['k_at_q']}"), '</td>';
-
-// BB2Cでスレを開く
 echo '<td>';
-if (!$aThreadList->spmode && $_conf['expack.misc.use_bb2c']) {
-    $bb2c_open_uri = 'beebee2seeopen://' . str_replace('%2F', '/', rawurldecode("{$aThreadList->host}/{$aThreadList->bbs}/"));
-    $escaped_url = "javascript:location.replace('{$bb2c_open_uri}')";
-    echo toolbar_i_standard_button('img/glyphish/icons2/12-eye.png', 'BB2C', $escaped_url);
-} else {
-    echo toolbar_i_disabled_button('img/glyphish/icons2/12-eye.png', 'BB2C');
-}
+echo toolbar_i_standard_button('img/glyphish/icons2/53-house.png', 'TOP', "index.php{$_conf['k_at_q']}");
+echo '</td>';
+
+// アクション
+echo '<td>';
+echo toolbar_i_action_board_button('img/glyphish/icons2/12-eye.png', 'アクション', $aThreadList);
 echo '</td>';
 
 // 新しいスレッドを立てる
 echo '<td>';
 if (!$aThreadList->spmode) {
     $escaped_url = "post_form.php?{$host_bbs_q}&amp;newthread=1{$_conf['k_at_a']}";
-    echo toolbar_i_standard_button('img/glyphish/icons2/23-bird.png', 'スレ立て', $escaped_url);
+    echo toolbar_i_standard_button('img/glyphish/icons2/08-chat.png', 'スレ立て', $escaped_url);
 } else {
-    echo toolbar_i_disabled_button('img/glyphish/icons2/23-bird.png', 'スレ立て');
+    echo toolbar_i_disabled_button('img/glyphish/icons2/08-chat.png', 'スレ立て');
 }
 echo '</td>';
 

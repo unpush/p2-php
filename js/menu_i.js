@@ -622,16 +622,16 @@
 	// }}}
 	// {{{ on DOMContentLoaded
 
-	window.addEventListener('DOMContentLoaded', function(event) {
+	document.addEventListener('DOMContentLoaded', function(event) {
 		// iui/iutil/JSON‚ª—˜—p‰Â”\‚É‚È‚é‚Ü‚Å‘Ò‚Â
 		if (typeof window.iui   === 'undefined' ||
 			typeof window.iutil === 'undefined' ||
 			typeof window.JSON  === 'undefined')
 		{
-			window.setTimeout(arguments.callee, 50);
+			window.setTimeout(arguments.callee, 50, event);
 		} else {
+			document.removeEventListener(event.type, arguments.callee, false);
 			setup(window.iui, window.iutil, window.JSON);
-			window.removeEventListener('DOMContentLoaded', arguments.callee, false);
 		}
 	}, false);
 

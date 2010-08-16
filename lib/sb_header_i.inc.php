@@ -49,13 +49,13 @@ if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
 }
 
 if ($aThreadList->spmode == 'taborn') {
-    $ptitle_ht = "<a href=\"{$ptitle_url}\"><b>{$aThreadList->itaj_hd}</b></a> (あぼーん中)";
+    $ptitle_ht = "<a href=\"{$ptitle_url}\">{$aThreadList->itaj_hd}</a> <span class=\"thin\">(あぼーん中)</span>";
 } elseif ($aThreadList->spmode == 'soko') {
-    $ptitle_ht = "<a href=\"{$ptitle_url}\"><b>{$aThreadList->itaj_hd}</b></a> (dat倉庫)";
+    $ptitle_ht = "<a href=\"{$ptitle_url}\">{$aThreadList->itaj_hd}</a> <span class=\"thin\">(dat倉庫)</span>";
 } elseif (!empty($ptitle_url)) {
-    $ptitle_ht = "<a href=\"{$ptitle_url}\"><b>{$ptitle_hd}</b></a>";
+    $ptitle_ht = "<a href=\"{$ptitle_url}\">{$ptitle_hd}</a>";
 } else {
-    $ptitle_ht = "<b>{$ptitle_hd}</b>";
+    $ptitle_ht = $ptitle_hd;
 }
 
 // }}}
@@ -77,25 +77,9 @@ $_conf['extra_headers_ht'] .= <<<EOS
 <script type="text/javascript" src="js/json2.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript" src="js/sb_iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
-// スレの勢いを示すためのスタイルシート
-if ($_conf['iphone.subject.indicate-speed']) {
-    $_conf['extra_headers_ht'] .= <<<EOS
-<style type="text/css">
-/* <![CDATA[ */
-ul.subject > li > a { border-left: transparent solid {$_conf['iphone.subject.speed.width']}px; }
-ul.subject > li > a.dayres-0 { border-left-color: {$_conf['iphone.subject.speed.0rpd']}; }
-ul.subject > li > a.dayres-1 { border-left-color: {$_conf['iphone.subject.speed.1rpd']}; }
-ul.subject > li > a.dayres-10 { border-left-color: {$_conf['iphone.subject.speed.10rpd']}; }
-ul.subject > li > a.dayres-100 { border-left-color: {$_conf['iphone.subject.speed.100rpd']}; }
-ul.subject > li > a.dayres-1000 { border-left-color: {$_conf['iphone.subject.speed.1000rpd']}; }
-ul.subject > li > a.dayres-10000 { border-left-color: {$_conf['iphone.subject.speed.10000rpd']}; }
-/* ]]> */
-</style>
-EOS;
-}
 
-// スレ情報
-if (!$spmode || $spmode == 'soko' || $spmode == 'taborn') {
+// 板情報
+if (!$aThreadList->spmode) {
     if (!function_exists('get_board_info')) {
         include P2_LIB_DIR . '/get_info.inc.php';
     }
@@ -119,7 +103,7 @@ echo <<<EOP
 </head>
 <body class="nopad">
 <div class="ntoolbar" id="header">
-<h1 class="ptitle">{$ptitle_ht}</h1>
+<h1 class="ptitle hoverable">{$ptitle_ht}</h1>
 EOP;
 
 // {{{ 各種ボタン類
@@ -151,9 +135,9 @@ echo '</td>';
 // スレ検索
 echo '<td>';
 if (!$spmode_without_palace_or_favita) {
-    echo toolbar_i_showhide_button('img/glyphish/icons2/06-magnifying-glass.png', 'スレ検索', 'sb_toolbar_filter');
+    echo toolbar_i_showhide_button('img/glyphish/icons2/06-magnifying-glass.png', '検索', 'sb_toolbar_filter');
 } else {
-    echo toolbar_i_disabled_button('img/glyphish/icons2/06-magnifying-glass.png', 'スレ検索');
+    echo toolbar_i_disabled_button('img/glyphish/icons2/06-magnifying-glass.png', '検索');
 }
 echo '</td>';
 
@@ -172,36 +156,18 @@ echo toolbar_i_showhide_button('img/gp0-more.png', 'その他', 'sb_toolbar_extra')
 echo '</td>';
 
 // 下へ
-echo '<td>', toolbar_i_standard_button('img/gp2-down.png', '下', '#footer'), '</td>';
+echo '<td>';
+echo toolbar_i_standard_button('img/gp2-down.png', '下', '#footer');
+echo '</td>';
 
 echo '</tr></tbody></table>';
-
-// }}}
-// {{{ スレ検索フォーム
-
-if (!$spmode_without_palace_or_favita) {
-    if (array_key_exists('method', $sb_filter) && $sb_filter['method'] == 'or') {
-        $hd['method_checked_at'] = ' checked';
-    } else {
-        $hd['method_checked_at'] = '';
-    }
-
-    echo <<<EOP
-<div id="sb_toolbar_filter" class="extra">
-<form id="sb_filter" method="get" action="{$_conf['subject_php']}" accept-charset="{$_conf['accept_charset']}">
-{$sb_form_hidden_ht}<input type="text" id="sb_filter_word" name="word" value="{$hd['word']}" size="15" autocorrect="off" autocapitalize="off">
-<input type="checkbox" id="sb_filter_method" name="method" value="or"{$hd['method_checked_at']}><label for="sb_filter_method">OR</label>
-<input type="submit" name="submit_kensaku" value="検索">
-</form>
-</div>
-EOP;
-}
-
 
 // }}}
 // {{{ その他のツール
 
 echo '<div id="sb_toolbar_extra" class="extra">';
+
+// {{{ その他 - お気に入りセット
 
 if ($board_info && $_conf['expack.misc.multi_favs']) {
     echo '<table><tbody><tr>';
@@ -223,6 +189,9 @@ if ($board_info && $_conf['expack.misc.multi_favs']) {
     echo '</tr></tbody></table>';
 }
 
+// }}}
+// {{{ その他 - 未読数制限つき新着まとめ読み
+
 echo <<<EOP
 <form method="get" action="{$_conf['read_new_k_php']}">
 {$sb_form_hidden_ht}<input type="hidden" name="nt" value="1">{$shinchaku_norefresh_ht}
@@ -231,7 +200,89 @@ echo <<<EOP
 </form>
 EOP;
 
+// }}}
+// {{{ その他 - 並び替え
+
+$sorts = array('midoku' => '新着', 'res' => 'レス', 'no' => 'No.', 'title' => 'タイトル');
+
+if ($aThreadList->spmode && $aThreadList->spmode != 'taborn' && $aThreadList->spmode != 'soko') {
+    $sorts['ita'] = '板';
+}
+if ($_conf['sb_show_spd']) {
+    $sorts['spd'] = 'すばやさ';
+}
+if ($_conf['sb_show_ikioi']) {
+    $sorts['ikioi'] = '勢い';
+}
+$sorts['bd'] = 'Birthday';
+if ($_conf['sb_show_fav'] and $aThreadList->spmode != 'taborn') {
+    $sorts['fav'] = '☆';
+}
+
+$htm['change_sort'] = "<form method=\"get\" action=\"{$_conf['subject_php']}\">";
+$htm['change_sort'] .= $_conf['k_input_ht'];
+$htm['change_sort'] .= '<input type="hidden" name="norefresh" value="1">';
+// spmode時
+if ($aThreadList->spmode) {
+    $htm['change_sort'] .= "<input type=\"hidden\" name=\"spmode\" value=\"{$aThreadList->spmode}\">";
+}
+// spmodeでない、または、spmodeがあぼーん or dat倉庫なら
+if (!$aThreadList->spmode || $aThreadList->spmode == 'taborn' || $aThreadList->spmode == 'soko') {
+    $htm['change_sort'] .= "<input type=\"hidden\" name=\"host\" value=\"{$aThreadList->host}\">";
+    $htm['change_sort'] .= "<input type=\"hidden\" name=\"bbs\" value=\"{$aThreadList->bbs}\">";
+}
+
+$htm['change_sort'] .= '<select name="sort">';
+foreach ($sorts as $k => $v) {
+    if ($GLOBALS['now_sort'] == $k) {
+        $sb_sort_selected_at = ' selected';
+    } else {
+        $sb_sort_selected_at = '';
+    }
+    $htm['change_sort'] .= "<option value=\"{$k}\"{$sb_sort_selected_at}>{$v}</option>";
+}
+$htm['change_sort'] .= '</select>';
+
+if (!empty($_REQUEST['sb_view'])) {
+    $htm['change_sort'] .= '<input type="hidden" name="sb_view" value="'
+                        . htmlspecialchars($_REQUEST['sb_view']) . '">';
+}
+
+if (!empty($_REQUEST['rsort'])) {
+    $sb_rsort_checked_at = ' checked';
+} else {
+    $sb_rsort_checked_at = '';
+}
+$htm['change_sort'] .= ' <input type="checkbox" id="sb_rsort" name="rsort" value="1"'
+                    . $sb_rsort_checked_at . '><label for="sb_rsort">逆順</label>';
+$htm['change_sort'] .= ' <input type="submit" value="並び替え"></form>';
+
+echo $htm['change_sort'];
+
+// }}}
+
 echo '</div>';
+
+// }}}
+// {{{ スレ検索フォーム
+
+if (!$spmode_without_palace_or_favita) {
+    if (array_key_exists('method', $sb_filter) && $sb_filter['method'] == 'or') {
+        $hd['method_checked_at'] = ' checked';
+    } else {
+        $hd['method_checked_at'] = '';
+    }
+
+    echo <<<EOP
+<div id="sb_toolbar_filter" class="extra">
+<form id="sb_filter" method="get" action="{$_conf['subject_php']}" accept-charset="{$_conf['accept_charset']}">
+{$sb_form_hidden_ht}<input type="text" id="sb_filter_word" name="word" value="{$hd['word']}" size="15" autocorrect="off" autocapitalize="off">
+<input type="checkbox" id="sb_filter_method" name="method" value="or"{$hd['method_checked_at']}><label for="sb_filter_method">OR</label>
+<input type="submit" name="submit_kensaku" value="検索">
+</form>
+</div>
+EOP;
+}
 
 // }}}
 // {{{ 各種通知

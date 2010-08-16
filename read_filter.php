@@ -9,67 +9,62 @@ require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
-/**
- * 変数の設定
- */
-$host = $_GET['host'];
-$bbs  = $_GET['bbs'];
-$key  = $_GET['key'];
-$rc   = $_GET['rescount'];
-$ttitle_en = $_GET['ttitle_en'];
-$resnum = $_GET['resnum'];
-$field  = $_GET['field'];
-$itaj = P2Util::getItaName($host, $bbs);
-if (!$itaj) { $itaj = $bbs; }
-$ttitle_name = UrlSafeBase64::decode($ttitle_en);
 $popup_filter = 1;
 
-/**
- * 対象レスの処理
- */
-$aThread = new ThreadRead;
-$aThread->setThreadPathInfo($host, $bbs, $key);
-$aThread->readDat($aThread->keydat);
+function _read_filter_setup()
+{
+    $host = $_GET['host'];
+    $bbs  = $_GET['bbs'];
+    $key  = $_GET['key'];
+    $resnum = (int)$_GET['resnum'];
+    $field  = $_GET['field'];
 
-if (isset($aThread->datlines[$resnum - 1])) {
-    $ares = $aThread->datlines[$resnum - 1];
+    $aThread = new ThreadRead;
+    $aThread->setThreadPathInfo($host, $bbs, $key);
+    $aThread->readDat($aThread->keydat);
+
+    $i = $resnum - 1;
+    if (!($i >= 0 && $i < count($aThread->datlines) &&
+          isset($_GET['rf']) && is_array($_GET['rf'])))
+    {
+        P2Util::pushInfoHtml('<p>フィルタリングの指定が変です。</p>');
+        unset($_GET['rf'], $_REQUEST['rf']);
+        return;
+    }
+
+    $ares = $aThread->datlines[$i];
     $resar = $aThread->explodeDatLine($ares);
     $name = $resar[0];
     $mail = $resar[1];
     $date_id = $resar[2];
     $msg = $resar[3];
+    $params = $_GET['rf'];
 
-    $aShowThread = new ShowThreadPc($aThread);
-    if ($field == 'rres') {
-        $_REQUEST['rf'] = array(
-            'field' => ResFilter::FIELD_MESSAGE,
-            'method' => ResFilter::METHOD_REGEX,
-            'match' => ResFilter::MATCH_ON,
-            'include' => ResFilter::INCLUDE_NONE,
-        );
-        $_REQUEST['rf']['word'] = ShowThread::getAnchorRegex(
-            '%prefix%(.+%delimiter%)?' . $resnum . '(?!\\d|%range_delimiter%)'
-        );
-    } else {
-        $params = array(
-            'field' => $field,
-            'method' => $_GET['method'],
-            'match' => $_GET['match'],
-            'include' => ResFilter::INCLUDE_NONE,
-        );
-        $resFilter = ResFilter::configure($params);
-        $target = $resFilter->getTarget($ares, $resnum, $name, $mail, $date_id, $msg);
-        $_REQUEST['rf'] = $params;
-        if ($field == 'date') {
-            $date_part = explode(' ', trim($target));
-            $_REQUEST['rf']['word'] = $date_part[0];
-        } else {
-            $_REQUEST['rf']['word'] = $target;
-        }
+    $include = ResFilter::INCLUDE_NONE;
+    $fields = explode(':', $field);
+    $field = array_shift($fields);
+    if (in_array('refs', $fields)) {
+        $include |= ResFilter::INCLUDE_REFERENCES;
     }
+    if (in_array('refed', $fields)) {
+        $include |= ResFilter::INCLUDE_REFERENCED;
+    }
+    $params['field'] = $field;
+    $params['include'] = $include;
 
-    unset($ares, $resar, $name, $mail, $date_id, $msg, $params, $target, $aShowThread);
+    $resFilter = ResFilter::configure($params);
+    $target = $resFilter->getTarget($ares, $resnum, $name, $mail, $date_id, $msg);
+    if ($field == 'date') {
+        $date_part = explode(' ', trim($target));
+        $word = $date_part[0];
+    } else {
+        $word = $target;
+    }
+    $params['word'] = $word;
+    $_REQUEST['rf'] = $params;
 }
+
+_read_filter_setup();
 
 // read.phpに処理を渡す
 include P2_BASE_DIR . '/read.php';

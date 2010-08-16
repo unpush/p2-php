@@ -799,13 +799,9 @@ if ($_conf['ktai']) {
 
     // }}}
 
-    if (!function_exists('sb_print_k')) {
-        include  P2_LIB_DIR . '/sb_print_k.inc.php';
-    }
+    include  P2_LIB_DIR . '/sb_print_k.inc.php';
     if ($_conf['iphone']) {
-        if (!function_exists('toolbar_i_standard_button')) {
-            include P2_LIB_DIR . '/toolbar_i.inc.php';
-        }
+        include P2_LIB_DIR . '/toolbar_i.inc.php';
         include P2_LIB_DIR . '/sb_header_i.inc.php';
         sb_print_k($aThreadList);
         include P2_LIB_DIR . '/sb_footer_i.inc.php';
