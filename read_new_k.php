@@ -534,7 +534,7 @@ EOP;
         // ƒ^ƒCƒgƒ‹“™
         $read_footer_ht .= <<<EOP
 </tr></tbody></table>
-<div class="ttitle"><a href="{$_conf['read_php']}?{$host_bbs_key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}" target="_blank">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}</div>
+<div class="ttitle"><a href="{$_conf['read_php']}?{$host_bbs_key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}" target="_blank">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}</div>
 <div class="mover">
 EOP;
         $read_footer_ht .= toolbar_i_standard_button('img/gp1-up.png', '', "#ntt{$newthre_num}");

@@ -123,7 +123,10 @@ if (!empty($_POST['newthread'])) {
     $location_ht = "{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}";
 } else {
     unset($post[$subject_k]);
-    $location_ht = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;ls={$rescount}-&amp;refresh=1&amp;nt={$newtime}{$_conf['k_at_a']}#r{$rescount}";
+    $location_ht = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;ls={$rescount}-&amp;refresh=1&amp;nt={$newtime}{$_conf['k_at_a']}";
+    if (!$_conf['iphone']) {
+        $location_ht .= "#r{$rescount}";
+    }
 }
 
 if (P2Util::isHostJbbsShitaraba($host)) {
