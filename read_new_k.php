@@ -519,18 +519,18 @@ EOP;
 <div class="ntoolbar mtoolbar mtoolbar_bottom" id="ntt_bt{$newthre_num}">
 <table><tbody><tr>
 EOP;
-        // ツール
-        $read_footer_ht .= '<td>';
-        $escaped_url = "spm_k.php?{$host_bbs_key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}";
-        $read_footer_ht .= toolbar_i_opentab_button('img/glyphish/icons2/20-gear2.png', '', $escaped_url);
-        $read_footer_ht .= '</td>';
-        // 表示範囲
-        $read_footer_ht .= "<td colspan=\"3\"><span class=\"large\">{$read_range_ht}</span></td>";
         // 情報
         $read_footer_ht .= '<td>';
         $escaped_url = "info.php?{$host_bbs_key_q}{$ttitle_en_q}{$_conf['k_at_a']}";
         $read_footer_ht .= toolbar_i_opentab_button('img/gp5-info.png', '', $escaped_url);
         $read_footer_ht .= '</td>';
+        // ツール
+        $read_footer_ht .= '<td>';
+        $escaped_url = "spm_k.php?{$host_bbs_key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}{$_conf['k_at_a']}";
+        $read_footer_ht .= toolbar_i_opentab_button('img/glyphish/icons2/20-gear2.png', '', $escaped_url);
+        $read_footer_ht .= '</td>';
+        // 表示範囲
+        $read_footer_ht .= "<td colspan=\"3\"><span class=\"large\">{$read_range_ht}</span></td>";
         // タイトル等
         $read_footer_ht .= <<<EOP
 </tr></tbody></table>
