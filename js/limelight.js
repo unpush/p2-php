@@ -745,7 +745,9 @@ Limelight.ui = {};
  * @return {Boolean}
  */
 Limelight.ui.isPortrait = function() {
-	if (typeof window.orientation != 'number' || window.orientation % 180 == 0) {
+	if (typeof window.orientation != 'number') {
+		return null;
+	} else if (window.orientation % 180 == 0) {
 		return true;
 	} else {
 		return false;
@@ -2047,34 +2049,48 @@ Limelight.prototype.setLastClicked = function(button) {
 Limelight.prototype.onOrientationChange = function() {
 	var x, y, width, height, isPortrait, viewportSize, margins;
 
-	//isPortrait = Limelight.ui.isPortrait();
-	//viewportSize = Limelight.ui.getViewportSize(isPortrait);
-	//margins = Limelight.ui.getMargins(isPortrait);
-
 	x = 0;
 	y = window.scrollY;
-	if (document.all && !window.opera) {
-		if (document.compatMode === 'BackCompat') {
-			y = document.body.scrollTop;
+
+	if (navigator.userAgent.search(/\bi(Phone|Pod)\b/) !== -1) {
+		isPortrait = Limelight.ui.isPortrait();
+		viewportSize = Limelight.ui.getViewportSize(isPortrait);
+		margins = Limelight.ui.getMargins(isPortrait);
+		width = viewportSize[0] - margins[0];
+		height = viewportSize[1] - margins[1];
+	} else if (navigator.userAgent.search(/\biPad\b/) !== -1) {
+		if (Limelight.ui.isPortrait()) {
+			width = 768;
+			height = 1024;
 		} else {
-			y = document.documentElement.scrollTop;
+			width = 1024;
+			height = 768;
 		}
+		height -= (18 + 58);
 	} else {
-		if (typeof window.scrollX === 'number') {
-			y = window.scrollY;
+		if (document.all && !window.opera) {
+			if (document.compatMode === 'BackCompat') {
+				y = document.body.scrollTop;
+			} else {
+				y = document.documentElement.scrollTop;
+			}
 		} else {
-			y = window.pageYOffset;
+			if (typeof window.scrollX === 'number') {
+				y = window.scrollY;
+			} else {
+				y = window.pageYOffset;
+			}
 		}
-	}
-	if (typeof document.compatMode === 'undefined') {
-		width = document.innerWidth;
-		height = document.innerHeight;
-	} else if (document.compatMode === 'BackCompat') {
-		width = document.body.clientWidth;
-		height = document.body.clientHeight;
-	} else {
-		width = document.documentElement.clientWidth;
-		height = document.documentElement.clientHeight;
+		if (typeof document.compatMode === 'undefined') {
+			width = document.innerWidth;
+			height = document.innerHeight;
+		} else if (document.compatMode === 'BackCompat') {
+			width = document.body.clientWidth;
+			height = document.body.clientHeight;
+		} else {
+			width = document.documentElement.clientWidth;
+			height = document.documentElement.clientHeight;
+		}
 	}
 
 	this.boxX = x;

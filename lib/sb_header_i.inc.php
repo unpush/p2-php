@@ -103,7 +103,7 @@ echo <<<EOP
 </head>
 <body class="nopad">
 <div class="ntoolbar" id="header">
-<h1 class="ptitle">{$ptitle_ht}</h1>
+<h1 class="ptitle hoverable">{$ptitle_ht}</h1>
 EOP;
 
 // {{{ 各種ボタン類
@@ -135,9 +135,9 @@ echo '</td>';
 // スレ検索
 echo '<td>';
 if (!$spmode_without_palace_or_favita) {
-    echo toolbar_i_showhide_button('img/glyphish/icons2/06-magnifying-glass.png', 'スレ検索', 'sb_toolbar_filter');
+    echo toolbar_i_showhide_button('img/glyphish/icons2/06-magnifying-glass.png', '検索', 'sb_toolbar_filter');
 } else {
-    echo toolbar_i_disabled_button('img/glyphish/icons2/06-magnifying-glass.png', 'スレ検索');
+    echo toolbar_i_disabled_button('img/glyphish/icons2/06-magnifying-glass.png', '検索');
 }
 echo '</td>';
 

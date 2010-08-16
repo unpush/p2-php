@@ -3,6 +3,8 @@
  * rep2 - スレッド表示 - フッタ部分 - iPhone用 for read.php
  */
 
+require_once P2_LIB_DIR . '/read_jump_k.inc.php';
+
 // {{{ 総数
 
 if ($do_filtering) {
@@ -15,8 +17,6 @@ if ($do_filtering) {
 
 // }}}
 // {{{ ツールバーを表示
-
-$newtime = time();
 
 echo '<div class="ntoolbar" id="footer">';
 echo '<table><tbody><tr>';
@@ -43,11 +43,11 @@ echo '</td>';
 
 // ページ番号を直接指定
 echo '<td colspan="2">';
-if (!function_exists('get_read_jump')) {
-    include P2_LIB_DIR . '/read_jump_k.inc.php';
-}
 echo get_read_jump($aThread, $rescount_st, true);
-echo '<br>ジャンプ</td>';
+if (empty($_conf['expack.iphone.toolbars.no_label'])) {
+    echo '<br>ジャンプ';
+}
+echo '</td>';
 
 // 上へ
 echo '<td>';
@@ -73,7 +73,7 @@ echo '</td>';
 // スレ情報
 echo '<td>';
 $escaped_url = "info.php?{$host_bbs_key_q}{$ttitle_en_q}{$_conf['k_at_a']}";
-echo toolbar_i_opentab_button('img/gp5-info.png', 'スレ情報', $escaped_url);
+echo toolbar_i_opentab_button('img/gp5-info.png', '情報', $escaped_url);
 echo '</td>';
 
 // トップに戻る
@@ -91,12 +91,12 @@ echo '<td>';
 if (!$aThread->diedat) {
     if (empty($_conf['disable_res'])) {
         $escaped_url = "post_form.php?{$host_bbs_key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}";
-        echo toolbar_i_standard_button('img/glyphish/icons2/08-chat.png', 'レス', $escaped_url);
+        echo toolbar_i_standard_button('img/glyphish/icons2/08-chat.png', '書込', $escaped_url);
     } else {
         echo toolbar_i_opentab_button('img/glyphish/icons2/08-chat.png', '元スレ', $motothre_url);
     }
 } else {
-    echo toolbar_i_disabled_button('img/glyphish/icons2/08-chat.png', 'レス');
+    echo toolbar_i_disabled_button('img/glyphish/icons2/08-chat.png', '書込');
 }
 echo '</td>';
 

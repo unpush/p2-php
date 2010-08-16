@@ -171,7 +171,12 @@ if ($disp_navi['tugi_from'] <= $sb_disp_all_num) {
 echo '</td>';
 
 // ページ番号を直接指定
-echo "<td colspan=\"2\">{$k_sb_navi_ht}<span class=\"large\">/{$sb_all_pages}</span><br>ページ</td>";
+echo '<td colspan="2">';
+echo "{$k_sb_navi_ht}<span class=\"large\">/{$sb_all_pages}</span>";
+if (empty($_conf['expack.iphone.toolbars.no_label'])) {
+    echo '<br>ページ';
+}
+echo '</td>';
 
 // 上へ
 echo '<td>';
@@ -224,9 +229,9 @@ echo '</td>';
 echo '<td>';
 if (!$aThreadList->spmode) {
     $escaped_url = "post_form.php?{$host_bbs_q}&amp;newthread=1{$_conf['k_at_a']}";
-    echo toolbar_i_standard_button('img/glyphish/icons2/23-bird.png', 'スレ立て', $escaped_url);
+    echo toolbar_i_standard_button('img/glyphish/icons2/08-chat.png', 'スレ立て', $escaped_url);
 } else {
-    echo toolbar_i_disabled_button('img/glyphish/icons2/23-bird.png', 'スレ立て');
+    echo toolbar_i_disabled_button('img/glyphish/icons2/08-chat.png', 'スレ立て');
 }
 echo '</td>';
 

@@ -127,7 +127,7 @@ echo <<<EOP
 </head>
 <body class="nopad">
 <div class="ntoolbar" id="header">
-<h1 class="ptitle">{$aThread->ttitle_hd}</h1>
+<h1 class="ptitle hoverable">{$aThread->ttitle_hd}</h1>
 EOP;
 
 // {{{ 各種ボタン類
@@ -142,7 +142,7 @@ echo '</td>';
 
 // レス検索
 echo '<td>';
-echo toolbar_i_showhide_button('img/glyphish/icons2/06-magnifying-glass.png', 'レス検索', 'read_toolbar_filter');
+echo toolbar_i_showhide_button('img/glyphish/icons2/06-magnifying-glass.png', '検索', 'read_toolbar_filter');
 echo '</td>';
 
 // お気にスレ
@@ -170,11 +170,12 @@ echo '</tr></tbody></table>';
 // {{{ その他のツール
 
 echo '<div id="read_toolbar_extra" class="extra">';
+echo '<table><tbody>';
 
 // {{{ その他 - お気に入りセット
 
 if ($thread_info && $_conf['expack.misc.multi_favs']) {
-    echo '<table><tbody><tr>';
+    echo '<tr>';
     for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
         echo '<td>';
         echo toolbar_i_fav_button('img/glyphish/icons2/28-star.png', '-', $thread_info, $i);
@@ -190,18 +191,18 @@ if ($thread_info && $_conf['expack.misc.multi_favs']) {
             echo '<td>&nbsp;</td>';
         }
     }
-    echo '</tr></tbody></table>';
+    echo '</tr>';
 }
 
 // }}}
 // {{{ その他 - ボタン類
 
-echo '<table><tbody><tr>';
+echo '<tr>';
 
 // >>1
 echo '<td>';
 $escaped_url = "{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls=1-{$rnum_range}{$offline_q}{$_conf['k_at_a']}";
-echo toolbar_i_standard_button('img/glyphish/icons2/63-runner.png', '&gt;&gt;1-', $escaped_url);
+echo toolbar_i_standard_button('img/glyphish/icons2/63-runner.png', '&gt;&gt;1', $escaped_url);
 echo '</td>';
 
 // 類似スレ検索
@@ -213,7 +214,6 @@ $escaped_url = "{$_conf['subject_php']}?{$host_bbs_key_q}&amp;itaj_en="
              . "&amp;refresh=1{$_conf['k_at_a']}";
 echo toolbar_i_standard_button('img/glyphish/icons2/06-magnifying-glass.png', '類似スレ', $escaped_url);
 echo '</td>';
-
 
 // 殿堂入り
 echo '<td>';
@@ -235,9 +235,12 @@ if (file_exists($aThread->keydat)) {
 }
 echo '</td>';
 
-echo '</tr></tbody></table>';
+echo '</tr>';
 
 // }}}
+
+echo '</tbody></table>';
+
 // {{{ その他 - SPMフォーム
 
 echo kspform($aThread);

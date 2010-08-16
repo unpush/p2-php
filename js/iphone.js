@@ -682,7 +682,7 @@ iutil.getTextNodes = function(node, needsValue, texts) {
 iutil.httpGetText = function(uri) {
 	var req, err;
 	try {
-		var req = new XMLHttpRequest();
+		req = new XMLHttpRequest();
 		req.open('GET', uri, false);
 		req.send(null);
 
@@ -698,13 +698,36 @@ iutil.httpGetText = function(uri) {
 };
 
 // }}}
+// {{{ httpGetAsync()
+
+/**
+ * 非同期GETリクエストを実行する
+ *
+ * @param {String} uri
+ * @param {Function} callback
+ * @return void
+ */
+iutil.httpGetAsync = function(uri, callback) {
+	var req = new XMLHttpRequest();
+	req.open('GET', uri, true);
+	req.onreadystatechange = function() {
+		if (req.readyState == 4) {
+			if (req.status == 200) {
+				callback(this, uri);
+			}
+		}
+	};
+	req.send(null);
+};
+
+// }}}
 // {{{ stopEvent()
 
 /**
  * デフォルトイベントの発生とイベントの伝播を抑制する
  *
  * @param {Event} event
- * @return {false}
+ * @return false
  */
 iutil.stopEvent = function(event) {
 	event.preventDefault();
@@ -713,6 +736,37 @@ iutil.stopEvent = function(event) {
 };
 
 // }}}
+// {{{ setHoverable()
+
+/**
+ * タッチイベントで疑似hover効果を実現する
+ *
+ * @param {Node|String} contextNode
+ * @return void
+ */
+iutil.setHoverable = function(contextNode) {
+	var anchors, anchor, hoverOn, hoverOff, i, l;
+
+	anchors = document.evaluate('.//a[contains(concat(" ", @class, " "), " hoverable ")]',
+	                            contextNode, null,
+	                            XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	l = anchors.snapshotLength;
+
+	hoverOn = function(event) {
+		iutil.toggleClass(this, 'hover', true);
+	};
+	hoverOff = function(event) {
+		iutil.toggleClass(this, 'hover', false);
+	};
+
+	for (i = 0; i < l; i++) {
+		anchor = anchors.snapshotItem(i);
+		anchor.addEventListener('touchstart', hoverOn, false);
+		anchor.addEventListener('touchend', hoverOff, false);
+	}
+};
+
+// ]}}
 // {{{ toolbarShowHide()
 
 /**
@@ -720,10 +774,12 @@ iutil.stopEvent = function(event) {
  *
  * @param {Element} element
  * @param {Event} event
- * @return {false}
+ * @return false
  */
 iutil.toolbarShowHide = function(element, event) {
 	var url, offset, id, target;
+
+	iutil.stopEvent(event);
 
 	url = element.href;
 	offset = url.indexOf('#');
@@ -733,10 +789,10 @@ iutil.toolbarShowHide = function(element, event) {
 		if (target) {
 			if (target.style.display === 'block') {
 				target.style.display = 'none';
-				element.className = '';
+				iutil.toggleClass(element, 'active', false);
 			} else {
 				target.style.display = 'block';
-				element.className = 'active';
+				iutil.toggleClass(element, 'active', true);
 
 				if (id.indexOf('toolbar_filter') !== -1) {
 					var i, l, f;
@@ -755,7 +811,7 @@ iutil.toolbarShowHide = function(element, event) {
 		}
 	}
 
-	return iutil.stopEvent(event);
+	return false;
 };
 
 // }}}
@@ -766,16 +822,18 @@ iutil.toolbarShowHide = function(element, event) {
  *
  * @param {Element} element
  * @param {Event} event
- * @return {false}
+ * @return false
  */
 iutil.toolbarRunHttpCommand = function(element, event) {
-	if (iutil.httpGetText(element.href) == '1') {
-		iutil.toggleClass(element, 'inactive');
-	} else {
-		window.alert('コマンド実行に失敗しました');
-	}
-
-	return iutil.stopEvent(event);
+	iutil.stopEvent(event);
+	iutil.httpGetAsync(element.href, function(req, uri) {
+		if (req.responseText == '1') {
+			iutil.toggleClass(element, 'inactive');
+		} else {
+			window.alert('コマンド実行に失敗しました');
+		}
+	});
+	return false;
 };
 
 // }}}
@@ -1363,6 +1421,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
 		if (iutil.iphone) {
 			iutil.setLabelAction(document.body);
 			//iutil.setHashScrool(document.body);
+			iutil.setHoverable(document.body);
 		}
 
 		// accesskeyをバインドする

@@ -16,11 +16,26 @@
  */
 function _toolbar_i_button($icon, $label, $uri, $attrs = '')
 {
-    if ($attrs !== '' && strncmp($attrs, ' ', 1) === 0) {
+    global $_conf;
+
+    if (strncmp($attrs, ' ', 1) === 0) {
         $attrs = ' ' . $attrs;
     }
+
+    if (strpos($attrs, 'class="') === false) {
+        $attrs .= ' class="hoverable"';
+    } else {
+        $attrs = str_replace('class="', 'class="hoverable ', $attrs);
+    }
+
+    if (empty($_conf['expack.iphone.toolbars.no_label'])) {
+        $label = '<br>' . $label;
+    } else {
+        $label = '';
+    }
+
     return <<<EOS
-<a href="{$uri}" ontouchstart="iutil.toggleClass(this, 'hover', true);" ontouchend="iutil.toggleClass(this, 'hover', false);" ontouchcancel="iutil.toggleClass(this, 'hover', false);"{$attrs}><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</a>
+<a href="{$uri}"{$attrs}><img src="{$icon}" width="48" height="32" alt="">{$label}</a>
 EOS;
 }
 
@@ -87,8 +102,16 @@ function toolbar_i_opentab_button($icon, $label, $uri)
  */
 function toolbar_i_disabled_button($icon, $label)
 {
+    global $_conf;
+
+    if (empty($_conf['expack.iphone.toolbars.no_label'])) {
+        $label = '<br>' . $label;
+    } else {
+        $label = '';
+    }
+
     return <<<EOS
-<span class="unavailable"><img src="{$icon}" width="48" height="32" alt=""><br>{$label}</span>
+<span class="unavailable"><img src="{$icon}" width="48" height="32" alt="">{$label}</span>
 EOS;
 }
 

@@ -17,10 +17,18 @@ function sb_print_k($aThreadList)
     //=================================================
 
     if (!$aThreadList->threads) {
-        if ($aThreadList->spmode == 'fav' && $sb_view == 'shinchaku') {
-            echo '<p class="empty-subject">お気にｽﾚに新着なかったぽ</p>';
+        if ($_conf['iphone']) {
+            if ($aThreadList->spmode == 'fav' && $sb_view == 'shinchaku') {
+                echo '<p class="empty">お気にスレに新着なかったぽ</p>';
+            } else {
+                echo '<p class="empty">該当サブジェクトはなかったぽ</p>';
+            }
         } else {
-            echo '<p class="empty-subject">該当ｻﾌﾞｼﾞｪｸﾄはなかったぽ</p>';
+            if ($aThreadList->spmode == 'fav' && $sb_view == 'shinchaku') {
+                echo '<p>お気にｽﾚに新着なかったぽ</p>';
+            } else {
+                echo '<p>該当ｻﾌﾞｼﾞｪｸﾄはなかったぽ</p>';
+            }
         }
         return;
     }

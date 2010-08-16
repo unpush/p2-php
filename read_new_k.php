@@ -8,13 +8,17 @@ require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
+if ($_conf['iphone']) {
+    include P2_LIB_DIR . '/toolbar_i.inc.php';
+}
+
 //==================================================================
 // 変数
 //==================================================================
 $GLOBALS['rnum_all_range'] = $_conf['mobile.rnum_range'];
 
-$sb_view = "shinchaku";
-$newtime = date("gis");
+$sb_view = 'shinchaku';
+$newtime = date('gis');
 
 $newthre_num = 0;
 $online_num = 0;
@@ -22,22 +26,31 @@ $online_num = 0;
 //=================================================
 // 板の指定
 //=================================================
-if (isset($_GET['host'])) { $host = $_GET['host']; }
-if (isset($_POST['host'])) { $host = $_POST['host']; }
-if (isset($_GET['bbs'])) { $bbs = $_GET['bbs']; }
-if (isset($_POST['bbs'])) { $bbs = $_POST['bbs']; }
-if (isset($_GET['spmode'])) { $spmode = $_GET['spmode']; }
-if (isset($_POST['spmode'])) { $spmode = $_POST['spmode']; }
+if (isset($_GET['host'])) {
+    $host = $_GET['host'];
+} elseif (isset($_POST['host'])) {
+    $host = $_POST['host'];
+}
+if (isset($_GET['bbs'])) {
+    $bbs = $_GET['bbs'];
+} elseif (isset($_POST['bbs'])) {
+    $bbs = $_POST['bbs'];
+}
+if (isset($_GET['spmode'])) {
+    $spmode = $_GET['spmode'];
+} elseif (isset($_POST['spmode'])) {
+    $spmode = $_POST['spmode'];
+}
 
-if ((!isset($host) || !isset($bbs)) && !isset($spmode)) {
+if (!(isset($host) && isset($bbs)) && !isset($spmode)) {
     p2die('必要な引数が指定されていません');
 }
 
 // 未読数制限
-if (isset($_POST['unum_limit'])) {
-    $unum_limit = (int)$_POST['unum_limit'];
-} elseif (isset($_GET['unum_limit'])) {
+if (isset($_GET['unum_limit'])) {
     $unum_limit = (int)$_GET['unum_limit'];
+} elseif (isset($_POST['unum_limit'])) {
+    $unum_limit = (int)$_POST['unum_limit'];
 } else {
     $unum_limit = 0;
 }
@@ -100,20 +113,16 @@ ob_start();
 
 // &amp;sb_view={$sb_view}
 if ($aThreadList->spmode) {
-    $sb_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$ptitle_hd}</a>
-EOP;
-    $sb_ht_btm = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['up']}>{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
-EOP;
+    $ita_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}";
 } else {
-    $sb_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$ptitle_hd}</a>
-EOP;
-    $sb_ht_btm = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['up']}>{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
-EOP;
+    $ita_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}";
 }
+$sb_ht = <<<EOP
+<a href="{$ita_url}">{$ptitle_hd}</a>
+EOP;
+$sb_ht_btm = <<<EOP
+<a href="{$ita_url}"{$_conf['k_accesskey_at']['up']}>{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
+EOP;
 
 // iPhone
 if ($_conf['iphone']) {
@@ -166,17 +175,47 @@ echo <<<EOHEADER
 <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 {$_conf['extra_headers_ht']}
-<title>{$ptitle_ht}</title>\n
+<title>{$ptitle_ht}</title>
+</head>
 EOHEADER;
 
-echo "</head><body{$_conf['k_colors']}>";
+if ($_conf['iphone']) {
+    echo <<<EOP
+<body class="nopad">
+<div class="ntoolbar" id="header">
+<h1 class="ptitle hoverable">{$sb_ht} <span class="thin">(新まとめ)</span></h1>
+<table><tbody><tr>
+EOP;
 
-echo <<<EOP
+    // 板に戻る
+    echo '<td colspan="2">';
+    echo toolbar_i_standard_button('img/glyphish/icons2/104-index-cards.png', $ptitle_hd, $ita_url);
+    echo '</td>';
+
+    // 予備x2
+    echo '<td>&nbsp;</td><td>&nbsp;</td>';
+
+    // 下へ
+    echo '<td>';
+    echo toolbar_i_standard_button('img/gp2-down.png', '下', '#footer');
+    echo '</td>';
+
+    echo '</tr></tbody></table>';
+
+    $info_ht = P2Util::getInfoHtml();
+    if (strlen($info_ht)) {
+        echo "<div class=\"info\">{$info_ht}</div>";
+    }
+
+    echo '</div>';
+} else{
+    echo <<<EOP
+<body{$_conf['k_colors']}>
 <div id="read_new_header">{$sb_ht}の新まとめ
 <a class="button" id="above" name="above" href="#bottom"{$_conf['k_accesskey_at']['bottom']}>{$_conf['k_accesskey_st']['bottom']}▼</a></div>\n
 EOP;
-
-P2Util::printInfoHtml();
+    P2Util::printInfoHtml();
+}
 
 //==============================================================
 // それぞれの行解析
@@ -332,7 +371,10 @@ for ($x = 0; $x < $linesize; $x++) {
 function readNew($aThread)
 {
     global $_conf, $newthre_num, $STYLE;
-    global $spmode, $word;
+    global $spmode, $word, $newtime;
+
+    $orig_no_label = !empty($_conf['expack.iphone.toolbars.no_label']);
+    $_conf['expack.iphone.toolbars.no_label'] = true;
 
     $newthre_num++;
 
@@ -399,31 +441,36 @@ function readNew($aThread)
     $host_bbs_key_q = 'host=' . $aThread->host . $bbs_q . $key_q;
     $popup_q = '&amp;popup=1';
 
-    // require_once P2_LIB_DIR . '/read_header.inc.php';
-
-    $prev_thre_num = $newthre_num - 1;
-    $next_thre_num = $newthre_num + 1;
-    if ($prev_thre_num != 0) {
-        $prev_thre_ht = "<a class=\"button\" href=\"#ntt{$prev_thre_num}\">▲</a>";
-    }
-    //$next_thre_ht = "<a href=\"#ntt{$next_thre_num}\">▼</a> ";
-    $next_thre_ht = "<a class=\"button\" href=\"#ntt_bt{$newthre_num}\">▼</a> ";
-
     $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES, 'Shift_JIS');
-
     if ($spmode) {
-        $read_header_itaj_ht = " ({$itaj_hd})";
+        $read_header_itaj_ht = "({$itaj_hd})";
     } else {
         $read_header_itaj_ht = '';
     }
 
-    P2Util::printInfoHtml();
+    if ($_conf['iphone']) {
+        if ($read_header_itaj_ht !== '') {
+            $read_header_itaj_ht = "<span class=\"btitle\">{$read_header_itaj_ht}</span>";
+        }
 
-    $read_header_ht = <<<EOP
-<hr><div id="ntt{$newthre_num}" name="ntt{$newthre_num}"><font color="{$STYLE['mobile_read_ttitle_color']}"><b>{$aThread->ttitle_hd}</b></font>{$read_header_itaj_ht} {$next_thre_ht}</div>
+        $read_header_ht = <<<EOP
+<div class="ntoolbar mtoolbar mtoolbar_top" id="ntt{$newthre_num}">
+<h2 class="ttitle">{$aThread->ttitle_hd} {$read_header_itaj_ht}</h2>
 EOP;
-    if (!$_conf['iphone']) {
-        $read_header_ht .= '<hr>';
+        $read_header_ht .= '<div class="mover">';
+        $read_header_ht .= toolbar_i_standard_button('img/gp2-down.png', '', "#ntt_bt{$newthre_num}");
+        $read_header_ht .= '</div>';
+
+        $info_ht = P2Util::getInfoHtml();
+        if (strlen($info_ht)) {
+            $read_header_ht .= "<div class=\"info\">{$info_ht}</div>";
+        }
+        $read_header_ht .= '</div>';
+    } else {
+        P2Util::printInfoHtml();
+        $read_header_ht = <<<EOP
+<hr><div id="ntt{$newthre_num}" name="ntt{$newthre_num}"><font color="{$STYLE['mobile_read_ttitle_color']}"><b>{$aThread->ttitle_hd}</b></font> {$read_header_itaj_ht} <a href="#ntt_bt{$newthre_num}">▼</a></div><hr>
+EOP;
     }
 
     //==================================================================
@@ -447,14 +494,6 @@ EOP;
     //==================================================================
     // フッタ 表示
     //==================================================================
-    // $read_footer_navi_new  続きを読む 新着レスの表示
-    $newtime = date('gis');  // リンクをクリックしても再読込しない仕様に対抗するダミークエリー
-
-    $info_st = '情';
-    $delete_st = '削';
-    $prev_st = '前';
-    $next_st = '次';
-    //$dores_st = 'ﾚｽ';
 
     // 表示範囲
     if ($aThread->resrange['start'] == $aThread->resrange['to']) {
@@ -464,48 +503,54 @@ EOP;
     }
     $read_range_ht = "{$read_range_on}/{$aThread->rescount}";
 
-    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}\" target=\"_blank\">新着ﾚｽの表示</a>";
-
-    /*
-    if (!empty($_conf['disable_res'])) {
-        $dores_ht = <<<EOP
-<a href="{$motothre_url}" target="_blank">{$dores_st}</a>
-EOP;
-    } else {
-        $dores_ht = <<<EOP
-<a href="post_form.php?{$host_bbs_key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}">{$dores_st}</a>
-EOP;
-    }
-    */
-
     // ツールバー部分HTML =======
     if ($spmode) {
-        $toolbar_itaj_ht = <<<EOP
- (<a href="{$_conf['subject_php']}?{$host_bbs_key_q}{$_conf['k_at_a']}">{$itaj_hd}</a>)
-EOP;
+        $toolbar_itaj_ht = "(<a href=\"{$_conf['subject_php']}?{$host_bbs_key_q}{$_conf['k_at_a']}\">{$itaj_hd}</a>)";
     } else {
         $toolbar_itaj_ht = '';
     }
 
-    /*
-    $toolbar_right_ht .= <<<EOTOOLBAR
-<a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a>
-<a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}&amp;dele=true{$_conf['k_at_a']}">{$delete_st}</a>
-<a href="{$motothre_url}" target="_blank">元ｽﾚ</a>\n
-EOTOOLBAR;
-    */
+    if ($_conf['iphone']) {
+        if ($toolbar_itaj_ht !== '') {
+            $toolbar_itaj_ht = "<span class=\"btitle\">{$toolbar_itaj_ht}</span>";
+        }
 
-    $read_footer_ht = <<<EOP
+        $read_footer_ht = <<<EOP
+<div class="ntoolbar mtoolbar mtoolbar_bottom" id="ntt_bt{$newthre_num}">
+<table><tbody><tr>
+EOP;
+        // ツール
+        $read_footer_ht .= '<td>';
+        $escaped_url = "spm_k.php?{$host_bbs_key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}";
+        $read_footer_ht .= toolbar_i_opentab_button('img/glyphish/icons2/20-gear2.png', '', $escaped_url);
+        $read_footer_ht .= '</td>';
+        // 表示範囲
+        $read_footer_ht .= "<td colspan=\"3\"><span class=\"large\">{$read_range_ht}</span></td>";
+        // 情報
+        $read_footer_ht .= '<td>';
+        $escaped_url = "info.php?{$host_bbs_key_q}{$ttitle_en_q}{$_conf['k_at_a']}";
+        $read_footer_ht .= toolbar_i_opentab_button('img/gp5-info.png', '', $escaped_url);
+        $read_footer_ht .= '</td>';
+        // タイトル等
+        $read_footer_ht .= <<<EOP
+</tr></tbody></table>
+<div class="ttitle"><a href="{$_conf['read_php']}?{$host_bbs_key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}" target="_blank">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}</div>
+<div class="mover">
+EOP;
+        $read_footer_ht .= toolbar_i_standard_button('img/gp1-up.png', '', "#ntt{$newthre_num}");
+        $read_footer_ht .= '</div></div>';
+    } else {
+        $read_footer_ht = <<<EOP
 <div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}" class="read_new_toolbar">
 {$read_range_ht}
-<a class="button" href="info.php?{$host_bbs_key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a>
-<a class="button" href="spm_k.php?{$host_bbs_key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}">特</a>
+<a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}{$_conf['k_at_a']}">情</a>
+<a href="spm_k.php?{$host_bbs_key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}">特</a>
 <br>
-<a href="{$_conf['read_php']}?{$host_bbs_key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a>{$toolbar_itaj_ht}
-<a class="button" href="#ntt{$newthre_num}">▲</a>
+<a href="{$_conf['read_php']}?{$host_bbs_key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht} <a href="#ntt{$newthre_num}">▲</a>
 </div>
 <hr>\n
 EOP;
+    }
 
     // 透明あぼーんや表示数制限で新しいレス表示がない場合はスキップ
     if ($GLOBALS['newres_to_show_flag']) {
@@ -524,24 +569,18 @@ EOP;
         $newline = $aThread->readnum + 1; // $newlineは廃止予定だが、旧互換用に念のため
 
         $sar = array($aThread->ttitle, $aThread->key, $data[2], $aThread->rescount, $aThread->modified,
-                    $aThread->readnum, $data[6], $data[7], $data[8], $newline,
-                    $data[10], $data[11], $aThread->datochiok);
+                     $aThread->readnum, $data[6], $data[7], $data[8], $newline,
+                     $data[10], $data[11], $aThread->datochiok);
         P2Util::recKeyIdx($aThread->keyidx, $sar); // key.idxに記録
     }
 
-    unset($aThread);
+    $_conf['expack.iphone.toolbars.no_label'] = $orig_no_label;
 }
 
 //==================================================================
 // ページフッタ表示
 //==================================================================
 $newthre_num++;
-
-if (!$aThreadList->num) {
-    $GLOBALS['matome_naipo'] = TRUE;
-    echo "新着ﾚｽはないぽ";
-    echo "<hr>";
-}
 
 if ($unum_limit > 0) {
     $unum_limit_at_a = "&amp;unum_limit={$unum_limit}";
@@ -555,23 +594,79 @@ if ($aThreadList->spmode == 'merge_favita') {
     $shinchaku_matome_url .= $_conf['m_favita_set_at_a'];
 }
 
+
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
     if (!empty($GLOBALS['limit_to_eq_to'])) {
-        $str = '新着まとめの更新/続き';
+        $has_next = -1;
     } else {
-        $str = '新まとめを更新';
+        $has_next = 0;
     }
 } else {
-    $str = '新まとめの続き';
+    $has_next = 1;
     $shinchaku_matome_url .= '&amp;norefresh=1';
 }
 
-echo <<<EOP
-<div id="read_new_footer">{$sb_ht_btm}の<a href="{$shinchaku_matome_url}"{$_conf['k_accesskey_at']['next']}>{$_conf['k_accesskey_st']['next']}{$str}</a>
-<a class="button" id="bottom" name="bottom" href="#above"{$_conf['k_accesskey_at']['above']}>{$_conf['k_accesskey_st']['above']}▲</a></div>\n
-EOP;
+// {{{ ページフッタ・ツールバー
 
-echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
+if ($_conf['iphone']) {
+    if (!$aThreadList->num) {
+        echo '<p class="empty">新着レスはないぽ</p>';
+    }
+
+    echo '<div class="ntoolbar" id="footer"><table><tbody><tr>';
+
+    // トップに戻る
+    echo '<td>';
+    echo toolbar_i_standard_button('img/glyphish/icons2/53-house.png', 'TOP', "index.php{$_conf['k_at_q']}");
+    echo '</td>';
+
+    // 板に戻る
+    echo '<td colspan="2">';
+    echo toolbar_i_standard_button('img/glyphish/icons2/104-index-cards.png', $ptitle_hd, $ita_url);
+    echo '</td>';
+
+    // 更新/続き
+    echo '<td>';
+    if ($has_next === 1) {
+        $icon = 'img/gp4-next.png';
+        $label = '続き';
+    } elseif ($has_next === 0) {
+        $icon = 'img/glyphish/icons2/01-refresh.png';
+        $label = '更新';
+    } else {
+        $icon = 'img/glyphish/icons2/01-refresh.png';
+        $label = '更新/続き';
+    }
+    echo toolbar_i_standard_button($icon, $label, $shinchaku_matome_url);
+    echo '</td>';
+
+    // 上へ
+    echo '<td>';
+    echo toolbar_i_standard_button('img/gp1-up.png', '上', '#header');
+    echo '</td>';
+
+    echo '</tr></tbody></table></div>';
+} else {
+    if (!$aThreadList->num) {
+        echo '新着ﾚｽはないぽ<hr>';
+    }
+
+    if ($has_next === 1) {
+        $str = '新着まとめの続き';
+    } elseif ($has_next === 0) {
+        $str = '新まとめを更新';
+    } else {
+        $str = '新まとめの更新/続き';
+    }
+    echo <<<EOP
+<div id="read_new_footer">{$sb_ht_btm}の<a href="{$shinchaku_matome_url}"{$_conf['k_accesskey_at']['next']}>{$_conf['k_accesskey_st']['next']}{$str}</a>
+<a class="button" id="bottom" name="bottom" href="#above"{$_conf['k_accesskey_at']['above']}>{$_conf['k_accesskey_st']['above']}▲</a></div>
+<hr>
+<div class="center">{$_conf['k_to_index_ht']}</div>
+EOP;
+}
+
+// }}}
 
 // iPhone
 if ($_conf['iphone']) {
