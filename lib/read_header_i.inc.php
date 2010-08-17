@@ -39,9 +39,6 @@ if ($do_filtering) {
         $read_navi_previous_url = '';
     } else {
         $read_navi_previous_url = "{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$before_rnum}-{$aThread->resrange['start']}n{$offline_q}{$_conf['k_at_a']}";
-        /*if ($before_rnum != 1) {
-            $read_navi_previous_url .= "#r{$before_rnum}";
-        }*/
     }
 
     // }}}
@@ -62,9 +59,6 @@ if ($do_filtering) {
         $read_navi_next_url = '';
     } else {
         $read_navi_next_url = "{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}n{$offline_q}&amp;nt={$newtime}{$_conf['k_at_a']}";
-        if ($aThread->resrange['to'] == $aThread->rescount) {
-            $read_navi_next_url .= "#r{$aThread->rescount}";
-        }
     }
 
     // }}}

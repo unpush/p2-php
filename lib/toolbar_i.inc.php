@@ -18,7 +18,7 @@ function _toolbar_i_button($icon, $label, $uri, $attrs = '')
 {
     global $_conf;
 
-    if (strncmp($attrs, ' ', 1) === 0) {
+    if (strlen($attrs) && strncmp($attrs, ' ', 1) !== 0) {
         $attrs = ' ' . $attrs;
     }
 
@@ -52,7 +52,12 @@ EOS;
  */
 function toolbar_i_standard_button($icon, $label, $uri)
 {
-    return _toolbar_i_button($icon, $label, $uri);
+    if (strlen($uri) > 1 && strncmp($uri, '#', 1) === 0) {
+        $attrs = ' onclick="return iutil.toolbarScrollTo(this, event);"';
+    } else {
+        $attrs = '';
+    }
+    return _toolbar_i_button($icon, $label, $uri, $attrs);
 }
 
 // }}}

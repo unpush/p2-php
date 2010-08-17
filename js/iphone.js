@@ -256,71 +256,6 @@ iutil.setLabelAction = function(contextNode) {
 };
 
 // }}}
-// {{{ setHashScrool()
-
-/**
- * ページ内リンクのクリックをスクロールにする
- *
- * あまり動きがよくなかったので封印。
- *
- * @param {Node|String} contextNode
- * @return void
- */
-iutil.setHashScrool = function(contextNode) {
-	var anchors, anchor, targetId, targetElement, i, l, expr;
-
-	switch (typeof contextNode) {
-		case 'string':
-			contextNode = document.getElementById(contextNode);
-			break;
-		case 'undefined':
-			contextNode = document.body;
-			break;
-	}
-	if (!contextNode) {
-		return;
-	}
-
-	expr = './/a[starts-with(@href, "#") and ('
-		+ '@href = "#header" or @href = "#footer" or @href = "#top" or @href = "#bottom"'
-		+ ' or contains(concat(" ", @class, " "), " button ")'
-		+ ')]';
-	anchors = document.evaluate(expr,
-	                            contextNode, null,
-	                            XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-	l = anchors.snapshotLength;
-
-	for (i = 0; i < l; i++) {
-		anchor = anchors.snapshotItem(i);
-		targetId = anchor.getAttribute('href').substring(1);
-		targetElement = document.getElementById(targetId);
-		if (!targetElement) {
-			continue;
-		}
-
-		anchor.onclick = (function (element) {
-			return function (event) {
-				var from, to, d, e, f, g;
-
-				from = iutil.getPageY(event || window.event);
-				to = element.offsetTop;
-				d = to - from;
-				e = 30;
-				f = 30;
-
-				for (g = 1; g < f; g++) {
-					window.setTimeout(window.scrollTo, e * g,
-						0, from + Math.floor(d * Math.sqrt(g / f)));
-				}
-				window.setTimeout(window.scrollTo, e * g, 0, to);
-
-				return false;
-			};
-		})(targetElement);
-	}
-};
-
-// }}}
 // {{{ setAccessKeys()
 
 /**
@@ -767,6 +702,42 @@ iutil.setHoverable = function(contextNode) {
 };
 
 // ]}}
+// {{{ toolbarScrollTo()
+
+/**
+ * ツールバーボタンでオブジェクトの位置を取得し、そこまでスクロールする
+ *
+ * @param {Element} element
+ * @param {Event} event
+ * @return {Boolean}
+ */
+iutil.toolbarScrollTo = function(element, event) {
+	var url, offset, id, target;
+
+	url = element.href;
+	offset = url.indexOf('#');
+	if (offset === -1) {
+		return true;
+	}
+
+	iutil.stopEvent(event);
+
+	id = url.slice(offset + 1);
+	target = document.getElementById(id);
+	if (target) {
+		offset = target.offsetTop;
+		// 1つだけ外側の要素も考慮する
+		if (target.offsetParent) {
+			offset += target.offsetParent.offsetTop;
+		}
+		// +1 はボーダー幅
+		window.scrollTo(0, offset + 1);
+	}
+
+	return false;
+};
+
+// }}}
 // {{{ toolbarShowHide()
 
 /**
@@ -784,7 +755,7 @@ iutil.toolbarShowHide = function(element, event) {
 	url = element.href;
 	offset = url.indexOf('#');
 	if (offset !== -1) {
-		id = url.substring(offset + 1, url.length);
+		id = url.slice(offset + 1);
 		target = document.getElementById(id);
 		if (target) {
 			if (target.style.display === 'block') {
@@ -1414,13 +1385,12 @@ document.addEventListener('DOMContentLoaded', function(event) {
 	document.removeEventListener(event.type, arguments.callee, false);
 
 	if (typeof window.iphone_js_no_modification === 'undefined' || !window.iphone_js_no_modification) {
-		// リンクにイベントハンドラを登録する
+		// 外部リンクにイベントハンドラを登録する
 		iutil.modifyExternalLink(document.body);
 
-		// labelにイベントハンドラを登録する
+		// ラベルやボタンにイベントハンドラを登録する
 		if (iutil.iphone) {
 			iutil.setLabelAction(document.body);
-			//iutil.setHashScrool(document.body);
 			iutil.setHoverable(document.body);
 		}
 
@@ -1440,7 +1410,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
 	// ロケーションバーを隠す
 	if (typeof window.iui !== 'undefined') {
 		window.scrollTo(0, 1);
-	} else if (!window.location.hash.length && iutil.getScrollX() < 1) {
+	} else if (!window.location.hash.length && iutil.getScrollY() < 1) {
 		window.scrollTo(0, 1);
 	}
 }, false);
