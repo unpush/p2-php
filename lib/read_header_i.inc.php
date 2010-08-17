@@ -352,6 +352,10 @@ if ($do_filtering) {
 
 // }}}
 
+if ($_GET['showbl']) {
+    echo  '<div class="hits">' . htmlspecialchars($aThread->resrange['start']) . '‚Ö‚ÌÚ½</div>';
+}
+
 echo '</div>'; // end toolbar
 
 // }}}
