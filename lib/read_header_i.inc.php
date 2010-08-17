@@ -243,7 +243,40 @@ echo '</tbody></table>';
 
 // {{{ その他 - SPMフォーム
 
-echo kspform($aThread);
+// IC2リンク、件数
+if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagelink']) {
+    echo '<table><tbody><tr>';
+    echo '<td colspan="4">';
+    echo kspform($aThread);
+    echo '</td>';
+    $escaped_url = 'iv2.php?field=memo&amp;key=' . rawurlencode($aThread->ttitle) .
+        "&amp;session_no_close=1{$_conf['k_at_a']}";
+    echo '<td>';
+    if ($_conf['expack.ic2.thread_imagecount']) {
+        require_once P2EX_LIB_DIR . '/ic2_getcount.inc.php';
+        $cnt = 0;
+        try {
+            $cnt = getIC2ImageCount($aThread->ttitle);
+        }
+        catch (Exception $e) {
+            $cnt = -1;
+        }
+        if ($cnt == 0) {
+            echo toolbar_i_disabled_button('img/glyphish/icons2/42-photos.png',
+                '画像');
+        } else {
+            echo toolbar_i_opentab_button('img/glyphish/icons2/42-photos.png',
+                '画像' . ($cnt < 0 ? '(?)' : "({$cnt})"), $escaped_url);
+        }
+    } else {
+        echo toolbar_i_opentab_button('img/glyphish/icons2/42-photos.png',
+            '画像', $escaped_url);
+    }
+    echo '</td></tr></tbody></table>';
+} else {
+    echo kspform($aThread);
+}
+
 
 // }}}
 
