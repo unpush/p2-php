@@ -461,7 +461,7 @@ function readNew($aThread)
 <h2 class="ttitle">{$aThread->ttitle_hd} {$read_header_itaj_ht}</h2>
 EOP;
         $read_header_ht .= '<div class="mover">';
-        $read_header_ht .= toolbar_i_standard_button('img/gp2-down.png', '', "#ntt_bt{$newthre_num}");
+        $read_header_ht .= toolbar_i_standard_button('img/gp2-down.png', '', sprintf('#ntt%d', $newthre_num + 1));
         $read_header_ht .= '</div>';
 
         $info_ht = P2Util::getInfoHtml();
@@ -519,25 +519,25 @@ EOP;
         }
 
         $read_footer_ht = <<<EOP
-<div class="ntoolbar mtoolbar mtoolbar_bottom" id="ntt_bt{$newthre_num}">
+<div class="ntoolbar mtoolbar mtoolbar_bottom" id="ntt_btm{$newthre_num}">
 <table><tbody><tr>
 EOP;
-        // ツール
-        $read_footer_ht .= '<td>';
-        $escaped_url = "spm_k.php?{$host_bbs_key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}";
-        $read_footer_ht .= toolbar_i_opentab_button('img/glyphish/icons2/20-gear2.png', '', $escaped_url);
-        $read_footer_ht .= '</td>';
-        // 表示範囲
-        $read_footer_ht .= "<td colspan=\"3\"><span class=\"large\">{$read_range_ht}</span></td>";
         // 情報
         $read_footer_ht .= '<td>';
         $escaped_url = "info.php?{$host_bbs_key_q}{$ttitle_en_q}{$_conf['k_at_a']}";
         $read_footer_ht .= toolbar_i_opentab_button('img/gp5-info.png', '', $escaped_url);
         $read_footer_ht .= '</td>';
+        // 表示範囲
+        $read_footer_ht .= "<td colspan=\"3\"><span class=\"large\">{$read_range_ht}</span></td>";
+        // ツール
+        $read_footer_ht .= '<td>';
+        $escaped_url = "spm_k.php?{$host_bbs_key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}{$_conf['k_at_a']}";
+        $read_footer_ht .= toolbar_i_opentab_button('img/glyphish/icons2/20-gear2.png', '', $escaped_url);
+        $read_footer_ht .= '</td>';
         // タイトル等
         $read_footer_ht .= <<<EOP
 </tr></tbody></table>
-<div class="ttitle"><a href="{$_conf['read_php']}?{$host_bbs_key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}" target="_blank">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}</div>
+<div class="ttitle"><a href="{$_conf['read_php']}?{$host_bbs_key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}" target="_blank">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}</div>
 <div class="mover">
 EOP;
         $read_footer_ht .= toolbar_i_standard_button('img/gp1-up.png', '', "#ntt{$newthre_num}");
@@ -616,7 +616,7 @@ if ($_conf['iphone']) {
         echo '<p class="empty">新着レスはないぽ</p>';
     }
 
-    echo '<div class="ntoolbar" id="footer"><table><tbody><tr>';
+    echo "<div class=\"ntoolbar\" id=\"footer\"><table id=\"ntt{$newthre_num}\"><tbody><tr>";
 
     // トップに戻る
     echo '<td>';

@@ -63,7 +63,7 @@ echo '</tr><tr>';
 // V’…
 echo '<td>';
 if (!$aThread->diedat) {
-    $escaped_url = "{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$aThread->rescount}-n&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}";
+    $escaped_url = "{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$aThread->rescount}-n&amp;nt={$newtime}{$_conf['k_at_a']}";
     echo toolbar_i_standard_button('img/glyphish/icons2/01-refresh.png', 'V’…', $escaped_url);
 } else {
     echo toolbar_i_disabled_button('img/glyphish/icons2/01-refresh.png', 'V’…');
