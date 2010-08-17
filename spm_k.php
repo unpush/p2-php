@@ -16,7 +16,7 @@ if (isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
     $base_dir_s = P2_BASE_DIR . DIRECTORY_SEPARATOR;
     switch ($_GET['ktool_name']) {
         case 'goto':
-            $_REQUEST['ls'] = $_GET['ls'] = spirntf('%d-%d', $ktv, $ktv + $_conf['mobile.rnum_range']);
+            $_REQUEST['ls'] = $_GET['ls'] = sprintf('%d-%d', $ktv, $ktv + $_conf['mobile.rnum_range']);
             include $base_dir_s . 'read.php';
             exit;
         case 'rref':

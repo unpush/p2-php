@@ -725,7 +725,13 @@ iutil.toolbarScrollTo = function(element, event) {
 	id = url.slice(offset + 1);
 	target = document.getElementById(id);
 	if (target) {
-		window.scrollTo(0, target.offsetTop + 1);
+		offset = target.offsetTop;
+		// 1つだけ外側の要素も考慮する
+		if (target.offsetParent) {
+			offset += target.offsetParent.offsetTop;
+		}
+		// +1 はボーダー幅
+		window.scrollTo(0, offset + 1);
 	}
 
 	return false;
@@ -1406,17 +1412,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
 		window.scrollTo(0, 1);
 	} else if (!window.location.hash.length && iutil.getScrollY() < 1) {
 		window.scrollTo(0, 1);
-	}
-
-	// location.hashの代わりにp2s2=idでジャンプする
-	// p2s2 は re[p2] [s]croll[To] の略
-	// どうしてもスクロールさせたい場合だけ使う
-	var m = window.location.href.match(/[&?]p2s2=([\w\-].+)/);
-	if (m) {
-		var t = document.getElementById(m[1]);
-		if (t) {
-			window.setTimeout(window.scrollTo, 100, 0, t.offsetTop + 1);
-		}
 	}
 }, false);
 
