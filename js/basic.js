@@ -111,11 +111,19 @@ function p2BindReady(callback, filename)
 		if (isOpera) {
 			// Opera‚ÍDOMContentLoaded‚©‚çƒXƒ^ƒCƒ‹ŒvZŠ®—¹‚Ü‚Å
 			// ’x‰„‚ª‚ ‚é‚æ‚¤‚È‚Ì‚ÅA1/40•b‚Ù‚Ç‘Ò‚Á‚Ä‚İ‚é
-			window.addEventListener('DOMContentLoaded', (function (f) {
-				return function () { window.setTimeout(f, 25); };
+			document.addEventListener('DOMContentLoaded', (function (f) {
+				return function (event) {
+					document.removeEventListener(event.type, arguments.callee, false);
+					window.setTimeout(f, 25);
+				};
 			})(callback), false);
 		} else {
-			window.addEventListener('DOMContentLoaded', callback, false);
+			document.addEventListener('DOMContentLoaded', (function (f) {
+				return function (event) {
+					document.removeEventListener(event.type, arguments.callee, false);
+					f();
+				};
+			})(callback), false);
 		}
 		return;
 	} else if (document.all && filename) { 

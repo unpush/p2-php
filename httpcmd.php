@@ -88,10 +88,10 @@ case 'setfavita':
         } else {
             $r = setFavItaByHostBbs($host, $bbs, $_REQUEST['setfavita'], $itaj);
         }
-        if (empty($r)) {
-            $r_msg = '0'; // Ž¸”s
-        } elseif ($r == 1) {
+        if ($r) {
             $r_msg = '1'; // Š®—¹
+        } else {
+            $r_msg = '0'; // Ž¸”s
         }
     }
     break;
@@ -116,10 +116,10 @@ case 'setfav':
         } else {
             $r = setFav($host, $bbs, $key, $_REQUEST['setfav'], $ttitle);
         }
-        if (empty($r)) {
-            $r_msg = '0'; // Ž¸”s
-        } elseif ($r == 1) {
+        if ($r) {
             $r_msg = '1'; // Š®—¹
+        } else {
+            $r_msg = '0'; // Ž¸”s
         }
     }
     break;
@@ -140,10 +140,10 @@ case 'setpal':
             $ttitle = null;
         }
         $r = setPal($host, $bbs, $key, $_REQUEST['setpal'], $ttitle);
-        if (empty($r)) {
-            $r_msg = '0'; // Ž¸”s
-        } elseif ($r == 1) {
+        if ($r) {
             $r_msg = '1'; // Š®—¹
+        } else {
+            $r_msg = '0'; // Ž¸”s
         }
     }
     break;
@@ -157,10 +157,10 @@ case 'taborn':
             include P2_LIB_DIR . '/settaborn.inc.php';
         }
         $r = settaborn($host, $bbs, $key, $_REQUEST['taborn']);
-        if (empty($r)) {
-            $r_msg = '0'; // Ž¸”s
-        } elseif ($r == 1) {
+        if ($r) {
             $r_msg = '1'; // Š®—¹
+        } else {
+            $r_msg = '0'; // Ž¸”s
         }
     }
     break;

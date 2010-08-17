@@ -11,7 +11,7 @@
  * @param   string      $host
  * @param   string      $bbs
  * @param   string      $key
- * @param   int|string  $setpal  0(解除), 1(追加), top, up, down, bottom
+ * @param   int|string  $setpal  0(解除), 1(追加), 2(トグル) top, up, down, bottom
  * @param   string      $ttitle
  * @return  bool
  */
@@ -44,6 +44,7 @@ function setPal($host, $bbs, $key, $setpal, $ttitle = null)
     $pallines = FileCtl::file_read_lines($_conf['palace_idx'], FILE_IGNORE_NEW_LINES);
 
     $neolines = array();
+    $pal_attayo = false;
     $before_line_num = 0;
 
      // {{{ 最初に重複要素を削除しておく
@@ -55,6 +56,7 @@ function setPal($host, $bbs, $key, $setpal, $ttitle = null)
             $lar = explode('<>', $l);
             // 重複回避
             if ($lar[1] == $key && $lar[11] == $bbs) {
+                $pal_attayo = true;
                 $before_line_num = $i;    // 移動前の行番号をセット
                 continue;
             // keyのないものは不正データなのでスキップ
@@ -67,6 +69,10 @@ function setPal($host, $bbs, $key, $setpal, $ttitle = null)
     }
 
     // }}}
+
+    if ($setpal == 2) {
+        $setpal = ($pal_attayo) ? 0 : 1;
+    }
 
     // 新規データ設定
     if ($setpal) {

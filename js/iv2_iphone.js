@@ -5,10 +5,14 @@
 // {{{ DOMContentLoaded
 
 document.addEventListener('DOMContentLoaded', function(event) {
-	var styleSheets    = document.styleSheets;
-	var commonStyle    = styleSheets[styleSheets.length - 3];
-	var landscapeStyle = styleSheets[styleSheets.length - 2];
-	var portraitStyle  = styleSheets[styleSheets.length - 1];
+	var styleSheets, commonStyle, landscapeStyle, portraitStyle;
+
+	document.removeEventListener(event.type, arguments.callee, false);
+
+	styleSheets    = document.styleSheets;
+	commonStyle    = styleSheets[styleSheets.length - 3];
+	landscapeStyle = styleSheets[styleSheets.length - 2];
+	portraitStyle  = styleSheets[styleSheets.length - 1];
 
 	if (typeof window.orientation != 'undefined') {
 		var resize_image_table = function() {
@@ -43,8 +47,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
 		landscapeStyle.disabled = true;
 		portraitStyle.disabled = true;
 	}
-
-	document.removeEventListener('DOMContentLoaded', arguments.callee, false);
 }, false);
 
 // }}}

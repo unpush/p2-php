@@ -11,6 +11,21 @@ $_login->authorize(); // ユーザ認証
 // +Wiki
 require_once P2_LIB_DIR . '/wiki/read.inc.php';
 
+// iPhone
+if ($_conf['iphone']) {
+    include P2_LIB_DIR . '/toolbar_i.inc.php';
+    define('READ_HEADER_INC_PHP', P2_LIB_DIR . '/read_header_i.inc.php');
+    define('READ_FOOTER_INC_PHP', P2_LIB_DIR . '/read_footer_i.inc.php');
+// 携帯
+} elseif ($_conf['ktai']) {
+    define('READ_HEADER_INC_PHP', P2_LIB_DIR . '/read_header_k.inc.php');
+    define('READ_FOOTER_INC_PHP', P2_LIB_DIR . '/read_footer_k.inc.php');
+// PC
+} else {
+    define('READ_HEADER_INC_PHP', P2_LIB_DIR . '/read_header.inc.php');
+    define('READ_FOOTER_INC_PHP', P2_LIB_DIR . '/read_footer.inc.php');
+}
+
 //================================================================
 // 変数
 //================================================================
@@ -26,9 +41,11 @@ detectThread();    // global $host, $bbs, $key, $ls
 //=================================================
 // レスフィルタ
 //=================================================
+$do_filtering = false;
 if (array_key_exists('rf', $_REQUEST) && is_array($_REQUEST['rf'])) {
     $resFilter = ResFilter::configure($_REQUEST['rf']);
     if ($resFilter->hasWord()) {
+        $do_filtering = true;
         if ($_conf['ktai']) {
             $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : 1;
             $resFilter->setRange($_conf['mobile.rnum_range'], $page);
@@ -101,19 +118,9 @@ if (!empty($_GET['one'])) {
     $preview = $aThread->previewOne();
     $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES) . ' / ' . $aThread->ttitle_hd;
 
-    // PC
-    if (!$_conf['ktai']) {
-        $read_header_inc_php = P2_LIB_DIR . '/read_header.inc.php';
-        $read_footer_inc_php = P2_LIB_DIR . '/read_footer.inc.php';
-    // 携帯
-    } else {
-        $read_header_inc_php = P2_LIB_DIR . '/read_header_k.inc.php';
-        $read_footer_inc_php = P2_LIB_DIR . '/read_footer_k.inc.php';
-    }
-
-    require_once $read_header_inc_php;
+    include READ_HEADER_INC_PHP;
     echo $preview;
-    require_once $read_footer_inc_php;
+    include READ_FOOTER_INC_PHP;
 
     return;
 }
@@ -194,7 +201,7 @@ $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES)." / ".$aThread->ttitle
 
 if ($_conf['ktai']) {
 
-    if (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) {
+    if ($resFilter && $resFilter->hasWord() && $aThread->rescount) {
         $GLOBALS['filter_hits'] = 0;
     } else {
         $GLOBALS['filter_hits'] = NULL;
@@ -239,7 +246,7 @@ if ($_conf['ktai']) {
             $content = $aShowThread->getDatochiResiduums();
         }
 
-        require_once P2_LIB_DIR . '/read_header_k.inc.php';
+        include READ_HEADER_INC_PHP;
 
         if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {
             echo $aShowThread->getSpmObjJs();
@@ -247,13 +254,13 @@ if ($_conf['ktai']) {
 
         echo $content;
 
-        require_once P2_LIB_DIR . '/read_footer_k.inc.php';
+        include READ_FOOTER_INC_PHP;
     }
 
 } else {
 
     // ヘッダ 表示
-    require_once P2_LIB_DIR . '/read_header.inc.php';
+    include READ_HEADER_INC_PHP;
     flush();
 
     //===========================================================
@@ -267,18 +274,6 @@ if ($_conf['ktai']) {
         $GLOBALS['filter_hits'] = 0;
 
         echo "<p><b id=\"filterstart\">{$all}レス中 <span id=\"searching\">n</span>レスがヒット</b></p>\n";
-        echo <<<EOP
-<script type="text/javascript">
-//<![CDATA[
-var searching = document.getElementById('searching');
-function filterCount(n){
-    if (searching) {
-        searching.innerHTML = n;
-    }
-}
-//]]>
-</script>
-EOP;
     }
     if ($_GET['showbl']) {
         echo  '<p><b>' . htmlspecialchars($aThread->resrange['start']) . 'へのレス</b></p>';
@@ -389,8 +384,7 @@ EOP;
     }
 
     // フッタ 表示
-    require_once P2_LIB_DIR . '/read_footer.inc.php';
-
+    include READ_FOOTER_INC_PHP;
 }
 flush();
 
@@ -408,8 +402,8 @@ if ($aThread->rescount) {
     $newline = $aThread->readnum + 1; // $newlineは廃止予定だが、旧互換用に念のため
 
     $sar = array($aThread->ttitle, $aThread->key, $idx_data[2], $aThread->rescount, '',
-                $aThread->readnum, $idx_data[6], $idx_data[7], $idx_data[8], $newline,
-                $idx_data[10], $idx_data[11], $aThread->datochiok);
+                 $aThread->readnum, $idx_data[6], $idx_data[7], $idx_data[8], $newline,
+                 $idx_data[10], $idx_data[11], $aThread->datochiok);
     P2Util::recKeyIdx($aThread->keyidx, $sar); // key.idxに記録
 }
 
@@ -417,8 +411,9 @@ if ($aThread->rescount) {
 // 履歴を記録
 //===========================================================
 if ($aThread->rescount && !$is_ajax) {
-    $newdata = "{$aThread->ttitle}<>{$aThread->key}<>$idx_data[2]<><><>{$aThread->readnum}<>$idx_data[6]<>$idx_data[7]<>$idx_data[8]<>{$newline}<>{$aThread->host}<>{$aThread->bbs}";
-    recRecent($newdata);
+    recRecent(implode('<>', array($aThread->ttitle, $aThread->key, $idx_data[2], '', '',
+                                  $aThread->readnum, $idx_data[6], $idx_data[7], $idx_data[8], $newline,
+                                  $aThread->host, $aThread->bbs)));
 }
 
 // NGあぼーんを記録

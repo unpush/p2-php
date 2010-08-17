@@ -56,6 +56,10 @@ if (isset($_POST['word'])) {
     <link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png" />
     <script type="text/javascript" src="iui/iui.js?<?php echo $_conf['p2_version_id']; ?>"></script>
     <script type="text/javascript" src="js/json2.js?<?php echo $_conf['p2_version_id']; ?>"></script>
+<?php if (UA::isAndroidWebKit()) { ?>
+    <script type="text/javascript">window.jsxpath = { 'useNative': false };</script>
+    <script type="text/javascript" src="js/javascript-xpath.js?<?php echo $_conf['p2_version_id']; ?>"></script>
+<?php } ?>
     <script type="text/javascript" src="js/iphone.js?<?php echo $_conf['p2_version_id']; ?>"></script>
     <script type="text/javascript" src="js/menu_i.js?<?php echo $_conf['p2_version_id']; ?>"></script>
 <?php
@@ -113,7 +117,7 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
                 }
             }
         }, 200, [<?php echo $js; ?>], document.getElementById('top'), 200);
-    });
+    }, false);
     // ]]>
     </script>
 <?php

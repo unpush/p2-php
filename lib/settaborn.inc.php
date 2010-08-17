@@ -43,6 +43,7 @@ function settaborn($host, $bbs, $key, $set)
     $taborn_lines= FileCtl::file_read_lines($taborn_idx, FILE_IGNORE_NEW_LINES);
 
     $neolines = array();
+    $aborn_attayo = false;
 
     if ($taborn_lines) {
         foreach ($taborn_lines as $l) {
@@ -62,7 +63,7 @@ function settaborn($host, $bbs, $key, $set)
 
     // 新規データ追加
     if ($set == 1 or !$aborn_attayo && $set == 2) {
-        $newdata = "$data[0]<>{$key}<><><><><><><><>";
+        $newdata = "{$data[0]}<>{$key}<><><><><><><><>";
         $neolines ? array_unshift($neolines, $newdata) : $neolines = array($newdata);
         $title_msg_pre = "○ あぼーん しますた";
         $info_msg_pre = "○ あぼーん しますた";

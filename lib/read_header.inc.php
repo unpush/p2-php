@@ -326,6 +326,14 @@ echo <<<EOHEADER
         {$onload_script}
     }
 
+    function filterCount(n)
+    {
+        var searching = document.getElementById('searching');
+        if (searching) {
+            searching.innerHTML = n;
+        }
+    }
+
     (function(){
         if (typeof window.p2BindReady == 'undefined') {
             window.setTimeout(arguments.callee, 100);

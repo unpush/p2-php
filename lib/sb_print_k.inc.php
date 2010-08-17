@@ -17,10 +17,18 @@ function sb_print_k($aThreadList)
     //=================================================
 
     if (!$aThreadList->threads) {
-        if ($aThreadList->spmode == 'fav' && $sb_view == 'shinchaku') {
-            echo '<p class="empty-subject">お気にｽﾚに新着なかったぽ</p>';
+        if ($_conf['iphone']) {
+            if ($aThreadList->spmode == 'fav' && $sb_view == 'shinchaku') {
+                echo '<p class="empty">お気にスレに新着なかったぽ</p>';
+            } else {
+                echo '<p class="empty">該当サブジェクトはなかったぽ</p>';
+            }
         } else {
-            echo '<p class="empty-subject">該当ｻﾌﾞｼﾞｪｸﾄはなかったぽ</p>';
+            if ($aThreadList->spmode == 'fav' && $sb_view == 'shinchaku') {
+                echo '<p>お気にｽﾚに新着なかったぽ</p>';
+            } else {
+                echo '<p>該当ｻﾌﾞｼﾞｪｸﾄはなかったぽ</p>';
+            }
         }
         return;
     }
@@ -70,7 +78,14 @@ function sb_print_k($aThreadList)
     //=====================================================
 
     // spmodeがあればクエリー追加
-    if ($aThreadList->spmode) {$spmode_q = "&amp;spmode={$aThreadList->spmode}";}
+    if ($aThreadList->spmode) {
+        $spmode_q = "&amp;spmode={$aThreadList->spmode}";
+    }
+    if ($aThreadList->spmode == 'palace' || $aThreadList->spmode == 'soko' || $aThreadList->spmode == 'taborn') {
+        $show_unum = false;
+    } else {
+        $show_unum = true;
+    }
 
     if ($_conf['iphone']) {
         echo '<ul class="subject">';
@@ -94,7 +109,7 @@ function sb_print_k($aThreadList)
 
         // 新着レス数 =============================================
         // 既得済み
-        if ($aThread->isKitoku()) {
+        if ($show_unum && $aThread->isKitoku()) {
             $htm['unum'] = "{$aThread->unum}";
 
             $anum_ht = sprintf('#r%d', min($aThread->rescount, $aThread->rescount - $aThread->nunum + 1 - $_conf['respointer']));
@@ -139,7 +154,7 @@ function sb_print_k($aThreadList)
                 $classtitle .= ' new';
             }
         } else {
-            if ($aThread->new) {
+            if ($show_unum && $aThread->new) {
                 $htm['unum'] = "<font color=\"{$STYLE['mobile_subject_newthre_color']}\">新</font>";
             }
         }
@@ -258,32 +273,12 @@ function sb_print_k($aThreadList)
                                  $aThread->dayres                  // 勢い。切り上げなし
                                  );
 
-            if ($_conf['iphone.subject.indicate-speed']) {
-                // 勢い判定。なぜか不安定になるのでlog10()の結果で分岐はしない
-                $dayres = (int)$aThread->dayres;
-                if ($dayres > 9999) {
-                    $classspeed_at = ' class="dayres-10000"';
-                } elseif ($dayres > 999) {
-                    $classspeed_at = ' class="dayres-1000"';
-                } elseif ($dayres > 99) {
-                    $classspeed_at = ' class="dayres-100"';
-                } elseif ($dayres > 9) {
-                    $classspeed_at = ' class="dayres-10"';
-                } elseif ($dayres > 0) {
-                    $classspeed_at = ' class="dayres-1"';
-                } else {
-                    $classspeed_at = ' class="dayres-0"';
-                }
-            } else {
-                $classspeed_at = '';
-            }
-
             if ($htm['ita'] !== '') {
                 $htm['ita'] = "<span class=\"ita\">{$htm['ita']}</span>";
             }
 
             echo <<<EOP
-<li><a href="{$thre_url}"{$classspeed_at}><span class="info">{$thre_info}</span> {$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
+<li><a href="{$thre_url}"><span class="info">{$thre_info}</span> {$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
 EOP;
         } else {
             echo <<<EOP

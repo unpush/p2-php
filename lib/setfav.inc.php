@@ -22,7 +22,7 @@
  * @param   string      $host
  * @param   string      $bbs
  * @param   string      $key
- * @param   int|string  $setfavita  -1(登録・解除をトグル), 0(解除), 1(追加), top, up, down, bottom
+ * @param   int|string  $setfavita  0(解除), 1(追加), 2(トグル), top, up, down, bottom
  * @param   string      $ttitle
  * @param   int|null    $setnum
  * @return  bool
@@ -111,7 +111,7 @@ function setFav($host, $bbs, $key, $setfav, $ttitle = null, $setnum = null)
         }
     }
 
-    if ($setfav == -1) {
+    if ($setfav == 2) {
         $setfav = ($was_set) ? 0 : 1;
     }
 

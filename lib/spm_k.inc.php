@@ -25,6 +25,7 @@ function kspform($aThread, $default = '', $params = null)
     // 選択可能なオプション
     $options = array();
     $options['goto'] = 'GO';
+    $options['rref'] = '逆参照';
     $options['copy'] = 'ｺﾋﾟｰ';
     $options['copy_quote'] = '&gt;ｺﾋﾟｰ';
     $options['res']  = 'ﾚｽ';
@@ -46,7 +47,11 @@ function kspform($aThread, $default = '', $params = null)
     $options['ng_be']  = 'NG:BE';   // +Wiki
 
     // フォーム生成
-    $form = "<form method=\"get\" action=\"spm_k.php\">";
+    if ($_conf['iphone']) {
+        $form = '<form method="get" action="spm_k.php" target="_blank">';
+    } else {
+        $form = '<form method="get" action="spm_k.php">';
+    }
     $form .= $_conf['k_input_ht'];
 
     // 隠しパラメータ
@@ -73,8 +78,12 @@ function kspform($aThread, $default = '', $params = null)
     $form .= '</select>';
 
     // 数値入力フォームと実行ボタン
-    $form .= "<input type=\"text\" size=\"3\" name=\"ktool_value\" value=\"{$default}\"{$input_numeric_at}>";
-    $form .= '<input type="submit" value="OK" title="OK">';
+    $form .= "<input type=\"text\" size=\"3\" name=\"ktool_value\" id=\"ktool_value\" value=\"{$default}\"{$input_numeric_at}>";
+    if ($_conf['iphone']) {
+        $form .= '<input type="submit" value="&#x2713;">';
+    } else {
+        $form .= '<input type="submit" value="OK" title="OK">';
+    }
 
     $form .= '</form>';
 

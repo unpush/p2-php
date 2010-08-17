@@ -139,6 +139,18 @@ if (!$disp_navi['all_once']) {
             $k_sb_navi_select_from_ht .= '</optgroup>';
         }*/
     }
+
+    $k_sb_navi_ht = <<<EOP
+<div>{$sb_range_on}/{$sb_disp_all_num} {$mae_ht} {$tugi_ht}</div>
+<form method="get" action="{$_conf['subject_php']}">
+<input type="hidden" name="host" value="{$aThreadList->host}">
+<input type="hidden" name="bbs" value="{$aThreadList->bbs}">
+<input type="hidden" name="spmode" value="{$aThreadList->spmode}">
+<input type="hidden" name="norefresh" value="1">
+<select name="from">{$k_sb_navi_select_from_ht}</select><input type="submit" value="GO">
+{$sb_view_input_ht}{$word_input_ht}{$_conf['k_input_ht']}
+</form>
+EOP;
 } else {
     $k_sb_navi_ht = '';
 }

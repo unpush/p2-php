@@ -9,6 +9,7 @@ class ResFilter
 {
     // {{{ constants
 
+    const FIELD_NUMBER = 'num';
     const FIELD_HOLE = 'hole';
     const FIELD_NAME = 'name';
     const FIELD_MAIL = 'mail';
@@ -39,6 +40,7 @@ class ResFilter
     static private $_instance = null;
 
     static protected $_fields = array(
+        self::FIELD_NUMBER => 'レス番号',
         self::FIELD_HOLE => '全体',
         self::FIELD_MESSAGE => '本文',
         self::FIELD_NAME => '名前',
@@ -108,25 +110,25 @@ class ResFilter
     {
         $filter = self::$_instance;
         if ($filter === null) {
-            $params = array('rf' => array(
+            $params = array(
                 'field'   => self::FIELD_DEFAULT,
                 'method'  => self::METHOD_DEFAULT,
                 'match'   => self::MATCH_DEFAULT,
                 'include' => self::INCLUDE_DEFAULT,
-            ));
+            );
         } else {
-            $params = array('rf' => array(
+            $params = array(
                 'field'   => $filter->field,
                 'method'  => $filter->method,
                 'match'   => $filter->match,
                 'include' => $filter->include,
-            ));
+            );
             if ($filter->hasWord()) {
                 $params['word'] = $filter->word;
             }
         }
 
-        return http_build_query($params, '', $separator);
+        return http_build_query(array('rf' => $params), '', $separator);
     }
 
     // }}}
@@ -280,16 +282,19 @@ class ResFilter
      * フィルタリングのターゲットを得る
      *
      * @param string $ares
-     * @param int $ares
+     * @param int $resnum
      * @param string $name
      * @param string $mail
      * @param string $date_id
      * @param string $msg
      * @return string
      */
-    public function getTarget($ares, $i, $name, $mail, $date_id, $msg)
+    public function getTarget($ares, $resnum, $name, $mail, $date_id, $msg)
     {
         switch ($this->field) {
+            case self::FIELD_NUMBER:
+                $target = (string)$resnum;
+                break;
             case self::FIELD_NAME:
                 $target = $name;
                 break;
@@ -308,8 +313,9 @@ class ResFilter
             case self::FIELD_MESSAGE:
                 $target = $msg;
                 break;
-            default: // 'hole'
-                $target = strval($i) . '<>' . $ares;
+            case self::FIELD_HOLE:
+            default:
+                $target = "{$resnum}<>{$ares}";
         }
 
         $target = @strip_tags($target, '<>');
@@ -431,7 +437,8 @@ class ResFilter
     {
         $aThread = $aShowThread->thread;
         $failure = ($this->match == self::MATCH_ON) ? false : true;
-        $datlines = array_fill(0, count($aThread->datlines), null);
+        $count = count($aThread->datlines);
+        $datlines = array_fill(0, $count, null);
         $hit_nums = array();
 //        $res_nums = array();
         $check_refs = ($this->include & self::INCLUDE_REFERENCES) ? true : false;
@@ -439,24 +446,19 @@ class ResFilter
 
         // {{{ 1パス目 (マッチングと参照レス検出)
 
-        foreach ($aThread->datlines as $i => $ares) {
-            $n = $i + 1;
-            list($name, $mail, $date_id, $msg) = $aThread->explodeDatLine($ares);
-            if (($id = $aThread->ids[$n]) !== null) {
-                $date_id = str_replace($aThread->idp[$n] . $id, "ID:$id", $date_id);
-            }
-
-            $target = $this->getTarget($ares, $n, $name, $mail, $date_id, $msg);
-            if (!$target) {
-                continue;
-            }
-
-            if ($this->_match($target, $n, $failure)) {
-                if ($datlines[$i] === null) {
-                    $datlines[$i] = $aThread->datlines[$i];
-                    $hit_nums[] = $i;
-                }
+        if ($this->field == self::FIELD_NUMBER &&
+            $this->method == self::METHOD_JUST &&
+            $this->match == self::MATCH_ON)
+        {
+            // レス番号完全一致は特別扱い
+            $n = (int)$this->word;
+            if ($n > 0 && $n <= $count) {
+                $i = $n - 1;
+                $ares = $aThread->datlines[$i];
+                $datlines[$i] = $ares;
+                $hit_nums[] = $i;
                 if ($check_refs || $check_refed) {
+                    list($name, $mail, $date_id, $msg) = $aThread->explodeDatLine($ares);
                     foreach ($aShowThread->checkQuoteResNums($n, $name, $msg, $check_refs, $check_refed, false) as $rn) {
                         $ri = $rn - 1;
                         if ($datlines[$ri] === null) {
@@ -470,6 +472,41 @@ class ResFilter
                     $res_nums[] = $n;
                 }
 */
+            }
+        } else {
+            // 通常のマッチング
+            foreach ($aThread->datlines as $i => $ares) {
+                $n = $i + 1;
+                list($name, $mail, $date_id, $msg) = $aThread->explodeDatLine($ares);
+                if (($id = $aThread->ids[$n]) !== null) {
+                    $date_id = str_replace($aThread->idp[$n] . $id, "ID:$id", $date_id);
+                }
+    
+                $target = $this->getTarget($ares, $n, $name, $mail, $date_id, $msg);
+                if (!$target) {
+                    continue;
+                }
+    
+                if ($this->_match($target, $n, $failure)) {
+                    if ($datlines[$i] === null) {
+                        $datlines[$i] = $ares;
+                        $hit_nums[] = $i;
+                    }
+                    if ($check_refs || $check_refed) {
+                        foreach ($aShowThread->checkQuoteResNums($n, $name, $msg, $check_refs, $check_refed, false) as $rn) {
+                            $ri = $rn - 1;
+                            if ($datlines[$ri] === null) {
+                                $datlines[$ri] = $aThread->datlines[$ri];
+                                $hit_nums[] = $ri;
+                            }
+                        }
+                    }
+/*
+                    if ($check_refed) {
+                        $res_nums[] = $n;
+                    }
+*/
+                }
             }
         }
 

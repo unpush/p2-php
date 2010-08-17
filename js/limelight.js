@@ -745,7 +745,9 @@ Limelight.ui = {};
  * @return {Boolean}
  */
 Limelight.ui.isPortrait = function() {
-	if (typeof window.orientation != 'number' || window.orientation % 180 == 0) {
+	if (typeof window.orientation != 'number') {
+		return null;
+	} else if (window.orientation % 180 == 0) {
 		return true;
 	} else {
 		return false;
@@ -1181,6 +1183,16 @@ Limelight.prototype.initEventHandlers = function() {
 			self.toggleImageLoading(false);
 			self.resetTransformation();
 			this.removeEventListener('load', self.handlers.imageload, false);
+			/*
+			this.addEventListener('dragstart', function(event) {
+				event.touches = [event];
+				self.onTouchStart(event);
+			}, false);
+			this.addEventListener('drop', function(event) {
+				event.touches = [event];
+				self.onTouchEnd(event);
+			}, false);
+			*/
 		}
 	};
 };
@@ -1886,6 +1898,7 @@ Limelight.prototype.createImage = function(uri, title, attributes) {
 	image.className = 'limelight-image';
 	image.setAttribute('src', uri);
 	image.setAttribute('alt', '');
+	image.setAttribute('draggable', 'true');
 	if (typeof title == 'string' && title.length) {
 		image.setAttribute('title', title);
 	}
@@ -2036,17 +2049,52 @@ Limelight.prototype.setLastClicked = function(button) {
 Limelight.prototype.onOrientationChange = function() {
 	var x, y, width, height, isPortrait, viewportSize, margins;
 
-	isPortrait = Limelight.ui.isPortrait();
-	viewportSize = Limelight.ui.getViewportSize(isPortrait);
-	margins = Limelight.ui.getMargins(isPortrait);
-
 	x = 0;
 	y = window.scrollY;
-	width = viewportSize[0] - margins[0]
-	height = viewportSize[1] - margins[1]
+
+	if (navigator.userAgent.search(/\bi(Phone|Pod)\b/) !== -1) {
+		isPortrait = Limelight.ui.isPortrait();
+		viewportSize = Limelight.ui.getViewportSize(isPortrait);
+		margins = Limelight.ui.getMargins(isPortrait);
+		width = viewportSize[0] - margins[0];
+		height = viewportSize[1] - margins[1];
+	} else if (navigator.userAgent.search(/\biPad\b/) !== -1) {
+		if (Limelight.ui.isPortrait()) {
+			width = 768;
+			height = 1024;
+		} else {
+			width = 1024;
+			height = 768;
+		}
+		height -= (18 + 58);
+	} else {
+		if (document.all && !window.opera) {
+			if (document.compatMode === 'BackCompat') {
+				y = document.body.scrollTop;
+			} else {
+				y = document.documentElement.scrollTop;
+			}
+		} else {
+			if (typeof window.scrollX === 'number') {
+				y = window.scrollY;
+			} else {
+				y = window.pageYOffset;
+			}
+		}
+		if (typeof document.compatMode === 'undefined') {
+			width = document.innerWidth;
+			height = document.innerHeight;
+		} else if (document.compatMode === 'BackCompat') {
+			width = document.body.clientWidth;
+			height = document.body.clientHeight;
+		} else {
+			width = document.documentElement.clientWidth;
+			height = document.documentElement.clientHeight;
+		}
+	}
 
 	this.boxX = x;
-	this.boxY = y
+	this.boxY = y;
 	this.boxWidth = width;
 	this.boxHeight = height;
 

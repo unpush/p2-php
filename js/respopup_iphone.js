@@ -66,6 +66,76 @@ ipoputil.getDeactivator = function(obj, key) {
 };
 
 // }}}
+// {{{ ipoputil.callback()
+
+/**
+ * iPhone用レスポップアップのコールバックメソッド
+ *
+ * @param {XMLHttpRequest} req
+ * @param {String} url
+ * @param {String} popid
+ * @param {Number} yOffset
+ * @return void
+ * @todo use asynchronous request
+ */
+ipoputil.callback = function(req, url, popid, yOffset) {
+	var container = document.createElement('div');
+	var closer = document.createElement('img');
+
+	container.id = popid;
+	container.className = 'respop';
+	container.innerHTML = req.responseText;
+	/*
+	var rx = req.responseXML;
+	while (rx.hasChildNodes()) {
+		container.appendChild(document.importNode(rx.removeChild(rx.firstChild), true));
+	}
+	*/
+	container.style.top = yOffset.toString() + 'px';
+	container.style.zIndex = ipoputil.getZ();
+	//container.onclick = ipoputil.getActivator(container);
+
+	closer.className = 'close-button';
+	closer.setAttribute('src', 'img/iphone/close.png');
+	closer.onclick = ipoputil.getDeactivator(container, url);
+
+	container.appendChild(closer);
+	document.body.appendChild(container);
+
+	//iutil.modifyInternalLink(container);
+	iutil.modifyExternalLink(container);
+
+	_IRESPOPG.hash[url] = container;
+
+	var lastres = document.evaluate('./div[@class="res" and position() = last()]',
+									container,
+									null,
+									XPathResult.ANY_UNORDERED_NODE_TYPE,
+									null
+									).singleNodeValue;
+
+	if (lastres) {
+		var back = document.createElement('div');
+		back.className = 'respop-back';
+		var anchor = document.createElement('a');
+		anchor.setAttribute('href', '#' + popid);
+		anchor.onclick = function(evt){
+			iutil.stopEvent(evt || window.event);
+			scrollTo(0, yOffset - 10);
+			return false;
+		};
+		anchor.appendChild(document.createTextNode('▲'));
+		back.appendChild(anchor);
+		lastres.appendChild(back);
+	}
+
+	var i;
+	for (i = 0; i < _IRESPOPG.callbacks.length; i++) {
+		_IRESPOPG.callbacks[i](container);
+	}
+};
+
+// }}}
 // {{{ ipoputil.popup()
 
 /**
@@ -73,8 +143,7 @@ ipoputil.getDeactivator = function(obj, key) {
  *
  * @param {String} url
  * @param {Event} evt
- * @return {Boolean}
- * @todo use asynchronous request
+ * @return void
  */
 ipoputil.popup = function(url, evt) {
 	var yOffset = Math.max(10, iutil.getPageY(evt) - 20);
@@ -90,70 +159,15 @@ ipoputil.popup = function(url, evt) {
 	var popnum = _IRESPOPG.serial;
 	var popid = '_respop' + popnum;
 	var req = new XMLHttpRequest();
-	req.open('GET', url + '&ajax=true&respop_id=' + popnum, false);
-	req.send(null);
-
-	if (req.readyState == 4) {
-		if (req.status == 200) {
-			var container = document.createElement('div');
-			var closer = document.createElement('img');
-
-			container.id = popid;
-			container.className = 'respop';
-			container.innerHTML = req.responseText;
-			/*
-			var rx = req.responseXML;
-			while (rx.hasChildNodes()) {
-				container.appendChild(document.importNode(rx.removeChild(rx.firstChild), true));
+	req.open('GET', url + '&ajax=true&respop_id=' + popnum, true);
+	req.onreadystatechange = function() {
+		if (this.readyState == 4) {
+			if (this.status == 200) {
+				ipoputil.callback(this, url, popid, yOffset);
 			}
-			*/
-			container.style.top = yOffset.toString() + 'px';
-			container.style.zIndex = ipoputil.getZ();
-			//container.onclick = ipoputil.getActivator(container);
-
-			closer.className = 'close-button';
-			closer.setAttribute('src', 'img/iphone/close.png');
-			closer.onclick = ipoputil.getDeactivator(container, url);
-
-			container.appendChild(closer);
-			document.body.appendChild(container);
-
-			//iutil.modifyInternalLink(container);
-			iutil.modifyExternalLink(container);
-
-			_IRESPOPG.hash[url] = container;
-
-			var lastres = document.evaluate('./div[@class="res" and position() = last()]',
-			                                container,
-			                                null,
-			                                XPathResult.ANY_UNORDERED_NODE_TYPE,
-			                                null
-			                                ).singleNodeValue;
-
-			if (lastres) {
-				var back = document.createElement('div');
-				back.className = 'respop-back';
-				var anchor = document.createElement('a');
-				anchor.setAttribute('href', '#' + popid);
-				anchor.onclick = function(evt){
-					iutil.stopEvent(evt || window.event);
-					scrollTo(0, yOffset - 10);
-					return false;
-				};
-				anchor.appendChild(document.createTextNode('▲'));
-				back.appendChild(anchor);
-				lastres.appendChild(back);
-			}
-
-			for (var i = 0; i < _IRESPOPG.callbacks.length; i++) {
-				_IRESPOPG.callbacks[i](container);
-			}
-
-			return false;
 		}
-	}
-
-	return true;
+	};
+	req.send(null);
 };
 
 // }}}
@@ -164,20 +178,17 @@ ipoputil.popup = function(url, evt) {
  *
  * @param {String} url
  * @param {Event} evt
- * @return {Boolean}
- * @todo use asynchronous request
+ * @return false
  * @see iutil.popup
  */
 var iResPopUp = function(url, evt) {
+	evt = evt || window.event;
+	iutil.stopEvent(evt);
 	if (typeof url !== 'string' && typeof url.href === 'string') {
 		url = url.href;
 	}
-	evt = evt || window.event;
-	if (false === ipoputil.popup(url, evt)) {
-		iutil.stopEvent(evt);
-		return false;
-	}
-	return true;
+	ipoputil.popup(url, evt);
+	return false;
 };
 
 // }}}

@@ -970,11 +970,13 @@ if ($list_template == 'iv2ip.tpl.html') {
 <script type="text/javascript" src="js/limelight.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript">
 // <![CDATA[
-window.addEventListener('DOMContentLoaded', function(event) {
-    this.removeEventListener(event.type, arguments.callee, false);
+document.addEventListener('DOMContentLoaded', function(event) {
+    var limelight, slide;
 
-    var limelight = new Limelight({ 'savable': true });
-    var slide = limelight.bind();
+    document.removeEventListener(event.type, arguments.callee, false);
+
+    limelight = new Limelight({ 'savable': true });
+    slide = limelight.bind();
 
     if ({$page} != {$prev_page}) {
         slide.onNoPrev = function(limelight, slide) {
