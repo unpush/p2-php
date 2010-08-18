@@ -107,6 +107,11 @@ $_conf['expack.ic2.enabled'] = 0; // (0)
 // 一時的なON/OFFの切替フラグを保存するファイルのパス
 $_conf['expack.ic2.switch_path'] = $_conf['pref_dir'] . '/ic2_switch.txt';
 
+// キャッシュしている画像をzipでまとめてダウンロード（off:0, on:1）
+// PC版の画像キャッシュ一覧からのみ利用できる。
+// zipエクステンションが必要。
+$_conf['expack.ic2.zip'] = 0; // (0)
+
 // }}}
 // {{{ AAS
 
