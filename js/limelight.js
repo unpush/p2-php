@@ -2058,6 +2058,9 @@ Limelight.prototype.onOrientationChange = function() {
 		margins = Limelight.ui.getMargins(isPortrait);
 		width = viewportSize[0] - margins[0];
 		height = viewportSize[1] - margins[1];
+		if (this.box.className.indexOf('limelight-box-iphone') === -1) {
+			this.box.className += ' limelight-box-iphone';
+		}
 	} else if (navigator.userAgent.search(/\biPad\b/) !== -1) {
 		if (Limelight.ui.isPortrait()) {
 			width = 768;
@@ -2067,6 +2070,9 @@ Limelight.prototype.onOrientationChange = function() {
 			height = 768;
 		}
 		height -= (18 + 58);
+		if (this.box.className.indexOf('limelight-box-ipad') === -1) {
+			this.box.className += ' limelight-box-ipad';
+		}
 	} else {
 		if (document.all && !window.opera) {
 			if (document.compatMode === 'BackCompat') {
