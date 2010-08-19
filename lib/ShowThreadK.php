@@ -1181,18 +1181,42 @@ EOP;
             'offline' => '1',
             'showbl' => '1',
         ), '', '&amp;') . $_conf['k_at_a'];
-        if (count($anchors) > 1) {
-            $ret .= "yQÆÚ½(<a href=\"{$url}\"{$this->target_at}>"
-                . count($anchors) . $plus_str . '</a>)z';
-        } else {
-            foreach($anchors as $anchor) {
-                if ($anchor == $resnum) continue;
-                $anchor_link = $this->quoteRes('>>'.$anchor, '>>', $anchor);
-                $ret .=sprintf('yQÆÚ½ %s%sz',$anchor_link,
-                    $plus_str ? "(<a href=\"{$url}\"{$this->target_at}>{$plus_str}</a>)" : '');
+
+        $suppress = false;
+        $n = 0;
+        $reslist = array();
+        foreach($anchors as $anchor) {
+            if ($anchor == $resnum) continue;
+            $n++;
+            if ($_conf['mobile.backlink_list.suppress'] > 0
+                && $n > $_conf['mobile.backlink_list.suppress']) {
+                $suppress = true;
+                break;
+            }
+            $reslist[] = $this->quoteRes('>>'.$anchor, '>>', $anchor);
+        }
+
+        $res_navi = '';
+        if ($_conf['mobile.backlink_list.openres_navi'] == 1
+            || ($_conf['mobile.backlink_list.openres_navi'] == 2
+                && $suppress === true)) {
+            if (count($anchors) > 1 || $plus_str) {
+                $res_navi = "(<a href=\"{$url}\"{$this->target_at}>"
+                    . (count($anchors) > 1 ? count($anchors) : '')
+                    . $plus_str . '</a>)';
             }
         }
 
+        if (count($reslist) == 1 && $suppress == true && $_conf['mobile.backlink_list.suppress'] == 1) {
+            $ret .= sprintf('<div>yQÆÚ½ %sz</div>', $res_navi);
+        } else if (count($reslist) == 1 && $suppress == false) {
+            $ret .= sprintf('<div>yQÆÚ½ %s%sz</div>', $reslist[0], $res_navi);
+        } else {
+            for ($n = 0; $n < count($reslist); $n++) {
+                $ret .= '<div>yQÆÚ½ ' . $reslist[$n] . 'z</div>';
+            }
+            $ret .= '<div>' . ($suppress ? '—ª' : '') . $res_navi . '</div>';
+        }
         return '<div class="reslist">' . $ret . '</div>';
     }
 
