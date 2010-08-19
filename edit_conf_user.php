@@ -493,6 +493,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('mobile.copy_divide_len', '「写」のコピー用テキストボックスを分割する文字数'),
         array('mobile.link_wikipedia', '[[単語]]をWikipediaへのリンクにする'),
         array('mobile.backlink_list', '逆参照リストの表示'),
+        array('mobile.backlink_list.suppress', '携帯閲覧時、逆参照リストを省略表示する数（この数より多いレスは省略表示。0:省略しない）'),
+        array('mobile.backlink_list.openres_navi', '携帯閲覧時、逆参照リストにレスまとめページへのリンクを表示するか'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

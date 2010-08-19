@@ -302,6 +302,14 @@ $conf_user_rad['mobile.link_wikipedia'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['mobile.backlink_list'] = 0;
 $conf_user_rad['mobile.backlink_list'] = array('1' => 'する', '0' => 'しない');
 
+// 携帯閲覧時、逆参照リストを省略表示する数（この数より多いレスは省略表示。0:省略しない）
+$conf_user_def['mobile.backlink_list.suppress'] = 1;
+$conf_user_rules['mobile.backlink_list.suppress'] = array('notIntExceptMinusToDef');
+
+// 携帯閲覧時、逆参照リストにレスまとめページへのリンクを表示するか
+$conf_user_def['mobile.backlink_list.openres_navi'] = 1;
+$conf_user_rad['mobile.backlink_list.openres_navi'] = array('1' => 'する', '2' => '逆参照リストを省略した時だけ', '0' => 'しない');
+
 // 本文をダブルクリックしてレス追跡カラーリング
 $conf_user_def['backlink_coloring_track'] = 1;
 $conf_user_rad['backlink_coloring_track'] = array('1' => 'する', '0' => 'しない');
