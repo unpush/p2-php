@@ -9,6 +9,7 @@ $_conf = array(
     'p2version' => '1.7.29+1.8.x',  // rep2のバージョン
     'p2expack'  => '100817.2020',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
+    'p2custom'  => 'cb0c271',       // カスタムバージョン
 );
 
 $_conf['p2ua'] = "{$_conf['p2name']}/{$_conf['p2version']}+{$_conf['p2expack']}";

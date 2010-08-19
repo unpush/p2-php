@@ -47,6 +47,7 @@ if (!empty($_POST['submit_save'])) {
 
     // ポストされた値 > 現在の値 > デフォルト値 の順で新しい設定を作成する
     $conf_save = array('.' => $_conf['p2expack']);
+    $conf_save['p2custom-ver'] = $_conf['p2custom'];
     foreach ($conf_user_def as $k => $v) {
         if (array_key_exists($k, $_POST['conf_edit'])) {
             $conf_save[$k] = $_POST['conf_edit'][$k];
