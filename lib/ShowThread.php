@@ -396,10 +396,10 @@ abstract class ShowThread
         }
 
         foreach ($datlines as $i => $ares) {
+            $n++;
             if (($i === 0 && !$nofirst) || $ares === null) {
                 continue;
             }
-            $n++;
             if ($n < $start) {
                 continue;
             }
