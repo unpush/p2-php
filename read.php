@@ -47,7 +47,7 @@ if (array_key_exists('rf', $_REQUEST) && is_array($_REQUEST['rf'])) {
             $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : 1;
             $resFilter->setRange($_conf['mobile.rnum_range'], $page);
         }
-        if (empty($popup_filter)) {
+        if (empty($popup_filter) && isset($_REQUEST['submit_filter'])) {
             $resFilter->save();
         }
     }
