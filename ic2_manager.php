@@ -94,8 +94,12 @@ if (isset($_POST['action'])) {
                 P2Util::pushInfoHtml($result->getMessage());
                 break;
             }
-            $target = $result[0];
-            $removed_files = IC2_DatabaseManager::remove($target, $to_blacklist);
+            if ($result) {
+                $target = $result[0];
+                $removed_files = IC2_DatabaseManager::remove($target, $to_blacklist);
+            } else {
+                $removed_files = array();
+            }
             $flexy->setData('toBlackList', $to_blacklist);
             break;
 

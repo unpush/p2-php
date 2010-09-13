@@ -210,7 +210,7 @@ echo <<<EOP
     <script type="text/javascript" src="js/delelog.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/respopup.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/motolspopup.js?{$_conf['p2_version_id']}"></script>
-    <script type="text/javascript" src="js/jquery-1.4.2.min.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/jquery-{$_conf['jquery_version']}.min.js"></script>
     <script type="text/javascript">
     //<![CDATA[
     rep2.subject.properties = {

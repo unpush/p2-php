@@ -5,47 +5,42 @@
 // {{{ DOMContentLoaded
 
 document.addEventListener('DOMContentLoaded', function(event) {
-	var styleSheets, commonStyle, landscapeStyle, portraitStyle;
+	var table, css, cells, adjust, width1, width2, rules, index1, index2, callback;
 
 	document.removeEventListener(event.type, arguments.callee, false);
 
-	styleSheets    = document.styleSheets;
-	commonStyle    = styleSheets[styleSheets.length - 3];
-	landscapeStyle = styleSheets[styleSheets.length - 2];
-	portraitStyle  = styleSheets[styleSheets.length - 1];
+	table = document.getElementById('iv2-images');
+	if (!table) {
+		return;
+	}
 
-	if (typeof window.orientation != 'undefined') {
-		var resize_image_table = function() {
-			if (window.orientation % 180 == 0) {
-				portraitStyle.disabled = false;
-				landscapeStyle.disabled = true;
-			} else {
-				landscapeStyle.disabled = false;
-				portraitStyle.disabled = true;
-			}
-		};
+	css = document.styleSheets[document.styleSheets.length - 1];
+	cells = table.getElementsByTagName('td');
+	width1 = document.body.clientWidth;
+	width2 = 0;
+	rules = css.cssRules;
+	index1 = rules.length;
+	index2 = rules.length + 1;
 
-		// テーブルの大きさを調整
-		resize_image_table();
+	css.insertRule('table#iv2-images { width: ' + width1 + 'px; }', index1);
+	if (cells && cells.length) {
+		width2 = cells[0].clientWidth + 20;
+		css.insertRule('div.iv2-image-title { width: ' + (width1 - width2) + 'px; }', index2);
+	}
 
-		// 回転時のイベントハンドラを追加
-		document.body.addEventListener('orientationchange', resize_image_table, false);
-	} else {
-		// 回転をサポートしないブラウザ
-		var table = document.getElementById('iv2-images');
-		if (table) {
-			var width = document.body.clientWidth;
-			var cells = table.getElementsByTagName('td');
+	callback = function() {
+		var width = document.body.clientWidth;
 
-			commonStyle.insertRule('table#iv2-images { width: ' + width + 'px; }');
-			if (cells && cells.length) {
-				width -= (cells[0].clientWidth + 20);
-				commonStyle.insertRule('div.iv2-image-title { width: ' + width + 'px; }');
-			}
+		rules[index1].style.width = width + 'px';
+		if (width2) {
+			rules[index2].style.width = (width - width2) + 'px';
 		}
+	};
 
-		landscapeStyle.disabled = true;
-		portraitStyle.disabled = true;
+	if (typeof window.orientation === 'number') {
+		window.addEventListener('orientationchange', callback, false);
+	} else {
+		window.addEventListener('resize', callback, false);
 	}
 }, false);
 

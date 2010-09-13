@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29+1.8.x',  // rep2のバージョン
-    'p2expack'  => '100817.2020',   // 拡張パックのバージョン
+    'p2expack'  => '100912.0345',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
     'p2custom'  => '332c3de',       // カスタムバージョン
 );
@@ -15,6 +15,8 @@ $_conf = array(
 $_conf['p2ua'] = "{$_conf['p2name']}/{$_conf['p2version']}+{$_conf['p2expack']}";
 
 define('P2_VERSION_ID', sprintf('%u', crc32($_conf['p2ua'])));
+
+$_conf['jquery_version'] = '1.4.2';
 
 /*
  * 通常はセッションファイルのロック待ちを極力短くするため

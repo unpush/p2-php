@@ -13,14 +13,12 @@ if ($do_filtering) {
     $filter_hits = $resFilter->hits;
     $filter_range = $resFilter->range;
     $filter_range['end'] = min($filter_range['to'], $filter_hits);
-    if ($filter_hits > 1) {
-        $filter_unit = 'hits';
-        $read_range_on = "{$filter_range['start']}-{$filter_range['end']}";
+    if ($filter_range['start'] == $filter_range['end']) {
+        $read_range_on = $filter_range['start'];
     } else {
-        $filter_unit = 'hit';
         $read_range_on = "{$filter_range['start']}-{$filter_range['end']}";
     }
-    $rescount_st = "{$filter_hits}{$filter_unit}/{$aThread->rescount}";
+    $rescount_st = "{$filter_hits}hit/{$aThread->rescount}";
     $last_resnum = $resFilter->last_hit_resnum;
 } else {
     if ($aThread->resrange['start'] == $aThread->resrange['to']) {
