@@ -91,10 +91,11 @@ if ($save_conf_user) {
 // }}}
 // {{{ ホストチェック
 
-if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
-    if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == false) ||
-        ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == true)
-    ) {
+if (!($_conf['secure']['auth_host_only_http'] && !empty($_SERVER['HTTPS']))) {
+    if ($_conf['secure']['auth_host'] && !HostCheck::getHostAuth()) {
+        HostCheck::forbidden();
+    }
+    if ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned()) {
         HostCheck::forbidden();
     }
 }

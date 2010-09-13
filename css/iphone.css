@@ -298,15 +298,15 @@ div.respop {
 	top: 0;
 	left: 0;
 	margin: 0;
-	padding: 12px 0 0 14px;
+	padding: 12px 6px 0 14px;
 }
 
 div.respop > div.res {
 	margin: 0 0 8px 0 !important;
 	background-color: rgba(255, 255, 250, 0.95) !important;
 	border: rgba(108, 108, 108, 0.8) solid 1px !important;
-	-webkit-border-bottom-left-radius: 8px;
-	border-bottom-left-radius: 8px;
+	-webkit-border-radius: 8px;
+	border-radius: 8px;
 	-webkit-box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
 	box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
 }
@@ -833,7 +833,11 @@ div.mtoolbar > div.ttitle {
 }
 
 div.mtoolbar_top {
-	border-top: #808080 solid 1px;
+	border-top: #808080 solid 2px;
+}
+
+div.mtoolbar_bottom {
+	border-bottom: #808080 solid 1px;
 }
 
 div.mtoolbar_bottom > table {
@@ -863,7 +867,24 @@ div.mtoolbar > .ttitle > span.btitle {
 }
 
 /* }}} */
-/* {{{ Media Queries */
+/* {{{ Media Queries for res-popups */
+
+@media screen and (max-width: 320px) {
+	div.respop {
+		padding-right: 0;
+	}
+
+	div.respop > div.res {
+		border-right-width: 0 !important;
+		-webkit-border-top-right-radius: 0;
+		border-top-right-radius: 0;
+		-webkit-border-right-left-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+}
+
+/* }}} */
+/* {{{ Media Queries for toolbar items */
 
 @media screen and (min-width: 340px) {
 	div.ntoolbar td > a {

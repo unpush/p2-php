@@ -182,6 +182,20 @@ span.limelight-button.limelight-locked {
 	  to { left:  0; }
 }
 
+div.limelight-box.limelight-box-ipad {
+}
+
+div.limelight-box.limelight-box-ipad table.limelight-toolbar {
+	/* if always show the bookmarks bar, uncomment below */
+	/*bottom: 36px;*/
+}
+
+div.limelight-box:not(.limelight-box-iphone) {
+}
+
+div.limelight-box:not(.limelight-box-iphone) table.limelight-toolbar {
+}
+
 /*
  * Local Variables:
  * mode: css

@@ -9,10 +9,10 @@ require_once P2_LIB_DIR . '/read_jump_k.inc.php';
 
 if ($do_filtering) {
     $last_resnum = $resFilter->last_hit_resnum;
-    $rescount_st = "{$resFilter->hits}/{$aThread->rescount}";
+    $rescount_st = "{$resFilter->hits}hit / {$aThread->rescount}レス";
 } else {
     $last_resnum = $aThread->resrange['to'];
-    $rescount_st = (string)$aThread->rescount;
+    $rescount_st = "{$aThread->rescount}レス";
 }
 
 // }}}
@@ -43,9 +43,9 @@ echo '</td>';
 
 // ページ番号を直接指定
 echo '<td colspan="2">';
-echo get_read_jump($aThread, $rescount_st, true);
+echo get_read_jump($aThread, '', true);
 if (empty($_conf['expack.iphone.toolbars.no_label'])) {
-    echo '<br>ジャンプ';
+    echo "<br>{$rescount_st}";
 }
 echo '</td>';
 

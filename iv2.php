@@ -16,6 +16,14 @@ if (!$_conf['expack.ic2.enabled']) {
     p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
+$enable_zip = false;
+if (!$_conf['ktai'] && $_conf['expack.ic2.zip']) {
+    if (!extension_loaded('zip')) {
+        p2die('zip 拡張モジュールがロードされていません。');
+    }
+    $enable_zip = true;
+}
+
 if ($_conf['iphone']) {
     $_conf['extra_headers_ht'] .= <<<EOP
 \n<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
@@ -953,6 +961,11 @@ $flexy->setData('js', $js);
 $flexy->setData('page', $page);
 $flexy->setData('move', $qfObj);
 $flexy->setData('lightbox', $lightbox);
+if ($enable_zip) {
+    $flexy->setData('jquery', $_conf['jquery_version']);
+} else {
+    $flexy->setData('jquery', null);
+}
 
 // ページを表示
 P2Util::header_nocache();
@@ -1005,8 +1018,6 @@ EOP;
     $thumb_height = (int)$ini['Thumb1']['height'];
     $flexy->setData('thumb_width', $thumb_width);
     $flexy->setData('thumb_height', $thumb_height);
-    $flexy->setData('title_width_v', 320 - (10 * 2) - $thumb_width);
-    $flexy->setData('title_width_h', 480 - (10 * 2) - $thumb_width);
     $flexy->setData('info_vertical', $thumb_width > 80);
     $flexy->setData('limelight_header', $limelight_header);
     $flexy->output();
